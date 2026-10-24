@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CadÚnico — Fila do Setor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --blue: #1351B4;
+      --blue-dark: #0C326F;
+      --green: #168821;
+      --green-dark: #116819;
+      --yellow: #FFCD07;
+      --red: #C92A2A;
+      --bg: #F8FAFC;
+      --surface: #FFFFFF;
+      --border: #E2E8F0;
+      --text: #0F172A;
+      --muted: #64748B;
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'IBM Plex Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Topo minimalista CadÚnico */
+    .topbar {
+      background: var(--surface);
+      border-top: 4px solid var(--blue);
+      border-bottom: 1px solid var(--border);
+      padding: 0.85rem 1.5rem;
+    }
+
+    .topbar-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo-pill {
+      font-weight: 800;
+      font-size: 0.95rem;
+      letter-spacing: -0.02em;
+      color: var(--blue);
+      background: #EFF6FF;
+      padding: 0.3rem 0.65rem;
+      border-radius: 6px;
+    }
+
+    .logo-pill span {
+      color: var(--green);
+    }
+
+    .brand-name {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--text);
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .mesa-input {
+      border: 1px solid var(--border);
+      background: var(--bg);
+      border-radius: 6px;
+      padding: 0.4rem 0.65rem;
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+      width: 120px;
+    }
+
+    .mesa-input:focus {
+      outline: none;
+      border-color: var(--blue);
+      background: var(--surface);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 0.4rem 0.7rem;
+      border-radius: 6px;
+      font-family: var(--font-sans);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-ghost:hover {
+      color: var(--text);
+      border-color: #CBD5E1;
+      background: var(--bg);
+    }
+
+    /* Container Principal */
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    /* Cabeçalho da Fila */
+    .section-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .count-badge {
+      background: var(--blue);
+      color: #FFF;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+    }
+
+    .sync-status {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    /* Tabela Limpa */
+    .card-table {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th {
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: var(--muted);
+      padding: 0.85rem 1.15rem;
+      border-bottom: 1px solid var(--border);
+      background: #FAFBFD;
+    }
+
+    td {
+      padding: 1rem 1.15rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.92rem;
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: #F8FAFC;
+    }
+
+    .col-hora {
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .col-nome {
+      font-weight: 700;
+      color: var(--text);
+      font-size: 0.98rem;
+    }
+
+    .tag-prio {
+      display: inline-block;
+      margin-left: 0.5rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--red);
+      background: #FEF2F2;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      vertical-align: middle;
+    }
+
+    .col-cpf {
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      color: var(--text);
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .col-cpf:hover {
+      color: var(--blue);
+      text-decoration: underline;
+    }
+
+    .col-resolucao {
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+
+    .btn-accept {
+      background: var(--blue);
+      color: #FFF;
+      border: none;
+      border-radius: 6px;
+      padding: 0.5rem 1rem;
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-accept:hover {
+      background: var(--blue-dark);
+    }
+
+    .btn-accept:disabled {
+      opacity: 0.5;
+      cursor: wait;
+    }
+
+    .empty-box {
+      padding: 3.5rem 1rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    /* =====================================================
+       MODO FICHA EM TELA CHEIA (CLEAN & DIRETO)
+       ===================================================== */
+    .ficha-view {
+      display: none;
+      max-width: 760px;
+      margin: 1rem auto 0;
+    }
+
+    body.in-attendance .queue-view {
+      display: none;
+    }
+
+    body.in-attendance .ficha-view {
+      display: block;
+    }
+
+    .ficha-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 5px solid var(--blue);
+      border-radius: 12px;
+      padding: 2.25rem;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+    }
+
+    .ficha-card.is-priority {
+      border-top-color: var(--red);
+    }
+
+    .ficha-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .ficha-eyebrow {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .ficha-name {
+      font-size: clamp(1.85rem, 3.5vw, 2.6rem);
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      margin-bottom: 1.75rem;
+    }
+
+    .ficha-rows {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 1.25rem 0;
+      margin-bottom: 1.75rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem 2rem;
+    }
+
+    .field-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .field-val {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .cpf-copy-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .cpf-number {
+      font-family: var(--font-mono);
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .btn-copy {
+      background: #EFF6FF;
+      color: var(--blue);
+      border: none;
+      border-radius: 5px;
+      padding: 0.3rem 0.65rem;
+      font-family: var(--font-sans);
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-copy:hover {
+      background: #DBEAFE;
+    }
+
+    .ficha-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .btn-finish {
+      background: var(--green);
+      color: #FFF;
+      border: none;
+      border-radius: 8px;
+      padding: 0.9rem 1.75rem;
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-finish:hover {
+      background: var(--green-dark);
+    }
+
+    /* Modal simples */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 100;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background: var(--surface);
+      border-radius: 10px;
+      max-width: 520px;
+      width: 100%;
+      padding: 1.5rem;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .modal-box h3 {
+      font-size: 1.05rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .modal-box p {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    .modal-input {
+      width: 100%;
+      padding: 0.6rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.84rem;
+      margin-bottom: 1rem;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+    }
+
+    /* Toast discreto */
+    .toast {
+      position: fixed;
+      bottom: 1.25rem;
+      right: 1.25rem;
+      background: var(--text);
+      color: #FFF;
+      padding: 0.6rem 1rem;
+      border-radius: 6px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+
+    @media (max-width: 680px) {
+      .ficha-rows {
+        grid-template-columns: 1fr;
+      }
+      .ficha-footer {
+        flex-direction: column-reverse;
+        align-items: stretch;
+      }
+      .btn-finish, .btn-ghost {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="logo-pill">Cad<span>Único</span></div>
+        <span class="brand-name">Fila do Setor Interno</span>
+      </div>
+
+      <div class="top-actions">
+        <input type="text" class="mesa-input" id="inputEntrevistador" placeholder="Sua mesa/nome" value="Mesa 01" title="Identificação do entrevistador">
+        <button type="button" class="btn-ghost" id="btnOpenConfig">Planilha</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- VISÃO 1: FILA DE ESPERA -->
+    <section class="queue-view">
+      <div class="section-head">
+        <div class="section-title">
+          Aguardando chamada
+          <span class="count-badge" id="countTotal">0</span>
+        </div>
+        <div class="sync-status" id="lblStatus">Atualizado agora</div>
+      </div>
+
+      <div class="card-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Hora</th>
+              <th>Nome do RUF</th>
+              <th>CPF</th>
+              <th>Tipo de Atendimento</th>
+              <th>Resolução do Atendimento</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="queueTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- VISÃO 2: FICHA LIMPA EM DESTAQUE -->
+    <section class="ficha-view">
+      <div class="ficha-card" id="fichaCard">
+        <div class="ficha-header">
+          <span class="ficha-eyebrow">Em atendimento</span>
+          <span class="ficha-eyebrow" id="fichaTagPrio"></span>
+        </div>
+
+        <h1 class="ficha-name" id="fichaNome">—</h1>
+
+        <div class="ficha-rows">
+          <div>
+            <div class="field-label">CPF</div>
+            <div class="cpf-copy-group">
+              <span class="cpf-number" id="fichaCpf">—</span>
+              <button type="button" class="btn-copy" id="btnCopyFichaCpf">Copiar</button>
+            </div>
+          </div>
+
+          <div>
+            <div class="field-label">Hora de Chegada</div>
+            <div class="field-val" id="fichaHora">—</div>
+          </div>
+
+          <div>
+            <div class="field-label">Tipo de Atendimento</div>
+            <div class="field-val" id="fichaTipoAtendimento">—</div>
+          </div>
+
+          <div>
+            <div class="field-label">Resolução do Atendimento</div>
+            <div class="field-val" id="fichaResolucao">—</div>
+          </div>
+
+          <div id="fichaObsWrap" style="grid-column: 1 / -1; display: none;">
+            <div class="field-label">Observações</div>
+            <div class="field-val" id="fichaObsTexto">—</div>
+          </div>
+        </div>
+
+        <div class="ficha-footer">
+          <button type="button" class="btn-ghost" id="btnDevolverFila">
+            Devolver para a fila
+          </button>
+          <button type="button" class="btn-finish" id="btnFinalizarAtendimento">
+            Finalizar Atendimento
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal discreto para colar a URL do Apps Script -->
+  <div class="modal-backdrop" id="configModal">
+    <div class="modal-box">
+      <h3>URL da Planilha (Google Apps Script)</h3>
+      <p>Cole a URL do App da Web gerada na implantação do script da planilha. Deixe vazio para usar os dados de demonstração.</p>
+      <input type="url" class="modal-input" id="inputApiUrl" placeholder="https://script.google.com/macros/s/.../exec">
+      <div class="modal-actions">
+        <button type="button" class="btn-ghost" id="btnCloseModal">Cancelar</button>
+        <button type="button" class="btn-accept" id="btnSaveConfig">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toastMsg">Copiado</div>
+
+  <script>
+    const DEFAULT_SCRIPT_URL = "";
+
+    const STORAGE_KEYS = {
+      API_URL: "cadunico_api_url_v1",
+      INTERVIEWER: "cadunico_entrevistador_v1",
+      ACTIVE_FICHA: "cadunico_ficha_ativa_v1"
+    };
+
+    let demoQueue = [
+      {
+        row: 4,
+        hora: "08:14:22",
+        nome: "MARIA DAS DORES SILVA",
+        cpf: "123.456.789-00",
+        tipoAtendimento: "Atualização Cadastral",
+        resolucao: "Encaminhado para o atendimento interno (setor)",
+        observacoes: "Trouxe documentos de todos os moradores",
+        classificacao: "Prioritário",
+        tipoPrioridade: "Idosos (60 anos ou mais)",
+        prioritario: true,
+        status: "AGUARDANDO"
+      },
+      {
+        row: 5,
+        hora: "08:19:05",
+        nome: "JOÃO CARLOS PEREIRA",
+        cpf: "987.654.321-11",
+        tipoAtendimento: "Inclusão Cadastral",
+        resolucao: "Encaminhado para o atendimento interno (setor)",
+        observacoes: "",
+        classificacao: "Geral",
+        tipoPrioridade: "",
+        prioritario: false,
+        status: "AGUARDANDO"
+      },
+      {
+        row: 6,
+        hora: "08:25:40",
+        nome: "ANA BEATRIZ OLIVEIRA",
+        cpf: "456.789.123-22",
+        tipoAtendimento: "Solicitação Administração do Bolsa Familia",
+        resolucao: "Encaminhado para o atendimento interno (setor)",
+        observacoes: "",
+        classificacao: "Prioritário",
+        tipoPrioridade: "Gestantes e Lactante",
+        prioritario: true,
+        status: "AGUARDANDO"
+      }
+    ];
+
+    let state = {
+      apiUrl: localStorage.getItem(STORAGE_KEYS.API_URL) || DEFAULT_SCRIPT_URL,
+      entrevistador: localStorage.getItem(STORAGE_KEYS.INTERVIEWER) || "Mesa 01",
+      activeFicha: carregarFichaSalva(),
+      fila: []
+    };
+
+    const elInputEntrevistador = document.getElementById("inputEntrevistador");
+    const elCountTotal = document.getElementById("countTotal");
+    const elLblStatus = document.getElementById("lblStatus");
+    const elQueueTableBody = document.getElementById("queueTableBody");
+
+    const elFichaCard = document.getElementById("fichaCard");
+    const elFichaTagPrio = document.getElementById("fichaTagPrio");
+    const elFichaNome = document.getElementById("fichaNome");
+    const elFichaCpf = document.getElementById("fichaCpf");
+    const elBtnCopyFichaCpf = document.getElementById("btnCopyFichaCpf");
+    const elFichaHora = document.getElementById("fichaHora");
+    const elFichaTipoAtendimento = document.getElementById("fichaTipoAtendimento");
+    const elFichaResolucao = document.getElementById("fichaResolucao");
+    const elFichaObsWrap = document.getElementById("fichaObsWrap");
+    const elFichaObsTexto = document.getElementById("fichaObsTexto");
+    const elBtnFinalizar = document.getElementById("btnFinalizarAtendimento");
+    const elBtnDevolver = document.getElementById("btnDevolverFila");
+
+    const elConfigModal = document.getElementById("configModal");
+    const elInputApiUrl = document.getElementById("inputApiUrl");
+    const elToast = document.getElementById("toastMsg");
+
+    function init() {
+      elInputEntrevistador.value = state.entrevistador;
+      renderizarVisaoAtiva();
+      buscarFila();
+
+      setInterval(() => buscarFila(true), 4000);
+
+      elInputEntrevistador.addEventListener("change", () => {
+        state.entrevistador = elInputEntrevistador.value.trim() || "Mesa 01";
+        localStorage.setItem(STORAGE_KEYS.INTERVIEWER, state.entrevistador);
+      });
+
+      document.getElementById("btnOpenConfig").addEventListener("click", () => {
+        elInputApiUrl.value = state.apiUrl;
+        elConfigModal.classList.add("open");
+      });
+
+      document.getElementById("btnCloseModal").addEventListener("click", () => {
+        elConfigModal.classList.remove("open");
+      });
+
+      document.getElementById("btnSaveConfig").addEventListener("click", () => {
+        state.apiUrl = elInputApiUrl.value.trim();
+        localStorage.setItem(STORAGE_KEYS.API_URL, state.apiUrl);
+        elConfigModal.classList.remove("open");
+        buscarFila();
+      });
+
+      elBtnCopyFichaCpf.addEventListener("click", () => {
+        if (state.activeFicha) copiarTexto(state.activeFicha.cpf);
+      });
+
+      elBtnFinalizar.addEventListener("click", finalizarAtendimentoAtual);
+      elBtnDevolver.addEventListener("click", devolverAtendimentoParaFila);
+    }
+
+    async function buscarFila(silencioso = false) {
+      if (!state.apiUrl) {
+        processarDados({
+          ok: true,
+          atualizadoEm: new Date().toLocaleTimeString("pt-BR", { hour12: false }),
+          fila: demoQueue.filter(i => i.status === "AGUARDANDO"),
+          emAtendimento: demoQueue.filter(i => i.status === "EM_ATENDIMENTO")
+        });
+        return;
+      }
+
+      try {
+        const sep = state.apiUrl.includes("?") ? "&" : "?";
+        const url = `${state.apiUrl}${sep}action=listar&_t=${Date.now()}`;
+        const res = await fetch(url, { method: "GET", redirect: "follow" });
+        const data = await res.json();
+        if (data && data.ok) processarDados(data);
+      } catch (e) {
+        if (!silencioso) mostrarToast("Erro ao conectar na planilha");
+      }
+    }
+
+    function processarDados(data) {
+      const sufixoModo = state.apiUrl ? "" : " (Modo demonstração)";
+      elLblStatus.textContent = `Atualizado às ${data.atualizadoEm || "--:--"}${sufixoModo}`;
+
+      const lista = Array.isArray(data.fila) ? data.fila : [];
+      lista.sort((a, b) => {
+        return a.row - b.row;
+      });
+
+      const ativos = Array.isArray(data.emAtendimento) ? data.emAtendimento : [];
+      const meuNome = (state.entrevistador || "").trim().toLowerCase();
+
+      if (state.activeFicha) {
+        const aindaEmAtendimento = ativos.find(x => x.row === state.activeFicha.row);
+        if (aindaEmAtendimento) {
+          salvarFichaAtiva(aindaEmAtendimento);
+        } else if (state.apiUrl) {
+          salvarFichaAtiva(null);
+        }
+      } else if (meuNome) {
+        const recuperada = ativos.find(x => String(x.entrevistador || "").trim().toLowerCase() === meuNome);
+        if (recuperada) {
+          salvarFichaAtiva(recuperada);
+        }
+      }
+
+      state.fila = lista;
+      renderizarFila();
+      renderizarVisaoAtiva();
+    }
+
+    function renderizarFila() {
+      elCountTotal.textContent = state.fila.length;
+
+      if (state.fila.length === 0) {
+        elQueueTableBody.innerHTML = `
+          <tr>
+            <td colspan="6" class="empty-box">Nenhum cidadão aguardando no momento.</td>
+          </tr>
+        `;
+        return;
+      }
+
+      elQueueTableBody.innerHTML = state.fila.map(item => {
+        const tagPrioridade = item.prioritario
+          ? `<span class="tag-prio">${escaparHtml(item.tipoPrioridade || "Prioritário")}</span>`
+          : "";
+
+        return `
+          <tr>
+            <td class="col-hora">${escaparHtml(item.hora || "--:--")}</td>
+            <td class="col-nome">
+              ${escaparHtml(item.nome)}
+              ${tagPrioridade}
+            </td>
+            <td class="col-cpf" title="Clique para copiar o CPF" onclick="copiarTexto('${escaparAttr(item.cpf)}')">
+              ${escaparHtml(item.cpf)}
+            </td>
+            <td>${escaparHtml(item.tipoAtendimento)}</td>
+            <td class="col-resolucao">${escaparHtml(item.resolucao)}</td>
+            <td style="text-align: right;">
+              <button type="button" class="btn-accept" id="btnAccept_${item.row}" onclick="aceitarAtendimento(${item.row})">
+                Aceitar
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function renderizarVisaoAtiva() {
+      const ficha = state.activeFicha;
+      if (!ficha) {
+        document.body.classList.remove("in-attendance");
+        return;
+      }
+
+      document.body.classList.add("in-attendance");
+      elFichaCard.classList.toggle("is-priority", Boolean(ficha.prioritario));
+      elFichaTagPrio.innerHTML = ficha.prioritario
+        ? `<span class="tag-prio">${escaparHtml(ficha.tipoPrioridade || "Prioritário")}</span>`
+        : "Atendimento Geral";
+
+      elFichaNome.textContent = ficha.nome;
+      elFichaCpf.textContent = ficha.cpf;
+      elFichaHora.textContent = ficha.hora || "--:--";
+      elFichaTipoAtendimento.textContent = ficha.tipoAtendimento;
+      elFichaResolucao.textContent = ficha.resolucao;
+
+      if (ficha.observacoes) {
+        elFichaObsWrap.style.display = "block";
+        elFichaObsTexto.textContent = ficha.observacoes;
+      } else {
+        elFichaObsWrap.style.display = "none";
+      }
+    }
+
+    async function aceitarAtendimento(rowNumber) {
+      const item = state.fila.find(x => x.row === rowNumber);
+      if (!item) return;
+
+      const btn = document.getElementById(`btnAccept_${rowNumber}`);
+      if (btn) btn.disabled = true;
+
+      if (!state.apiUrl) {
+        const target = demoQueue.find(x => x.row === rowNumber);
+        if (target) {
+          target.status = "EM_ATENDIMENTO";
+          target.entrevistador = state.entrevistador;
+        }
+        salvarFichaAtiva(item);
+        buscarFila(true);
+        return;
+      }
+
+      try {
+        const sep = state.apiUrl.includes("?") ? "&" : "?";
+        const url = `${state.apiUrl}${sep}action=aceitar&row=${encodeURIComponent(rowNumber)}&entrevistador=${encodeURIComponent(state.entrevistador)}&_t=${Date.now()}`;
+        const res = await fetch(url, { method: "GET", redirect: "follow" });
+        const resultado = await res.json();
+
+        if (resultado && resultado.ok) {
+          salvarFichaAtiva(item);
+          buscarFila(true);
+        } else {
+          mostrarToast(resultado.erro || "Já aceito por outro entrevistador");
+          buscarFila(true);
+        }
+      } catch (e) {
+        mostrarToast("Erro ao aceitar atendimento");
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    async function finalizarAtendimentoAtual() {
+      if (!state.activeFicha) return;
+      const rowNumber = state.activeFicha.row;
+      elBtnFinalizar.disabled = true;
+
+      if (!state.apiUrl) {
+        const target = demoQueue.find(x => x.row === rowNumber);
+        if (target) target.status = "FINALIZADO";
+        salvarFichaAtiva(null);
+        elBtnFinalizar.disabled = false;
+        buscarFila(true);
+        return;
+      }
+
+      try {
+        const sep = state.apiUrl.includes("?") ? "&" : "?";
+        const url = `${state.apiUrl}${sep}action=finalizar&row=${encodeURIComponent(rowNumber)}&entrevistador=${encodeURIComponent(state.entrevistador)}&_t=${Date.now()}`;
+        const res = await fetch(url, { method: "GET", redirect: "follow" });
+        const resultado = await res.json();
+        if (resultado && resultado.ok) {
+          salvarFichaAtiva(null);
+          buscarFila(true);
+        } else {
+          mostrarToast((resultado && resultado.erro) || "Erro ao finalizar");
+        }
+      } catch (e) {
+        mostrarToast("Erro ao finalizar");
+      } finally {
+        elBtnFinalizar.disabled = false;
+      }
+    }
+
+    async function devolverAtendimentoParaFila() {
+      if (!state.activeFicha) return;
+      const rowNumber = state.activeFicha.row;
+      elBtnDevolver.disabled = true;
+
+      if (!state.apiUrl) {
+        const target = demoQueue.find(x => x.row === rowNumber);
+        if (target) target.status = "AGUARDANDO";
+        salvarFichaAtiva(null);
+        elBtnDevolver.disabled = false;
+        buscarFila(true);
+        return;
+      }
+
+      try {
+        const sep = state.apiUrl.includes("?") ? "&" : "?";
+        const url = `${state.apiUrl}${sep}action=devolver&row=${encodeURIComponent(rowNumber)}&_t=${Date.now()}`;
+        const res = await fetch(url, { method: "GET", redirect: "follow" });
+        const resultado = await res.json();
+        if (resultado && resultado.ok) {
+          salvarFichaAtiva(null);
+          buscarFila(true);
+        } else {
+          mostrarToast((resultado && resultado.erro) || "Erro ao devolver para a fila");
+        }
+      } catch (e) {
+        mostrarToast("Erro ao devolver para a fila");
+      } finally {
+        elBtnDevolver.disabled = false;
+      }
+    }
+
+    function salvarFichaAtiva(ficha) {
+      state.activeFicha = ficha;
+      if (ficha) {
+        localStorage.setItem(STORAGE_KEYS.ACTIVE_FICHA, JSON.stringify(ficha));
+      } else {
+        localStorage.removeItem(STORAGE_KEYS.ACTIVE_FICHA);
+      }
+      renderizarVisaoAtiva();
+    }
+
+    function carregarFichaSalva() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEYS.ACTIVE_FICHA);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function copiarTexto(texto) {
+      if (!texto) return;
+      navigator.clipboard.writeText(texto).then(() => {
+        mostrarToast(`CPF ${texto} copiado`);
+      });
+    }
+
+    function mostrarToast(msg) {
+      elToast.textContent = msg;
+      elToast.classList.add("show");
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => elToast.classList.remove("show"), 2200);
+    }
+
+    function escaparHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function escaparAttr(str) {
+      return String(str || "").replace(/'/g, "\\'");
+    }
+
+    init();
+  </script>
+</body>
+</html>
