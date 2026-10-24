@@ -744,8 +744,9 @@
         const resLocal = await fetch(`./config.json?_t=${Date.now()}`, { cache: "no-store" });
         if (resLocal.ok) {
           const cfg = await resLocal.json();
-          if (cfg && typeof cfg.scriptUrl === "string" && cfg.scriptUrl.trim() && cfg.scriptUrl.trim() !== state.apiUrl) {
-            state.apiUrl = cfg.scriptUrl.trim();
+          const urlBackup = (cfg && cfg.payload) ? desofuscarTexto(cfg.payload) : (cfg && typeof cfg.scriptUrl === "string" ? cfg.scriptUrl.trim() : "");
+          if (urlBackup && urlBackup !== state.apiUrl) {
+            state.apiUrl = urlBackup;
             localStorage.setItem(STORAGE_KEYS.API_URL, state.apiUrl);
             buscarFila(true);
           }
