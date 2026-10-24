@@ -585,23 +585,16 @@
   <!-- Painel Admin Remoto (acessível apenas via #admin na URL) -->
   <div class="modal-backdrop" id="configModal">
     <div class="modal-box">
-      <h3>Trocar Planilha do Mês (Admin Remoto)</h3>
+      <h3>Planilha do Mês (Admin)</h3>
       <p id="lblPlanilhaAtiva" style="font-weight: 600; color: var(--blue); margin-bottom: 0.75rem;">Planilha ativa: verificando...</p>
 
-      <div class="field-label">URL do Apps Script da Nova Planilha (/exec)</div>
-      <p style="margin-bottom: 0.4rem;">Cole aqui a URL gerada em <b>Implantar → App da Web</b> na planilha deste mês:</p>
+      <div class="field-label">URL do Apps Script da Planilha deste Mês (/exec)</div>
+      <p style="margin-bottom: 0.5rem;">Cole a URL <code>/exec</code> gerada na planilha nova. Ao clicar em Salvar, todos os computadores do CRAS atualizam sozinhos:</p>
       <input type="url" class="modal-input" id="inputApiUrl" placeholder="https://script.google.com/macros/s/.../exec">
 
-      <div class="field-label">Token GitHub (salvo só no seu PC para atualizar todos os PCs do CRAS em 1 clique)</div>
-      <input type="password" class="modal-input" id="inputGhToken" placeholder="ghp_... ou github_pat_... (opcional)">
-
-      <p style="font-size: 0.8rem; margin-bottom: 1rem;">
-        Sem token? <a href="https://github.com/Viniciusulpicio/cadunico_recepcao/edit/main/config.json" target="_blank" rel="noopener" style="color: var(--blue); font-weight: 600;">Clique aqui para colar a URL direto no config.json do GitHub</a>.
-      </p>
-
       <div class="modal-actions">
-        <button type="button" class="btn-ghost" id="btnCloseModal">Fechar</button>
-        <button type="button" class="btn-accept" id="btnSaveConfig">Publicar para o CRAS</button>
+        <button type="button" class="btn-ghost" id="btnCloseModal">Cancelar</button>
+        <button type="button" class="btn-accept" id="btnSaveConfig">Salvar para todos os PCs</button>
       </div>
     </div>
   </div>
@@ -689,35 +682,43 @@
 
     const elConfigModal = document.getElementById("configModal");
     const elInputApiUrl = document.getElementById("inputApiUrl");
-    const elInputGhToken = document.getElementById("inputGhToken");
     const elLblPlanilhaAtiva = document.getElementById("lblPlanilhaAtiva");
     const elBtnOpenConfig = document.getElementById("btnOpenConfig");
     const elBtnSaveConfig = document.getElementById("btnSaveConfig");
     const elToast = document.getElementById("toastMsg");
 
-    const GH_CONFIG_API = "https://api.github.com/repos/Viniciusulpicio/cadunico_recepcao/contents/config.json";
+    const CLOUD_SYNC_URL = "https://api.restful-api.dev/objects/ff808181a09d98f701a16f763f0d014a";
 
     function verificarModoAdmin() {
       const isAdmin = window.location.hash === "#admin" || new URLSearchParams(window.location.search).get("admin") === "1";
       elBtnOpenConfig.style.display = isAdmin ? "inline-block" : "none";
       if (isAdmin) {
         elInputApiUrl.value = state.apiUrl;
-        elInputGhToken.value = localStorage.getItem(STORAGE_KEYS.GH_TOKEN) || "";
         elConfigModal.classList.add("open");
       }
     }
 
     async function carregarConfigRemota() {
       try {
-        let cfg = null;
+        const resCloud = await fetch(CLOUD_SYNC_URL, { cache: "no-store" });
+        if (resCloud.ok) {
+          const obj = await resCloud.json();
+          const urlNuvem = (obj && obj.data && typeof obj.data.scriptUrl === "string") ? obj.data.scriptUrl.trim() : "";
+          if (urlNuvem && urlNuvem !== state.apiUrl) {
+            state.apiUrl = urlNuvem;
+            localStorage.setItem(STORAGE_KEYS.API_URL, state.apiUrl);
+            buscarFila(true);
+            return;
+          }
+        }
+      } catch (ignore) {}
+
+      try {
         const resLocal = await fetch(`./config.json?_t=${Date.now()}`, { cache: "no-store" });
         if (resLocal.ok) {
-          cfg = await resLocal.json();
-        }
-        if (cfg && typeof cfg.scriptUrl === "string") {
-          const remota = cfg.scriptUrl.trim();
-          if (remota && remota !== state.apiUrl) {
-            state.apiUrl = remota;
+          const cfg = await resLocal.json();
+          if (cfg && typeof cfg.scriptUrl === "string" && cfg.scriptUrl.trim() && cfg.scriptUrl.trim() !== state.apiUrl) {
+            state.apiUrl = cfg.scriptUrl.trim();
             localStorage.setItem(STORAGE_KEYS.API_URL, state.apiUrl);
             buscarFila(true);
           }
@@ -725,33 +726,16 @@
       } catch (ignore) {}
     }
 
-    async function publicarNoGitHub(novaUrl, token) {
-      const getRes = await fetch(GH_CONFIG_API, {
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Accept": "application/vnd.github+json"
-        },
-        cache: "no-store"
-      });
-      if (!getRes.ok) throw new Error("Token inválido ou sem permissão no repositório");
-      const fileData = await getRes.json();
-      const novoConteudo = JSON.stringify({ scriptUrl: novaUrl }, null, 2) + "\n";
-      const base64Content = btoa(unescape(encodeURIComponent(novoConteudo)));
-
-      const putRes = await fetch(GH_CONFIG_API, {
+    async function salvarUrlNaNuvem(novaUrl) {
+      const res = await fetch(CLOUD_SYNC_URL, {
         method: "PUT",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Accept": "application/vnd.github+json",
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          message: "chore: atualiza URL da planilha do mes",
-          content: base64Content,
-          sha: fileData.sha
+          name: "cadunico_cfg",
+          data: { scriptUrl: novaUrl }
         })
       });
-      if (!putRes.ok) throw new Error("Falha ao gravar config.json no GitHub");
+      if (!res.ok) throw new Error("Falha ao sincronizar na nuvem");
     }
 
     async function init() {
@@ -763,7 +747,7 @@
 
       buscarFila();
       setInterval(() => buscarFila(true), 4000);
-      setInterval(carregarConfigRemota, 30000);
+      setInterval(carregarConfigRemota, 15000);
 
       elInputEntrevistador.addEventListener("change", () => {
         state.entrevistador = elInputEntrevistador.value.trim() || "Mesa 01";
@@ -772,7 +756,6 @@
 
       elBtnOpenConfig.addEventListener("click", () => {
         elInputApiUrl.value = state.apiUrl;
-        elInputGhToken.value = localStorage.getItem(STORAGE_KEYS.GH_TOKEN) || "";
         elConfigModal.classList.add("open");
       });
 
@@ -782,31 +765,19 @@
 
       elBtnSaveConfig.addEventListener("click", async () => {
         const novaApiUrl = elInputApiUrl.value.trim();
-        const ghToken = elInputGhToken.value.trim();
-
-        if (ghToken) {
-          localStorage.setItem(STORAGE_KEYS.GH_TOKEN, ghToken);
-        }
-
         state.apiUrl = novaApiUrl;
         localStorage.setItem(STORAGE_KEYS.API_URL, state.apiUrl);
 
-        if (ghToken && novaApiUrl) {
-          elBtnSaveConfig.disabled = true;
-          try {
-            await publicarNoGitHub(novaApiUrl, ghToken);
-            mostrarToast("Publicado no GitHub para todos os PCs do CRAS!");
-            elConfigModal.classList.remove("open");
-            buscarFila();
-          } catch (err) {
-            mostrarToast(err.message || "Erro ao publicar no GitHub");
-          } finally {
-            elBtnSaveConfig.disabled = false;
-          }
-        } else {
-          mostrarToast("Salvo neste navegador (use o token ou GitHub p/ todos os PCs)");
+        elBtnSaveConfig.disabled = true;
+        try {
+          await salvarUrlNaNuvem(novaApiUrl);
+          mostrarToast("Salvo! Todos os PCs do CRAS já estão usando a nova planilha.");
           elConfigModal.classList.remove("open");
           buscarFila();
+        } catch (err) {
+          mostrarToast("Erro ao salvar na nuvem");
+        } finally {
+          elBtnSaveConfig.disabled = false;
         }
       });
 
