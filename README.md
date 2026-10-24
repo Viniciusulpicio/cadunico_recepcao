@@ -1,19 +1,17 @@
 # Painel de Fila CadÚnico (Recepção → Setor Interno)
 
-Site publicado (para os computadores do CRAS):
-- **Entrevistadores (CRAS):** `https://viniciusulpicio.github.io/cadunico_recepcao/`
-- **Gerenciamento Remoto (Admin):** `https://viniciusulpicio.github.io/cadunico_recepcao/#admin`
+- **Link dos Entrevistadores (CRAS):** `https://viniciusulpicio.github.io/cadunico_recepcao/`
+- **Trocar URL da Planilha do Mês (de longe do CRAS):** `https://github.com/Viniciusulpicio/cadunico_recepcao/edit/main/config.json` (ou `https://viniciusulpicio.github.io/cadunico_recepcao/#admin`)
 
 ---
 
-## Como funciona (Sem os entrevistadores precisarem configurar nada)
+## Fluxo Mensal (1 Apps Script em cada planilha, gerenciado de longe)
 
-1. **Configuração Única do Motor ([`config.json`](file:///home/vinicius/temp/cad/cadunico_recepcao/config.json)):**
-   - Implante o [`Codigo.gs`](file:///home/vinicius/temp/cad/cadunico_recepcao/Codigo.gs) **uma única vez** no Google Apps Script (`script.google.com` → Novo Projeto → Implantar como App da Web → Executar como `Eu` / Acesso `Qualquer pessoa`).
-   - Cole a URL `/exec` gerada dentro do arquivo [`config.json`](file:///home/vinicius/temp/cad/cadunico_recepcao/config.json) no campo `"scriptUrl"`.
-   - Pronto: todos os computadores do CRAS já abrem conectados automaticamente, e o botão de configuração fica oculto para os entrevistadores.
+1. **Na planilha do mês novo (Google Sheets):**
+   - Abra **Extensões → Apps Script**, cole o conteúdo de [`Codigo.gs`](file:///home/vinicius/temp/cad/cadunico_recepcao/Codigo.gs) e salve.
+   - Clique em **Implantar → Nova implantação → App da Web** (*Executar como: Eu* / *Quem pode acessar: Qualquer pessoa*) e copie a URL `/exec` gerada.
 
-2. **Como trocar a planilha todo mês de longe do CRAS (30 segundos):**
-   - Você tem duas formas de trocar a planilha mensal sem encostar nos computadores do CRAS e sem criar novo Apps Script:
-   - **Opção A (Pelo painel `#admin`):** Abra `https://viniciusulpicio.github.io/cadunico_recepcao/#admin` do seu celular ou PC, cole o link normal da planilha do mês novo (`https://docs.google.com/spreadsheets/d/.../edit`) e clique em **Salvar e Ativar no CRAS**. O Apps Script salva o ID na nuvem do Google e todos os PCs do CRAS mudam de planilha em 4 segundos.
-   - **Opção B (Pelo GitHub):** Edite o campo `"sheetUrl"` direto no arquivo [`config.json`](file:///home/vinicius/temp/cad/cadunico_recepcao/config.json) pelo site do GitHub. Em 30 segundos o GitHub Actions atualiza todos os computadores do CRAS automaticamente.
+2. **Atualizar todos os computadores do CRAS de longe (leva 30 segundos):**
+   - **Opção A (Direto no GitHub pelo celular ou PC):** Abra [`config.json`](https://github.com/Viniciusulpicio/cadunico_recepcao/edit/main/config.json), cole a nova URL `/exec` dentro de `"scriptUrl"` e clique em **Commit changes**.
+   - **Opção B (Pelo painel `#admin` do site):** Abra `https://viniciusulpicio.github.io/cadunico_recepcao/#admin`, cole a nova URL `/exec` e clique em **Publicar para o CRAS**.
+   - Todos os computadores do CRAS leem o [`config.json`](file:///home/vinicius/temp/cad/cadunico_recepcao/config.json) sozinhos a cada 30 segundos e já passam a usar a planilha do mês novo sem nenhum usuário do CRAS precisar mexer em nada.
