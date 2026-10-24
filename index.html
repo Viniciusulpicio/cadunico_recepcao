@@ -588,9 +588,11 @@
       <h3>Planilha do Mês (Admin)</h3>
       <p id="lblPlanilhaAtiva" style="font-weight: 600; color: var(--blue); margin-bottom: 0.75rem;">Planilha ativa: verificando...</p>
 
-      <div class="field-label">URL do Apps Script da Planilha deste Mês (/exec)</div>
-      <p style="margin-bottom: 0.5rem;">Cole a URL <code>/exec</code> gerada na planilha nova. Ao clicar em Salvar, todos os computadores do CRAS atualizam sozinhos:</p>
+      <div class="field-label">1. URL do Apps Script da Planilha deste Mês (/exec)</div>
       <input type="url" class="modal-input" id="inputApiUrl" placeholder="https://script.google.com/macros/s/.../exec">
+
+      <div class="field-label">2. Sua Senha Admin (protege contra alterações de terceiros)</div>
+      <input type="password" class="modal-input" id="inputAdminPass" placeholder="Digite sua senha de administrador">
 
       <div class="modal-actions">
         <button type="button" class="btn-ghost" id="btnCloseModal">Cancelar</button>
@@ -682,12 +684,36 @@
 
     const elConfigModal = document.getElementById("configModal");
     const elInputApiUrl = document.getElementById("inputApiUrl");
+    const elInputAdminPass = document.getElementById("inputAdminPass");
     const elLblPlanilhaAtiva = document.getElementById("lblPlanilhaAtiva");
     const elBtnOpenConfig = document.getElementById("btnOpenConfig");
     const elBtnSaveConfig = document.getElementById("btnSaveConfig");
     const elToast = document.getElementById("toastMsg");
 
     const CLOUD_SYNC_URL = "https://api.restful-api.dev/objects/ff808181a09d98f701a16f763f0d014a";
+    const OBF_KEY = "cadunico_cras_setor_2026";
+
+    function ofuscarTexto(texto) {
+      if (!texto) return "";
+      const bytes = Array.from(texto).map((ch, i) => ch.charCodeAt(0) ^ OBF_KEY.charCodeAt(i % OBF_KEY.length));
+      return btoa(String.fromCharCode(...bytes));
+    }
+
+    function desofuscarTexto(b64) {
+      if (!b64) return "";
+      try {
+        const raw = atob(b64);
+        return Array.from(raw).map((ch, i) => String.fromCharCode(ch.charCodeAt(0) ^ OBF_KEY.charCodeAt(i % OBF_KEY.length))).join("");
+      } catch (e) {
+        return "";
+      }
+    }
+
+    async function gerarHashSha256(texto) {
+      const msgBuffer = new TextEncoder().encode(texto);
+      const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
+      return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, "0")).join("");
+    }
 
     function verificarModoAdmin() {
       const isAdmin = window.location.hash === "#admin" || new URLSearchParams(window.location.search).get("admin") === "1";
@@ -703,7 +729,8 @@
         const resCloud = await fetch(CLOUD_SYNC_URL, { cache: "no-store" });
         if (resCloud.ok) {
           const obj = await resCloud.json();
-          const urlNuvem = (obj && obj.data && typeof obj.data.scriptUrl === "string") ? obj.data.scriptUrl.trim() : "";
+          const d = (obj && obj.data) ? obj.data : {};
+          const urlNuvem = d.payload ? desofuscarTexto(d.payload) : (typeof d.scriptUrl === "string" ? d.scriptUrl.trim() : "");
           if (urlNuvem && urlNuvem !== state.apiUrl) {
             state.apiUrl = urlNuvem;
             localStorage.setItem(STORAGE_KEYS.API_URL, state.apiUrl);
@@ -726,13 +753,30 @@
       } catch (ignore) {}
     }
 
-    async function salvarUrlNaNuvem(novaUrl) {
+    async function salvarUrlNaNuvem(novaUrl, senhaAdmin) {
+      if (!senhaAdmin) {
+        throw new Error("Digite sua Senha Admin para salvar");
+      }
+      const senhaHash = await gerarHashSha256(senhaAdmin);
+
+      const getRes = await fetch(CLOUD_SYNC_URL, { cache: "no-store" });
+      if (getRes.ok) {
+        const atual = await getRes.json();
+        const hashSalvo = atual && atual.data && atual.data.adminHash;
+        if (hashSalvo && hashSalvo !== senhaHash) {
+          throw new Error("Senha Admin incorreta");
+        }
+      }
+
       const res = await fetch(CLOUD_SYNC_URL, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: "cadunico_cfg",
-          data: { scriptUrl: novaUrl }
+          data: {
+            payload: ofuscarTexto(novaUrl),
+            adminHash: senhaHash
+          }
         })
       });
       if (!res.ok) throw new Error("Falha ao sincronizar na nuvem");
@@ -765,17 +809,18 @@
 
       elBtnSaveConfig.addEventListener("click", async () => {
         const novaApiUrl = elInputApiUrl.value.trim();
-        state.apiUrl = novaApiUrl;
-        localStorage.setItem(STORAGE_KEYS.API_URL, state.apiUrl);
+        const senhaAdmin = elInputAdminPass.value.trim();
 
         elBtnSaveConfig.disabled = true;
         try {
-          await salvarUrlNaNuvem(novaApiUrl);
+          await salvarUrlNaNuvem(novaApiUrl, senhaAdmin);
+          state.apiUrl = novaApiUrl;
+          localStorage.setItem(STORAGE_KEYS.API_URL, state.apiUrl);
           mostrarToast("Salvo! Todos os PCs do CRAS já estão usando a nova planilha.");
           elConfigModal.classList.remove("open");
           buscarFila();
         } catch (err) {
-          mostrarToast("Erro ao salvar na nuvem");
+          mostrarToast(err.message || "Erro ao salvar na nuvem");
         } finally {
           elBtnSaveConfig.disabled = false;
         }
