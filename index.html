@@ -495,7 +495,7 @@
 
       <div class="top-actions">
         <input type="text" class="mesa-input" id="inputEntrevistador" placeholder="Sua mesa/nome" value="Mesa 01" title="Identificação do entrevistador">
-        <button type="button" class="btn-ghost" id="btnOpenConfig">Planilha</button>
+        <button type="button" class="btn-ghost" id="btnOpenConfig" style="display: none;">Admin Planilha</button>
       </div>
     </div>
   </header>
@@ -582,15 +582,22 @@
 
   </main>
 
-  <!-- Modal discreto para colar a URL do Apps Script -->
+  <!-- Painel Admin Remoto (acessível apenas via #admin na URL) -->
   <div class="modal-backdrop" id="configModal">
     <div class="modal-box">
-      <h3>URL da Planilha (Google Apps Script)</h3>
-      <p>Cole a URL do App da Web gerada na implantação do script da planilha. Deixe vazio para usar os dados de demonstração.</p>
+      <h3>Gerenciamento Remoto (Admin)</h3>
+      <p id="lblPlanilhaAtiva" style="font-weight: 600; color: var(--blue);">Planilha ativa: verificando...</p>
+
+      <div class="field-label" style="margin-top: 0.75rem;">1. Trocar Planilha do Mês (Link do Google Sheets)</div>
+      <p style="margin-bottom: 0.4rem;">Cole o link normal da planilha do novo mês para atualizar todos os computadores do CRAS instantaneamente:</p>
+      <input type="url" class="modal-input" id="inputSheetUrl" placeholder="https://docs.google.com/spreadsheets/d/.../edit">
+
+      <div class="field-label">2. URL fixa do Motor (Google Apps Script /exec)</div>
       <input type="url" class="modal-input" id="inputApiUrl" placeholder="https://script.google.com/macros/s/.../exec">
+
       <div class="modal-actions">
-        <button type="button" class="btn-ghost" id="btnCloseModal">Cancelar</button>
-        <button type="button" class="btn-accept" id="btnSaveConfig">Salvar</button>
+        <button type="button" class="btn-ghost" id="btnCloseModal">Fechar</button>
+        <button type="button" class="btn-accept" id="btnSaveConfig">Salvar e Ativar no CRAS</button>
       </div>
     </div>
   </div>
@@ -650,6 +657,8 @@
 
     let state = {
       apiUrl: localStorage.getItem(STORAGE_KEYS.API_URL) || DEFAULT_SCRIPT_URL,
+      sheetUrl: "",
+      planilhaNome: "",
       entrevistador: localStorage.getItem(STORAGE_KEYS.INTERVIEWER) || "Mesa 01",
       activeFicha: carregarFichaSalva(),
       fila: []
@@ -675,22 +684,55 @@
 
     const elConfigModal = document.getElementById("configModal");
     const elInputApiUrl = document.getElementById("inputApiUrl");
+    const elInputSheetUrl = document.getElementById("inputSheetUrl");
+    const elLblPlanilhaAtiva = document.getElementById("lblPlanilhaAtiva");
+    const elBtnOpenConfig = document.getElementById("btnOpenConfig");
+    const elBtnSaveConfig = document.getElementById("btnSaveConfig");
     const elToast = document.getElementById("toastMsg");
 
-    function init() {
+    function verificarModoAdmin() {
+      const isAdmin = window.location.hash === "#admin" || new URLSearchParams(window.location.search).get("admin") === "1";
+      elBtnOpenConfig.style.display = isAdmin ? "inline-block" : "none";
+      if (isAdmin) {
+        elInputApiUrl.value = state.apiUrl;
+        elInputSheetUrl.value = state.sheetUrl;
+        elConfigModal.classList.add("open");
+      }
+    }
+
+    async function carregarConfigRemota() {
+      try {
+        const res = await fetch(`./config.json?_t=${Date.now()}`, { cache: "no-store" });
+        if (!res.ok) return;
+        const cfg = await res.json();
+        if (cfg && cfg.scriptUrl && cfg.scriptUrl.trim()) {
+          state.apiUrl = cfg.scriptUrl.trim();
+        }
+        if (cfg && cfg.sheetUrl && cfg.sheetUrl.trim()) {
+          state.sheetUrl = cfg.sheetUrl.trim();
+        }
+      } catch (ignore) {}
+    }
+
+    async function init() {
       elInputEntrevistador.value = state.entrevistador;
       renderizarVisaoAtiva();
-      buscarFila();
+      await carregarConfigRemota();
+      verificarModoAdmin();
+      window.addEventListener("hashchange", verificarModoAdmin);
 
+      buscarFila();
       setInterval(() => buscarFila(true), 4000);
+      setInterval(carregarConfigRemota, 60000);
 
       elInputEntrevistador.addEventListener("change", () => {
         state.entrevistador = elInputEntrevistador.value.trim() || "Mesa 01";
         localStorage.setItem(STORAGE_KEYS.INTERVIEWER, state.entrevistador);
       });
 
-      document.getElementById("btnOpenConfig").addEventListener("click", () => {
+      elBtnOpenConfig.addEventListener("click", () => {
         elInputApiUrl.value = state.apiUrl;
+        elInputSheetUrl.value = state.sheetUrl;
         elConfigModal.classList.add("open");
       });
 
@@ -698,11 +740,38 @@
         elConfigModal.classList.remove("open");
       });
 
-      document.getElementById("btnSaveConfig").addEventListener("click", () => {
-        state.apiUrl = elInputApiUrl.value.trim();
-        localStorage.setItem(STORAGE_KEYS.API_URL, state.apiUrl);
-        elConfigModal.classList.remove("open");
-        buscarFila();
+      elBtnSaveConfig.addEventListener("click", async () => {
+        const novaApiUrl = elInputApiUrl.value.trim();
+        const novaSheetUrl = elInputSheetUrl.value.trim();
+        if (novaApiUrl) {
+          state.apiUrl = novaApiUrl;
+          localStorage.setItem(STORAGE_KEYS.API_URL, state.apiUrl);
+        }
+
+        if (state.apiUrl && novaSheetUrl) {
+          elBtnSaveConfig.disabled = true;
+          try {
+            const sep = state.apiUrl.includes("?") ? "&" : "?";
+            const url = `${state.apiUrl}${sep}action=definirPlanilha&sheetUrl=${encodeURIComponent(novaSheetUrl)}&_t=${Date.now()}`;
+            const res = await fetch(url, { method: "GET", redirect: "follow" });
+            const data = await res.json();
+            if (data && data.ok) {
+              state.sheetUrl = novaSheetUrl;
+              mostrarToast(`Planilha ativa trocada: ${data.planilhaNome}`);
+              elConfigModal.classList.remove("open");
+              buscarFila();
+            } else {
+              mostrarToast((data && data.erro) || "Erro ao vincular planilha");
+            }
+          } catch (e) {
+            mostrarToast("Erro ao conectar no Apps Script");
+          } finally {
+            elBtnSaveConfig.disabled = false;
+          }
+        } else {
+          elConfigModal.classList.remove("open");
+          buscarFila();
+        }
       });
 
       elBtnCopyFichaCpf.addEventListener("click", () => {
@@ -711,6 +780,10 @@
 
       elBtnFinalizar.addEventListener("click", finalizarAtendimentoAtual);
       elBtnDevolver.addEventListener("click", devolverAtendimentoParaFila);
+    }
+
+    function paramPlanilha() {
+      return state.sheetUrl ? `&sheetUrl=${encodeURIComponent(state.sheetUrl)}` : "";
     }
 
     async function buscarFila(silencioso = false) {
@@ -726,7 +799,7 @@
 
       try {
         const sep = state.apiUrl.includes("?") ? "&" : "?";
-        const url = `${state.apiUrl}${sep}action=listar&_t=${Date.now()}`;
+        const url = `${state.apiUrl}${sep}action=listar${paramPlanilha()}&_t=${Date.now()}`;
         const res = await fetch(url, { method: "GET", redirect: "follow" });
         const data = await res.json();
         if (data && data.ok) processarDados(data);
@@ -738,6 +811,13 @@
     function processarDados(data) {
       const sufixoModo = state.apiUrl ? "" : " (Modo demonstração)";
       elLblStatus.textContent = `Atualizado às ${data.atualizadoEm || "--:--"}${sufixoModo}`;
+
+      if (data.planilhaNome) {
+        state.planilhaNome = data.planilhaNome;
+        elLblPlanilhaAtiva.textContent = `Planilha ativa no CRAS: ${data.planilhaNome}`;
+      } else if (!state.apiUrl) {
+        elLblPlanilhaAtiva.textContent = "Planilha ativa: Modo demonstração (sem script vinculado)";
+      }
 
       const lista = Array.isArray(data.fila) ? data.fila : [];
       lista.sort((a, b) => {
@@ -852,7 +932,7 @@
 
       try {
         const sep = state.apiUrl.includes("?") ? "&" : "?";
-        const url = `${state.apiUrl}${sep}action=aceitar&row=${encodeURIComponent(rowNumber)}&entrevistador=${encodeURIComponent(state.entrevistador)}&_t=${Date.now()}`;
+        const url = `${state.apiUrl}${sep}action=aceitar&row=${encodeURIComponent(rowNumber)}&entrevistador=${encodeURIComponent(state.entrevistador)}${paramPlanilha()}&_t=${Date.now()}`;
         const res = await fetch(url, { method: "GET", redirect: "follow" });
         const resultado = await res.json();
 
@@ -885,7 +965,7 @@
 
       try {
         const sep = state.apiUrl.includes("?") ? "&" : "?";
-        const url = `${state.apiUrl}${sep}action=finalizar&row=${encodeURIComponent(rowNumber)}&entrevistador=${encodeURIComponent(state.entrevistador)}&_t=${Date.now()}`;
+        const url = `${state.apiUrl}${sep}action=finalizar&row=${encodeURIComponent(rowNumber)}&entrevistador=${encodeURIComponent(state.entrevistador)}${paramPlanilha()}&_t=${Date.now()}`;
         const res = await fetch(url, { method: "GET", redirect: "follow" });
         const resultado = await res.json();
         if (resultado && resultado.ok) {
@@ -917,7 +997,7 @@
 
       try {
         const sep = state.apiUrl.includes("?") ? "&" : "?";
-        const url = `${state.apiUrl}${sep}action=devolver&row=${encodeURIComponent(rowNumber)}&_t=${Date.now()}`;
+        const url = `${state.apiUrl}${sep}action=devolver&row=${encodeURIComponent(rowNumber)}${paramPlanilha()}&_t=${Date.now()}`;
         const res = await fetch(url, { method: "GET", redirect: "follow" });
         const resultado = await res.json();
         if (resultado && resultado.ok) {
