@@ -105,24 +105,6 @@
       background: var(--surface);
     }
 
-    .mesa-input {
-      border: 1px solid var(--border);
-      background: var(--bg);
-      border-radius: 6px;
-      padding: 0.4rem 0.65rem;
-      font-family: var(--font-sans);
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text);
-      width: 120px;
-    }
-
-    .mesa-input:focus {
-      outline: none;
-      border-color: var(--blue);
-      background: var(--surface);
-    }
-
     .btn-ghost {
       background: transparent;
       border: 1px solid var(--border);
@@ -537,7 +519,6 @@
           <option value="teotonio">CRAS Teotônio Vilela</option>
           <option value="rosa_modelli">CRAS Rosa Modelli</option>
         </select>
-        <input type="text" class="mesa-input" id="inputEntrevistador" placeholder="Sua mesa/nome" value="Mesa 01" title="Identificação do entrevistador">
         <button type="button" class="btn-ghost" id="btnOpenConfig" style="display: none;">Admin Planilha</button>
       </div>
     </div>
@@ -788,13 +769,12 @@
       apiUrl: urlsSalvas[postoInicial] || "",
       sheetUrl: "",
       planilhaNome: "",
-      entrevistador: localStorage.getItem(STORAGE_KEYS.INTERVIEWER) || "Mesa 01",
+      entrevistador: "Atendimento",
       activeFicha: carregarFichaSalva(),
       fila: []
     };
 
     const elSelectPosto = document.getElementById("selectPosto");
-    const elInputEntrevistador = document.getElementById("inputEntrevistador");
     const elCountTotal = document.getElementById("countTotal");
     const elLblStatus = document.getElementById("lblStatus");
     const elQueueTableBody = document.getElementById("queueTableBody");
@@ -1008,7 +988,6 @@
     }
 
     async function init() {
-      elInputEntrevistador.value = state.entrevistador;
       if (elSelectPosto) elSelectPosto.value = state.postoAtivo;
 
       renderizarVisaoAtiva();
@@ -1023,11 +1002,6 @@
 
       elSelectPosto.addEventListener("change", () => {
         definirPosto(elSelectPosto.value);
-      });
-
-      elInputEntrevistador.addEventListener("change", () => {
-        state.entrevistador = elInputEntrevistador.value.trim() || "Mesa 01";
-        localStorage.setItem(STORAGE_KEYS.INTERVIEWER, state.entrevistador);
       });
 
       elBtnOpenConfig.addEventListener("click", () => {
