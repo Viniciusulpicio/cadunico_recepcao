@@ -877,7 +877,7 @@
               if (cfg.postos[k]) {
                 const item = cfg.postos[k];
                 const url = item.payload ? desofuscarTexto(item.payload).trim() : (item.scriptUrl || item.url || "").trim();
-                if (url !== state.postosUrls[k]) {
+                if (url && url !== state.postosUrls[k]) {
                   state.postosUrls[k] = url;
                   mudou = true;
                 }
@@ -1008,25 +1008,22 @@
         const senhaAdmin = elInputAdminPass.value.trim();
 
         elBtnSaveConfig.disabled = true;
+
+        // Salva imediatamente no estado e no localStorage (garante persistencia local)
+        state.postosUrls = novasUrls;
+        localStorage.setItem(STORAGE_KEYS.POSTOS_URLS, JSON.stringify(novasUrls));
+        state.apiUrl = state.postosUrls[state.postoAtivo] || "";
+        localStorage.setItem(STORAGE_KEYS.API_URL, state.apiUrl);
+
         try {
           await salvarConfigNaNuvem(novasUrls, senhaAdmin);
-          state.postosUrls = novasUrls;
-          localStorage.setItem(STORAGE_KEYS.POSTOS_URLS, JSON.stringify(novasUrls));
-          state.apiUrl = state.postosUrls[state.postoAtivo] || "";
-          localStorage.setItem(STORAGE_KEYS.API_URL, state.apiUrl);
-          mostrarToast("Salvo na nuvem com sucesso para todos os postos!");
-          elConfigModal.classList.remove("open");
-          buscarFila();
+          mostrarToast("Salvo com sucesso!");
         } catch (err) {
-          state.postosUrls = novasUrls;
-          localStorage.setItem(STORAGE_KEYS.POSTOS_URLS, JSON.stringify(novasUrls));
-          state.apiUrl = state.postosUrls[state.postoAtivo] || "";
-          localStorage.setItem(STORAGE_KEYS.API_URL, state.apiUrl);
-          mostrarToast(err.message ? `${err.message}. Salvo localmente neste navegador.` : "Salvo localmente.");
-          elConfigModal.classList.remove("open");
-          buscarFila();
+          mostrarToast("Salvo com sucesso neste computador!");
         } finally {
           elBtnSaveConfig.disabled = false;
+          elConfigModal.classList.remove("open");
+          buscarFila();
         }
       });
 
