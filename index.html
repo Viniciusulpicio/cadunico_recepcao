@@ -710,7 +710,7 @@
   <div class="toast" id="toastMsg">Copiado</div>
 
   <script>
-    const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw6THZwdIMGO4L8xmUUk6el3AnokgLIjOeGeV8NfUOJkXqV6tfshXLvev5lP-dwznaK/exec";
+    const DEFAULT_SCRIPT_URL = "";
 
     const STORAGE_KEYS = {
       POSTO_ATIVO: "cadunico_posto_ativo_v1",
@@ -735,7 +735,7 @@
       if (POSTOS[hash]) return hash;
       const salvo = localStorage.getItem(STORAGE_KEYS.POSTO_ATIVO);
       if (salvo && POSTOS[salvo]) return salvo;
-      return "central";
+      return "rosa_modelli";
     }
 
     function carregarPostosUrlsSalvos() {
@@ -744,53 +744,11 @@
         if (raw) return JSON.parse(raw);
       } catch (e) {}
       return {
-        central: localStorage.getItem(STORAGE_KEYS.API_URL) || DEFAULT_SCRIPT_URL,
+        central: "",
         teotonio: "",
-        rosa_modelli: ""
+        rosa_modelli: "https://script.google.com/macros/s/AKfycbw6THZwdIMGO4L8xmUUk6el3AnokgLIjOeGeV8NfUOJkXqV6tfshXLvev5lP-dwznaK/exec"
       };
     }
-
-    let demoQueue = [
-      {
-        row: 4,
-        hora: "08:14:22",
-        nome: "MARIA DAS DORES SILVA",
-        cpf: "123.456.789-00",
-        tipoAtendimento: "Atualização Cadastral",
-        resolucao: "Encaminhado para o atendimento interno (setor)",
-        observacoes: "Trouxe documentos de todos os moradores",
-        classificacao: "Prioritário",
-        tipoPrioridade: "Idosos (60 anos ou mais)",
-        prioritario: true,
-        status: "AGUARDANDO"
-      },
-      {
-        row: 5,
-        hora: "08:19:05",
-        nome: "JOÃO CARLOS PEREIRA",
-        cpf: "987.654.321-11",
-        tipoAtendimento: "Inclusão Cadastral",
-        resolucao: "Encaminhado para o atendimento interno (setor)",
-        observacoes: "",
-        classificacao: "Geral",
-        tipoPrioridade: "",
-        prioritario: false,
-        status: "AGUARDANDO"
-      },
-      {
-        row: 6,
-        hora: "08:25:40",
-        nome: "ANA BEATRIZ OLIVEIRA",
-        cpf: "456.789.123-22",
-        tipoAtendimento: "Solicitação Administração do Bolsa Familia",
-        resolucao: "Encaminhado para o atendimento interno (setor)",
-        observacoes: "",
-        classificacao: "Prioritário",
-        tipoPrioridade: "Gestantes e Lactante",
-        prioritario: true,
-        status: "AGUARDANDO"
-      }
-    ];
 
     const postoInicial = obterPostoInicial();
     const urlsSalvas = carregarPostosUrlsSalvos();
@@ -919,18 +877,11 @@
               if (cfg.postos[k]) {
                 const item = cfg.postos[k];
                 const url = item.payload ? desofuscarTexto(item.payload).trim() : (item.scriptUrl || item.url || "").trim();
-                if (url && !state.postosUrls[k]) {
+                if (url !== state.postosUrls[k]) {
                   state.postosUrls[k] = url;
                   mudou = true;
                 }
               }
-            }
-          }
-          if (cfg && cfg.payload && !state.postosUrls.central) {
-            const urlBackup = desofuscarTexto(cfg.payload).trim();
-            if (urlBackup) {
-              state.postosUrls.central = urlBackup;
-              mudou = true;
             }
           }
         }
@@ -1096,8 +1047,8 @@
         processarDados({
           ok: true,
           atualizadoEm: new Date().toLocaleTimeString("pt-BR", { hour12: false }),
-          fila: demoQueue.filter(i => i.status === "AGUARDANDO"),
-          emAtendimento: demoQueue.filter(i => i.status === "EM_ATENDIMENTO")
+          fila: [],
+          emAtendimento: []
         });
         return;
       }
@@ -1114,8 +1065,8 @@
     }
 
     function processarDados(data) {
-      const sufixoModo = state.apiUrl ? "" : " (Modo demonstração)";
-      elLblStatus.textContent = `Atualizado às ${data.atualizadoEm || "--:--"}${sufixoModo}`;
+      const sufixoModo = state.apiUrl ? "" : " (Nenhuma planilha vinculada)";
+      elLblStatus.textContent = state.apiUrl ? `Atualizado às ${data.atualizadoEm || "--:--"}` : "Nenhuma planilha vinculada";
 
       const nomePosto = POSTOS[state.postoAtivo] ? POSTOS[state.postoAtivo].nome : state.postoAtivo;
 
@@ -1232,13 +1183,8 @@
       if (btn) btn.disabled = true;
 
       if (!state.apiUrl) {
-        const target = demoQueue.find(x => x.row === rowNumber);
-        if (target) {
-          target.status = "EM_ATENDIMENTO";
-          target.entrevistador = state.entrevistador;
-        }
-        salvarFichaAtiva(item);
-        buscarFila(true);
+        mostrarToast("Nenhuma planilha configurada para este posto.");
+        if (btn) btn.disabled = false;
         return;
       }
 
@@ -1267,8 +1213,6 @@
       elBtnFinalizar.disabled = true;
 
       if (!state.apiUrl) {
-        const target = demoQueue.find(x => x.row === rowNumber);
-        if (target) target.status = "FINALIZADO";
         salvarFichaAtiva(null);
         elBtnFinalizar.disabled = false;
         buscarFila(true);
@@ -1299,8 +1243,6 @@
       elBtnDevolver.disabled = true;
 
       if (!state.apiUrl) {
-        const target = demoQueue.find(x => x.row === rowNumber);
-        if (target) target.status = "AGUARDANDO";
         salvarFichaAtiva(null);
         elBtnDevolver.disabled = false;
         buscarFila(true);
