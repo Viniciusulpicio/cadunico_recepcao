@@ -710,7 +710,9 @@
   <div class="toast" id="toastMsg">Copiado</div>
 
   <script>
-    const DEFAULT_SCRIPT_URL = "";
+    const DEFAULT_BASE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw6THZwdIMGO4L8xmUUk6el3AnokgLIjOeGeV8NfUOJkXqV6tfshXLvev5lP-dwznaK/exec";
+    const CONFIG_SHEET_ID = "1eBpcnjNpZDRpZayIWa_VyLL2_E7Jwp5BapBBzg6mcTg";
+    const CONFIG_SHEET_CSV_URL = `https://docs.google.com/spreadsheets/d/${CONFIG_SHEET_ID}/gviz/tq?tqx=out:csv`;
 
     const STORAGE_KEYS = {
       POSTO_ATIVO: "cadunico_posto_ativo_v1",
@@ -840,9 +842,47 @@
       }
     }
 
+    function extrairUrlsDoCsv(csvText) {
+      const linhas = csvText.split(/\r?\n/);
+      const resultado = {};
+
+      for (const linha of linhas) {
+        const l = linha.toLowerCase();
+        const urlMatch = linha.match(/https?:\/\/[^\s",]+/);
+        const url = urlMatch ? urlMatch[0].trim() : "";
+        if (!url) continue;
+
+        if (l.includes("central")) {
+          resultado.central = url;
+        } else if (l.includes("teotonio") || l.includes("teotônio")) {
+          resultado.teotonio = url;
+        } else if (l.includes("rosa") || l.includes("modelli")) {
+          resultado.rosa_modelli = url;
+        }
+      }
+      return resultado;
+    }
+
     async function carregarConfigRemota() {
       let mudou = false;
 
+      // 1. Prioridade: Lê a Planilha de Controle do Google Sheets (Opção 2)
+      try {
+        const resSheet = await fetch(`${CONFIG_SHEET_CSV_URL}&_t=${Date.now()}`, { cache: "no-store" });
+        if (resSheet.ok) {
+          const csvText = await resSheet.text();
+          const urlsDaPlanilha = extrairUrlsDoCsv(csvText);
+
+          for (const k of ["central", "teotonio", "rosa_modelli"]) {
+            if (urlsDaPlanilha[k] && urlsDaPlanilha[k] !== state.postosUrls[k]) {
+              state.postosUrls[k] = urlsDaPlanilha[k];
+              mudou = true;
+            }
+          }
+        }
+      } catch (errSheet) {}
+
+      // 2. Fallback: Lê o config.json local se a planilha de controle ainda não tiver algum link
       try {
         const resLocal = await fetch(`./config.json?_t=${Date.now()}`, { cache: "no-store" });
         if (resLocal.ok) {
@@ -852,7 +892,7 @@
               if (cfg.postos[k]) {
                 const item = cfg.postos[k];
                 const url = item.payload ? desofuscarTexto(item.payload).trim() : (item.scriptUrl || item.url || "").trim();
-                if (url && url !== state.postosUrls[k]) {
+                if (url && !state.postosUrls[k]) {
                   state.postosUrls[k] = url;
                   mudou = true;
                 }
@@ -976,8 +1016,20 @@
       elBtnDevolver.addEventListener("click", devolverAtendimentoParaFila);
     }
 
-    function paramPlanilha() {
-      return state.sheetUrl ? `&sheetUrl=${encodeURIComponent(state.sheetUrl)}` : "";
+    function montarUrlEndpoint(action, extras = "") {
+      if (!state.apiUrl) return "";
+      let baseScript = state.apiUrl;
+      let paramSheet = "";
+
+      if (state.apiUrl.includes("docs.google.com/spreadsheets")) {
+        baseScript = DEFAULT_BASE_SCRIPT_URL;
+        paramSheet = `&sheetUrl=${encodeURIComponent(state.apiUrl)}`;
+      } else if (state.sheetUrl) {
+        paramSheet = `&sheetUrl=${encodeURIComponent(state.sheetUrl)}`;
+      }
+
+      const sep = baseScript.includes("?") ? "&" : "?";
+      return `${baseScript}${sep}action=${action}${paramSheet}${extras}&_t=${Date.now()}`;
     }
 
     async function buscarFila(silencioso = false) {
@@ -992,8 +1044,7 @@
       }
 
       try {
-        const sep = state.apiUrl.includes("?") ? "&" : "?";
-        const url = `${state.apiUrl}${sep}action=listar${paramPlanilha()}&_t=${Date.now()}`;
+        const url = montarUrlEndpoint("listar");
         const res = await fetch(url, { method: "GET", redirect: "follow" });
         const data = await res.json();
         if (data && data.ok) processarDados(data);
@@ -1127,8 +1178,7 @@
       }
 
       try {
-        const sep = state.apiUrl.includes("?") ? "&" : "?";
-        const url = `${state.apiUrl}${sep}action=aceitar&row=${encodeURIComponent(rowNumber)}&entrevistador=${encodeURIComponent(state.entrevistador)}${paramPlanilha()}&_t=${Date.now()}`;
+        const url = montarUrlEndpoint("aceitar", `&row=${encodeURIComponent(rowNumber)}&entrevistador=${encodeURIComponent(state.entrevistador)}`);
         const res = await fetch(url, { method: "GET", redirect: "follow" });
         const resultado = await res.json();
 
@@ -1158,8 +1208,7 @@
       }
 
       try {
-        const sep = state.apiUrl.includes("?") ? "&" : "?";
-        const url = `${state.apiUrl}${sep}action=finalizar&row=${encodeURIComponent(rowNumber)}&entrevistador=${encodeURIComponent(state.entrevistador)}${paramPlanilha()}&_t=${Date.now()}`;
+        const url = montarUrlEndpoint("finalizar", `&row=${encodeURIComponent(rowNumber)}&entrevistador=${encodeURIComponent(state.entrevistador)}`);
         const res = await fetch(url, { method: "GET", redirect: "follow" });
         const resultado = await res.json();
         if (resultado && resultado.ok) {
@@ -1188,8 +1237,7 @@
       }
 
       try {
-        const sep = state.apiUrl.includes("?") ? "&" : "?";
-        const url = `${state.apiUrl}${sep}action=devolver&row=${encodeURIComponent(rowNumber)}${paramPlanilha()}&_t=${Date.now()}`;
+        const url = montarUrlEndpoint("devolver", `&row=${encodeURIComponent(rowNumber)}`);
         const res = await fetch(url, { method: "GET", redirect: "follow" });
         const resultado = await res.json();
         if (resultado && resultado.ok) {
