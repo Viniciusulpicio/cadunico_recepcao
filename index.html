@@ -795,14 +795,7 @@
     const elBtnSaveConfig = document.getElementById("btnSaveConfig");
     const elToast = document.getElementById("toastMsg");
 
-    const CLOUD_SYNC_URL = "https://api.restful-api.dev/objects/ff808181a09d98f701a16f763f0d014a";
     const OBF_KEY = "cadunico_cras_setor_2026";
-
-    function ofuscarTexto(texto) {
-      if (!texto) return "";
-      const bytes = Array.from(texto).map((ch, i) => ch.charCodeAt(0) ^ OBF_KEY.charCodeAt(i % OBF_KEY.length));
-      return btoa(String.fromCharCode(...bytes));
-    }
 
     function desofuscarTexto(b64) {
       if (!b64) return "";
@@ -812,12 +805,6 @@
       } catch (e) {
         return "";
       }
-    }
-
-    async function gerarHashSha256(texto) {
-      const msgBuffer = new TextEncoder().encode(texto);
-      const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
-      return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, "0")).join("");
     }
 
     function verificarModoAdmin() {
@@ -957,8 +944,15 @@
       window.addEventListener("hashchange", verificarModoAdmin);
 
       buscarFila();
-      setInterval(() => buscarFila(true), 4000);
-      setInterval(carregarConfigRemota, 15000);
+      // Polling inteligente a cada 6s (pausado se a aba estiver minimizada para poupar cota)
+      setInterval(() => {
+        if (!document.hidden) buscarFila(true);
+      }, 6000);
+
+      // Consulta a planilha de controle a cada 5 minutos
+      setInterval(() => {
+        if (!document.hidden) carregarConfigRemota();
+      }, 300000);
 
       elSelectPosto.addEventListener("change", () => {
         definirPosto(elSelectPosto.value);
@@ -1078,8 +1072,6 @@
         const aindaEmAtendimento = ativos.find(x => x.row === state.activeFicha.row);
         if (aindaEmAtendimento) {
           salvarFichaAtiva(aindaEmAtendimento);
-        } else if (state.apiUrl) {
-          salvarFichaAtiva(null);
         }
       } else if (meuNome) {
         const recuperada = ativos.find(x => String(x.entrevistador || "").trim().toLowerCase() === meuNome);
@@ -1091,6 +1083,16 @@
       state.fila = lista;
       renderizarFila();
       renderizarVisaoAtiva();
+    }
+
+    function mascararCpf(cpf) {
+      if (!cpf) return "Não informado";
+      const s = String(cpf).trim();
+      const digitos = s.replace(/\D/g, "");
+      if (digitos.length === 11) {
+        return `${digitos.slice(0, 3)}.***.***-${digitos.slice(9)}`;
+      }
+      return s;
     }
 
     function renderizarFila() {
@@ -1122,8 +1124,8 @@
               ${escaparHtml(item.nome)}
               ${tagPrioridade}
             </td>
-            <td class="col-cpf" title="Clique para copiar o CPF" onclick="copiarTexto('${escaparAttr(item.cpf)}')">
-              ${escaparHtml(item.cpf)}
+            <td class="col-cpf" title="Clique para copiar o CPF completo" onclick="copiarTexto('${escaparAttr(item.cpf)}')">
+              ${escaparHtml(mascararCpf(item.cpf))}
             </td>
             <td>${escaparHtml(item.tipoAtendimento)}</td>
             <td class="col-resolucao">${escaparHtml(item.resolucao)}</td>
