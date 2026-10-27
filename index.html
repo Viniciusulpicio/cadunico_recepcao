@@ -87,6 +87,24 @@
       gap: 0.6rem;
     }
 
+    .posto-select {
+      border: 1px solid var(--border);
+      background: var(--bg);
+      border-radius: 6px;
+      padding: 0.4rem 0.65rem;
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--blue-dark);
+      cursor: pointer;
+    }
+
+    .posto-select:focus {
+      outline: none;
+      border-color: var(--blue);
+      background: var(--surface);
+    }
+
     .mesa-input {
       border: 1px solid var(--border);
       background: var(--bg);
@@ -449,6 +467,26 @@
       gap: 0.5rem;
     }
 
+    .btn-posto-choice {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      font-family: var(--font-sans);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      text-align: left;
+      transition: background 0.15s ease, border-color 0.15s ease;
+      width: 100%;
+    }
+
+    .btn-posto-choice:hover {
+      background: #EFF6FF;
+      border-color: var(--blue);
+    }
+
     /* Toast discreto */
     .toast {
       position: fixed;
@@ -494,6 +532,11 @@
       </div>
 
       <div class="top-actions">
+        <select class="posto-select" id="selectPosto" title="Selecione o Posto ou CRAS">
+          <option value="central">Posto Central</option>
+          <option value="teotonio">CRAS Teotônio Vilela</option>
+          <option value="rosa_modelli">CRAS Rosa Modelli</option>
+        </select>
         <input type="text" class="mesa-input" id="inputEntrevistador" placeholder="Sua mesa/nome" value="Mesa 01" title="Identificação do entrevistador">
         <button type="button" class="btn-ghost" id="btnOpenConfig" style="display: none;">Admin Planilha</button>
       </div>
@@ -584,19 +627,69 @@
 
   <!-- Painel Admin Remoto (acessível apenas via #admin na URL) -->
   <div class="modal-backdrop" id="configModal">
-    <div class="modal-box">
-      <h3>Planilha do Mês (Admin)</h3>
+    <div class="modal-box" style="max-height: 90vh; overflow-y: auto;">
+      <h3>Planilhas dos Postos (Admin)</h3>
       <p id="lblPlanilhaAtiva" style="font-weight: 600; color: var(--blue); margin-bottom: 0.75rem;">Planilha ativa: verificando...</p>
 
-      <div class="field-label">1. URL do Apps Script da Planilha deste Mês (/exec)</div>
-      <input type="url" class="modal-input" id="inputApiUrl" placeholder="https://script.google.com/macros/s/.../exec">
+      <div style="margin-bottom: 0.75rem;">
+        <div class="field-label">1. Posto Central — URL Apps Script (/exec)</div>
+        <input type="url" class="modal-input" id="inputUrlCentral" placeholder="https://script.google.com/macros/s/.../exec">
+      </div>
 
-      <div class="field-label">2. Sua Senha Admin (protege contra alterações de terceiros)</div>
-      <input type="password" class="modal-input" id="inputAdminPass" placeholder="Digite sua senha de administrador">
+      <div style="margin-bottom: 0.75rem;">
+        <div class="field-label">2. CRAS Teotônio Vilela — URL Apps Script (/exec)</div>
+        <input type="url" class="modal-input" id="inputUrlTeotonio" placeholder="https://script.google.com/macros/s/.../exec">
+      </div>
+
+      <div style="margin-bottom: 0.75rem;">
+        <div class="field-label">3. CRAS Rosa Modelli — URL Apps Script (/exec)</div>
+        <input type="url" class="modal-input" id="inputUrlRosaModelli" placeholder="https://script.google.com/macros/s/.../exec">
+      </div>
+
+      <div style="margin-bottom: 0.75rem;">
+        <div class="field-label">Senha Admin</div>
+        <input type="password" class="modal-input" id="inputAdminPass" placeholder="Digite sua senha de administrador">
+      </div>
 
       <div class="modal-actions">
-        <button type="button" class="btn-ghost" id="btnCloseModal">Cancelar</button>
+        <button type="button" class="btn-ghost" id="btnCloseModal">Fechar</button>
         <button type="button" class="btn-accept" id="btnSaveConfig">Salvar para todos os PCs</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Pergunta Inicial: Qual é o seu Setor? -->
+  <div class="modal-backdrop" id="modalEscolhaPosto">
+    <div class="modal-box" style="max-width: 440px; text-align: center;">
+      <h3 style="font-size: 1.25rem; margin-bottom: 0.35rem;">Qual é o seu setor hoje?</h3>
+      <p style="color: var(--muted); margin-bottom: 1.25rem; font-size: 0.88rem;">
+        Selecione seu posto para carregar a fila de espera correta:
+      </p>
+
+      <div style="display: flex; flex-direction: column; gap: 0.65rem;">
+        <button type="button" class="btn-posto-choice" onclick="definirPosto('central')">
+          <span style="font-size: 1.4rem;">🏛️</span>
+          <div>
+            <div style="font-weight: 700; color: var(--text);">Posto Central</div>
+            <div style="font-size: 0.78rem; color: var(--muted); font-weight: normal;">Atendimento central</div>
+          </div>
+        </button>
+
+        <button type="button" class="btn-posto-choice" onclick="definirPosto('teotonio')">
+          <span style="font-size: 1.4rem;">📍</span>
+          <div>
+            <div style="font-weight: 700; color: var(--text);">CRAS Teotônio Vilela</div>
+            <div style="font-size: 0.78rem; color: var(--muted); font-weight: normal;">Atendimento da unidade Teotônio</div>
+          </div>
+        </button>
+
+        <button type="button" class="btn-posto-choice" onclick="definirPosto('rosa_modelli')">
+          <span style="font-size: 1.4rem;">📍</span>
+          <div>
+            <div style="font-weight: 700; color: var(--text);">CRAS Rosa Modelli</div>
+            <div style="font-size: 0.78rem; color: var(--muted); font-weight: normal;">Atendimento da unidade Rosa Modelli</div>
+          </div>
+        </button>
       </div>
     </div>
   </div>
@@ -604,14 +697,45 @@
   <div class="toast" id="toastMsg">Copiado</div>
 
   <script>
-    const DEFAULT_SCRIPT_URL = "";
+    const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw6THZwdIMGO4L8xmUUk6el3AnokgLIjOeGeV8NfUOJkXqV6tfshXLvev5lP-dwznaK/exec";
 
     const STORAGE_KEYS = {
+      POSTO_ATIVO: "cadunico_posto_ativo_v1",
+      POSTOS_URLS: "cadunico_postos_urls_v1",
       API_URL: "cadunico_api_url_v1",
       INTERVIEWER: "cadunico_entrevistador_v1",
       ACTIVE_FICHA: "cadunico_ficha_ativa_v1",
       GH_TOKEN: "cadunico_gh_token_v1"
     };
+
+    const POSTOS = {
+      central: { id: "central", nome: "Posto Central" },
+      teotonio: { id: "teotonio", nome: "CRAS Teotônio Vilela" },
+      rosa_modelli: { id: "rosa_modelli", nome: "CRAS Rosa Modelli" }
+    };
+
+    function obterPostoInicial() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const param = urlParams.get("posto");
+      if (param && POSTOS[param]) return param;
+      const hash = window.location.hash.replace("#", "");
+      if (POSTOS[hash]) return hash;
+      const salvo = localStorage.getItem(STORAGE_KEYS.POSTO_ATIVO);
+      if (salvo && POSTOS[salvo]) return salvo;
+      return "central";
+    }
+
+    function carregarPostosUrlsSalvos() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEYS.POSTOS_URLS);
+        if (raw) return JSON.parse(raw);
+      } catch (e) {}
+      return {
+        central: localStorage.getItem(STORAGE_KEYS.API_URL) || DEFAULT_SCRIPT_URL,
+        teotonio: "",
+        rosa_modelli: ""
+      };
+    }
 
     let demoQueue = [
       {
@@ -655,8 +779,13 @@
       }
     ];
 
+    const postoInicial = obterPostoInicial();
+    const urlsSalvas = carregarPostosUrlsSalvos();
+
     let state = {
-      apiUrl: localStorage.getItem(STORAGE_KEYS.API_URL) || DEFAULT_SCRIPT_URL,
+      postoAtivo: postoInicial,
+      postosUrls: urlsSalvas,
+      apiUrl: urlsSalvas[postoInicial] || "",
       sheetUrl: "",
       planilhaNome: "",
       entrevistador: localStorage.getItem(STORAGE_KEYS.INTERVIEWER) || "Mesa 01",
@@ -664,6 +793,7 @@
       fila: []
     };
 
+    const elSelectPosto = document.getElementById("selectPosto");
     const elInputEntrevistador = document.getElementById("inputEntrevistador");
     const elCountTotal = document.getElementById("countTotal");
     const elLblStatus = document.getElementById("lblStatus");
@@ -683,7 +813,10 @@
     const elBtnDevolver = document.getElementById("btnDevolverFila");
 
     const elConfigModal = document.getElementById("configModal");
-    const elInputApiUrl = document.getElementById("inputApiUrl");
+    const elModalEscolhaPosto = document.getElementById("modalEscolhaPosto");
+    const elInputUrlCentral = document.getElementById("inputUrlCentral");
+    const elInputUrlTeotonio = document.getElementById("inputUrlTeotonio");
+    const elInputUrlRosaModelli = document.getElementById("inputUrlRosaModelli");
     const elInputAdminPass = document.getElementById("inputAdminPass");
     const elLblPlanilhaAtiva = document.getElementById("lblPlanilhaAtiva");
     const elBtnOpenConfig = document.getElementById("btnOpenConfig");
@@ -716,26 +849,51 @@
     }
 
     function verificarModoAdmin() {
-      const isAdmin = window.location.hash === "#admin" || new URLSearchParams(window.location.search).get("admin") === "1";
+      const isAdmin = window.location.hash.includes("admin") || new URLSearchParams(window.location.search).get("admin") === "1";
       elBtnOpenConfig.style.display = isAdmin ? "inline-block" : "none";
       if (isAdmin) {
-        elInputApiUrl.value = state.apiUrl;
+        elInputUrlCentral.value = state.postosUrls.central || "";
+        elInputUrlTeotonio.value = state.postosUrls.teotonio || "";
+        elInputUrlRosaModelli.value = state.postosUrls.rosa_modelli || "";
+        atualizarLabelPlanilhaAdmin();
         elConfigModal.classList.add("open");
       }
     }
 
+    function atualizarLabelPlanilhaAdmin() {
+      const nomePosto = POSTOS[state.postoAtivo] ? POSTOS[state.postoAtivo].nome : state.postoAtivo;
+      const urlAtual = state.postosUrls[state.postoAtivo];
+      if (urlAtual) {
+        elLblPlanilhaAtiva.textContent = `Unidade ativa: ${nomePosto} (conectada)`;
+      } else {
+        elLblPlanilhaAtiva.textContent = `Unidade ativa: ${nomePosto} (nenhuma planilha vinculada)`;
+      }
+    }
+
     async function carregarConfigRemota() {
+      let mudou = false;
+
       try {
         const resCloud = await fetch(CLOUD_SYNC_URL, { cache: "no-store" });
         if (resCloud.ok) {
           const obj = await resCloud.json();
           const d = (obj && obj.data) ? obj.data : {};
-          const urlNuvem = d.payload ? desofuscarTexto(d.payload) : (typeof d.scriptUrl === "string" ? d.scriptUrl.trim() : "");
-          if (urlNuvem && urlNuvem !== state.apiUrl) {
-            state.apiUrl = urlNuvem;
-            localStorage.setItem(STORAGE_KEYS.API_URL, state.apiUrl);
-            buscarFila(true);
-            return;
+          if (d.postos && typeof d.postos === "object") {
+            for (const k of ["central", "teotonio", "rosa_modelli"]) {
+              if (d.postos[k]) {
+                const url = desofuscarTexto(d.postos[k]).trim();
+                if (url && url !== state.postosUrls[k]) {
+                  state.postosUrls[k] = url;
+                  mudou = true;
+                }
+              }
+            }
+          } else if (d.payload) {
+            const urlNuvem = desofuscarTexto(d.payload).trim();
+            if (urlNuvem && urlNuvem !== state.postosUrls.central) {
+              state.postosUrls.central = urlNuvem;
+              mudou = true;
+            }
           }
         }
       } catch (ignore) {}
@@ -744,29 +902,58 @@
         const resLocal = await fetch(`./config.json?_t=${Date.now()}`, { cache: "no-store" });
         if (resLocal.ok) {
           const cfg = await resLocal.json();
-          const urlBackup = (cfg && cfg.payload) ? desofuscarTexto(cfg.payload) : (cfg && typeof cfg.scriptUrl === "string" ? cfg.scriptUrl.trim() : "");
-          if (urlBackup && urlBackup !== state.apiUrl) {
-            state.apiUrl = urlBackup;
-            localStorage.setItem(STORAGE_KEYS.API_URL, state.apiUrl);
-            buscarFila(true);
+          if (cfg && cfg.postos && typeof cfg.postos === "object") {
+            for (const k of ["central", "teotonio", "rosa_modelli"]) {
+              if (cfg.postos[k]) {
+                const item = cfg.postos[k];
+                const url = item.payload ? desofuscarTexto(item.payload).trim() : (item.scriptUrl || item.url || "").trim();
+                if (url && !state.postosUrls[k]) {
+                  state.postosUrls[k] = url;
+                  mudou = true;
+                }
+              }
+            }
+          }
+          if (cfg && cfg.payload && !state.postosUrls.central) {
+            const urlBackup = desofuscarTexto(cfg.payload).trim();
+            if (urlBackup) {
+              state.postosUrls.central = urlBackup;
+              mudou = true;
+            }
           }
         }
       } catch (ignore) {}
+
+      const urlAtualPosto = state.postosUrls[state.postoAtivo] || "";
+      if (urlAtualPosto !== state.apiUrl) {
+        state.apiUrl = urlAtualPosto;
+        mudou = true;
+      }
+
+      if (mudou) {
+        localStorage.setItem(STORAGE_KEYS.POSTOS_URLS, JSON.stringify(state.postosUrls));
+        localStorage.setItem(STORAGE_KEYS.API_URL, state.apiUrl);
+        buscarFila(true);
+      }
     }
 
-    async function salvarUrlNaNuvem(novaUrl, senhaAdmin) {
+    async function salvarConfigNaNuvem(novasUrls, senhaAdmin) {
       if (!senhaAdmin) {
         throw new Error("Digite sua Senha Admin para salvar");
       }
       const senhaHash = await gerarHashSha256(senhaAdmin);
 
-      const getRes = await fetch(CLOUD_SYNC_URL, { cache: "no-store" });
-      if (getRes.ok) {
-        const atual = await getRes.json();
-        const hashSalvo = atual && atual.data && atual.data.adminHash;
-        if (hashSalvo && hashSalvo !== senhaHash) {
-          throw new Error("Senha Admin incorreta");
+      try {
+        const getRes = await fetch(CLOUD_SYNC_URL, { cache: "no-store" });
+        if (getRes.ok) {
+          const atual = await getRes.json();
+          const hashSalvo = atual && atual.data && atual.data.adminHash;
+          if (hashSalvo && hashSalvo !== senhaHash) {
+            throw new Error("Senha Admin incorreta");
+          }
         }
+      } catch (errCheck) {
+        if (errCheck.message === "Senha Admin incorreta") throw errCheck;
       }
 
       const res = await fetch(CLOUD_SYNC_URL, {
@@ -775,7 +962,12 @@
         body: JSON.stringify({
           name: "cadunico_cfg",
           data: {
-            payload: ofuscarTexto(novaUrl),
+            payload: ofuscarTexto(novasUrls.central || ""),
+            postos: {
+              central: ofuscarTexto(novasUrls.central || ""),
+              teotonio: ofuscarTexto(novasUrls.teotonio || ""),
+              rosa_modelli: ofuscarTexto(novasUrls.rosa_modelli || "")
+            },
             adminHash: senhaHash
           }
         })
@@ -783,16 +975,55 @@
       if (!res.ok) throw new Error("Falha ao sincronizar na nuvem");
     }
 
+    function definirPosto(chavePosto) {
+      if (!POSTOS[chavePosto]) return;
+      state.postoAtivo = chavePosto;
+      localStorage.setItem(STORAGE_KEYS.POSTO_ATIVO, chavePosto);
+
+      if (elSelectPosto) elSelectPosto.value = chavePosto;
+
+      const url = new URL(window.location.href);
+      url.searchParams.set("posto", chavePosto);
+      window.history.replaceState({}, "", url.toString());
+
+      state.apiUrl = state.postosUrls[chavePosto] || "";
+      localStorage.setItem(STORAGE_KEYS.API_URL, state.apiUrl);
+
+      if (elModalEscolhaPosto) elModalEscolhaPosto.classList.remove("open");
+      salvarFichaAtiva(null);
+      state.fila = [];
+      renderizarFila();
+      buscarFila();
+      atualizarLabelPlanilhaAdmin();
+    }
+
+    function verificarExibicaoEscolhaPosto() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const temPostoNaUrl = Boolean(urlParams.get("posto"));
+      const isAdmin = window.location.hash.includes("admin") || urlParams.get("admin") === "1";
+
+      if (!temPostoNaUrl && !isAdmin) {
+        if (elModalEscolhaPosto) elModalEscolhaPosto.classList.add("open");
+      }
+    }
+
     async function init() {
       elInputEntrevistador.value = state.entrevistador;
+      if (elSelectPosto) elSelectPosto.value = state.postoAtivo;
+
       renderizarVisaoAtiva();
       await carregarConfigRemota();
       verificarModoAdmin();
+      verificarExibicaoEscolhaPosto();
       window.addEventListener("hashchange", verificarModoAdmin);
 
       buscarFila();
       setInterval(() => buscarFila(true), 4000);
       setInterval(carregarConfigRemota, 15000);
+
+      elSelectPosto.addEventListener("change", () => {
+        definirPosto(elSelectPosto.value);
+      });
 
       elInputEntrevistador.addEventListener("change", () => {
         state.entrevistador = elInputEntrevistador.value.trim() || "Mesa 01";
@@ -800,7 +1031,10 @@
       });
 
       elBtnOpenConfig.addEventListener("click", () => {
-        elInputApiUrl.value = state.apiUrl;
+        elInputUrlCentral.value = state.postosUrls.central || "";
+        elInputUrlTeotonio.value = state.postosUrls.teotonio || "";
+        elInputUrlRosaModelli.value = state.postosUrls.rosa_modelli || "";
+        atualizarLabelPlanilhaAdmin();
         elConfigModal.classList.add("open");
       });
 
@@ -809,19 +1043,31 @@
       });
 
       elBtnSaveConfig.addEventListener("click", async () => {
-        const novaApiUrl = elInputApiUrl.value.trim();
+        const novasUrls = {
+          central: elInputUrlCentral.value.trim(),
+          teotonio: elInputUrlTeotonio.value.trim(),
+          rosa_modelli: elInputUrlRosaModelli.value.trim()
+        };
         const senhaAdmin = elInputAdminPass.value.trim();
 
         elBtnSaveConfig.disabled = true;
         try {
-          await salvarUrlNaNuvem(novaApiUrl, senhaAdmin);
-          state.apiUrl = novaApiUrl;
+          await salvarConfigNaNuvem(novasUrls, senhaAdmin);
+          state.postosUrls = novasUrls;
+          localStorage.setItem(STORAGE_KEYS.POSTOS_URLS, JSON.stringify(novasUrls));
+          state.apiUrl = state.postosUrls[state.postoAtivo] || "";
           localStorage.setItem(STORAGE_KEYS.API_URL, state.apiUrl);
-          mostrarToast("Salvo! Todos os PCs do CRAS já estão usando a nova planilha.");
+          mostrarToast("Salvo na nuvem com sucesso para todos os postos!");
           elConfigModal.classList.remove("open");
           buscarFila();
         } catch (err) {
-          mostrarToast(err.message || "Erro ao salvar na nuvem");
+          state.postosUrls = novasUrls;
+          localStorage.setItem(STORAGE_KEYS.POSTOS_URLS, JSON.stringify(novasUrls));
+          state.apiUrl = state.postosUrls[state.postoAtivo] || "";
+          localStorage.setItem(STORAGE_KEYS.API_URL, state.apiUrl);
+          mostrarToast(err.message ? `${err.message}. Salvo localmente neste navegador.` : "Salvo localmente.");
+          elConfigModal.classList.remove("open");
+          buscarFila();
         } finally {
           elBtnSaveConfig.disabled = false;
         }
@@ -865,11 +1111,13 @@
       const sufixoModo = state.apiUrl ? "" : " (Modo demonstração)";
       elLblStatus.textContent = `Atualizado às ${data.atualizadoEm || "--:--"}${sufixoModo}`;
 
+      const nomePosto = POSTOS[state.postoAtivo] ? POSTOS[state.postoAtivo].nome : state.postoAtivo;
+
       if (data.planilhaNome) {
         state.planilhaNome = data.planilhaNome;
-        elLblPlanilhaAtiva.textContent = `Planilha ativa no CRAS: ${data.planilhaNome}`;
+        elLblPlanilhaAtiva.textContent = `Planilha ativa (${nomePosto}): ${data.planilhaNome}`;
       } else if (!state.apiUrl) {
-        elLblPlanilhaAtiva.textContent = "Planilha ativa: Modo demonstração (sem script vinculado)";
+        elLblPlanilhaAtiva.textContent = `Planilha ativa (${nomePosto}): nenhuma planilha vinculada`;
       }
 
       const lista = Array.isArray(data.fila) ? data.fila : [];
@@ -901,11 +1149,16 @@
 
     function renderizarFila() {
       elCountTotal.textContent = state.fila.length;
+      const nomePosto = POSTOS[state.postoAtivo] ? POSTOS[state.postoAtivo].nome : state.postoAtivo;
 
       if (state.fila.length === 0) {
+        const msgVazia = !state.apiUrl
+          ? `Nenhuma planilha configurada para o ${escaparHtml(nomePosto)}. Use o painel #admin para configurar a URL do Apps Script.`
+          : `Nenhum cidadão aguardando no ${escaparHtml(nomePosto)} no momento.`;
+
         elQueueTableBody.innerHTML = `
           <tr>
-            <td colspan="6" class="empty-box">Nenhum cidadão aguardando no momento.</td>
+            <td colspan="6" class="empty-box">${msgVazia}</td>
           </tr>
         `;
         return;

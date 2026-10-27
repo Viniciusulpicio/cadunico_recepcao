@@ -1,3 +1,17 @@
 {
-  "payload": "CxUQBR1TTEAsAAAIAytdAhsAFTNXHlFZDk4JFA0bDBxwEF0gODkKBhYYRAt6akVSKiwjOlolWxcyNicKRTofVjUBHTRVfHtcLAQjEDhRLQkKLDgKKy4lUwAJATdqfERTFVQIJUMNFBUxAjlOFicWBg=="
+  "payload": "CxUQBR1TTEAsAAAIAytdAhsAFTNXHlFZDk4JFA0bDBxwEF0gODkKBhYYRAt6akVSKiwjOlolWxcyNicKRTofVjUBHTRVfHtcLAQjEDhRLQkKLDgKKy4lUwAJATdqfERTFVQIJUMNFBUxAjlOFicWBg==",
+  "postos": {
+    "central": {
+      "nome": "Posto Central",
+      "scriptUrl": "https://script.google.com/macros/s/AKfycbw6THZwdIMGO4L8xmUUk6el3AnokgLIjOeGeV8NfUOJkXqV6tfshXLvev5lP-dwznaK/exec"
+    },
+    "teotonio": {
+      "nome": "CRAS Teotônio Vilela",
+      "scriptUrl": ""
+    },
+    "rosa_modelli": {
+      "nome": "CRAS Rosa Modelli",
+      "scriptUrl": ""
+    }
+  }
 }
