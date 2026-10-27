@@ -659,14 +659,14 @@
         <input type="url" class="modal-input" id="inputUrlRosaModelli" placeholder="https://script.google.com/macros/s/.../exec">
       </div>
 
-      <div style="margin-bottom: 0.75rem;">
-        <div class="field-label">Senha Admin</div>
-        <input type="password" class="modal-input" id="inputAdminPass" placeholder="Digite sua senha de administrador">
+      <div style="background: #F8FAFC; border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem; font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem;">
+        <strong>Sincronização permanente:</strong> Para aplicar as URLs em todos os computadores de todos os postos de uma vez, salve no <a href="https://github.com/Viniciusulpicio/cadunico_recepcao/edit/main/config.json" target="_blank" style="color: var(--blue); font-weight: bold; text-decoration: underline;">config.json do GitHub</a>.
       </div>
 
       <div class="modal-actions">
         <button type="button" class="btn-ghost" id="btnCloseModal">Fechar</button>
-        <button type="button" class="btn-accept" id="btnSaveConfig">Salvar para todos os PCs</button>
+        <button type="button" class="btn-ghost" id="btnCopiarJsonConfig">Copiar JSON</button>
+        <button type="button" class="btn-accept" id="btnSaveConfig">Salvar neste computador</button>
       </div>
     </div>
   </div>
@@ -844,31 +844,6 @@
       let mudou = false;
 
       try {
-        const resCloud = await fetch(CLOUD_SYNC_URL, { cache: "no-store" });
-        if (resCloud.ok) {
-          const obj = await resCloud.json();
-          const d = (obj && obj.data) ? obj.data : {};
-          if (d.postos && typeof d.postos === "object") {
-            for (const k of ["central", "teotonio", "rosa_modelli"]) {
-              if (d.postos[k]) {
-                const url = desofuscarTexto(d.postos[k]).trim();
-                if (url && url !== state.postosUrls[k]) {
-                  state.postosUrls[k] = url;
-                  mudou = true;
-                }
-              }
-            }
-          } else if (d.payload) {
-            const urlNuvem = desofuscarTexto(d.payload).trim();
-            if (urlNuvem && urlNuvem !== state.postosUrls.central) {
-              state.postosUrls.central = urlNuvem;
-              mudou = true;
-            }
-          }
-        }
-      } catch (ignore) {}
-
-      try {
         const resLocal = await fetch(`./config.json?_t=${Date.now()}`, { cache: "no-store" });
         if (resLocal.ok) {
           const cfg = await resLocal.json();
@@ -898,44 +873,6 @@
         localStorage.setItem(STORAGE_KEYS.API_URL, state.apiUrl);
         buscarFila(true);
       }
-    }
-
-    async function salvarConfigNaNuvem(novasUrls, senhaAdmin) {
-      if (!senhaAdmin) {
-        throw new Error("Digite sua Senha Admin para salvar");
-      }
-      const senhaHash = await gerarHashSha256(senhaAdmin);
-
-      try {
-        const getRes = await fetch(CLOUD_SYNC_URL, { cache: "no-store" });
-        if (getRes.ok) {
-          const atual = await getRes.json();
-          const hashSalvo = atual && atual.data && atual.data.adminHash;
-          if (hashSalvo && hashSalvo !== senhaHash) {
-            throw new Error("Senha Admin incorreta");
-          }
-        }
-      } catch (errCheck) {
-        if (errCheck.message === "Senha Admin incorreta") throw errCheck;
-      }
-
-      const res = await fetch(CLOUD_SYNC_URL, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: "cadunico_cfg",
-          data: {
-            payload: ofuscarTexto(novasUrls.central || ""),
-            postos: {
-              central: ofuscarTexto(novasUrls.central || ""),
-              teotonio: ofuscarTexto(novasUrls.teotonio || ""),
-              rosa_modelli: ofuscarTexto(novasUrls.rosa_modelli || "")
-            },
-            adminHash: senhaHash
-          }
-        })
-      });
-      if (!res.ok) throw new Error("Falha ao sincronizar na nuvem");
     }
 
     function definirPosto(chavePosto) {
@@ -999,32 +936,36 @@
         elConfigModal.classList.remove("open");
       });
 
-      elBtnSaveConfig.addEventListener("click", async () => {
+      const btnCopiarJson = document.getElementById("btnCopiarJsonConfig");
+      if (btnCopiarJson) {
+        btnCopiarJson.addEventListener("click", () => {
+          const cfgObj = {
+            postos: {
+              central: { nome: "Posto Central", scriptUrl: elInputUrlCentral.value.trim() },
+              teotonio: { nome: "CRAS Teotônio Vilela", scriptUrl: elInputUrlTeotonio.value.trim() },
+              rosa_modelli: { nome: "CRAS Rosa Modelli", scriptUrl: elInputUrlRosaModelli.value.trim() }
+            }
+          };
+          copiarTexto(JSON.stringify(cfgObj, null, 2));
+          mostrarToast("JSON copiado! Cole no config.json do GitHub.");
+        });
+      }
+
+      elBtnSaveConfig.addEventListener("click", () => {
         const novasUrls = {
           central: elInputUrlCentral.value.trim(),
           teotonio: elInputUrlTeotonio.value.trim(),
           rosa_modelli: elInputUrlRosaModelli.value.trim()
         };
-        const senhaAdmin = elInputAdminPass.value.trim();
 
-        elBtnSaveConfig.disabled = true;
-
-        // Salva imediatamente no estado e no localStorage (garante persistencia local)
         state.postosUrls = novasUrls;
         localStorage.setItem(STORAGE_KEYS.POSTOS_URLS, JSON.stringify(novasUrls));
         state.apiUrl = state.postosUrls[state.postoAtivo] || "";
         localStorage.setItem(STORAGE_KEYS.API_URL, state.apiUrl);
 
-        try {
-          await salvarConfigNaNuvem(novasUrls, senhaAdmin);
-          mostrarToast("Salvo com sucesso!");
-        } catch (err) {
-          mostrarToast("Salvo com sucesso neste computador!");
-        } finally {
-          elBtnSaveConfig.disabled = false;
-          elConfigModal.classList.remove("open");
-          buscarFila();
-        }
+        mostrarToast("Salvo neste computador! Para os outros PCs, atualize o config.json no GitHub.");
+        elConfigModal.classList.remove("open");
+        buscarFila();
       });
 
       elBtnCopyFichaCpf.addEventListener("click", () => {
