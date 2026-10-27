@@ -450,23 +450,55 @@
     }
 
     .btn-posto-choice {
-      background: var(--bg);
+      background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 0.85rem 1rem;
+      padding: 0.95rem 1.15rem;
       font-family: var(--font-sans);
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 0.85rem;
+      justify-content: space-between;
       text-align: left;
-      transition: background 0.15s ease, border-color 0.15s ease;
+      transition: all 0.15s ease;
       width: 100%;
     }
 
     .btn-posto-choice:hover {
       background: #EFF6FF;
       border-color: var(--blue);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+    }
+
+    .btn-posto-choice .posto-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .btn-posto-choice .posto-title {
+      font-weight: 700;
+      font-size: 0.98rem;
+      color: var(--text);
+    }
+
+    .btn-posto-choice .posto-desc {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .btn-posto-choice .posto-arrow {
+      color: var(--blue);
+      font-weight: 700;
+      font-size: 1.1rem;
+      opacity: 0.6;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+
+    .btn-posto-choice:hover .posto-arrow {
+      opacity: 1;
+      transform: translateX(3px);
     }
 
     /* Toast discreto */
@@ -641,35 +673,35 @@
 
   <!-- Modal de Pergunta Inicial: Qual é o seu Setor? -->
   <div class="modal-backdrop" id="modalEscolhaPosto">
-    <div class="modal-box" style="max-width: 440px; text-align: center;">
-      <h3 style="font-size: 1.25rem; margin-bottom: 0.35rem;">Qual é o seu setor hoje?</h3>
-      <p style="color: var(--muted); margin-bottom: 1.25rem; font-size: 0.88rem;">
-        Selecione seu posto para carregar a fila de espera correta:
+    <div class="modal-box" style="max-width: 440px;">
+      <h3 style="font-size: 1.2rem; margin-bottom: 0.35rem; text-align: center;">Qual é o seu setor hoje?</h3>
+      <p style="color: var(--muted); margin-bottom: 1.25rem; font-size: 0.88rem; text-align: center;">
+        Selecione seu posto para carregar a fila de espera correspondente:
       </p>
 
       <div style="display: flex; flex-direction: column; gap: 0.65rem;">
         <button type="button" class="btn-posto-choice" onclick="definirPosto('central')">
-          <span style="font-size: 1.4rem;">🏛️</span>
-          <div>
-            <div style="font-weight: 700; color: var(--text);">Posto Central</div>
-            <div style="font-size: 0.78rem; color: var(--muted); font-weight: normal;">Atendimento central</div>
+          <div class="posto-meta">
+            <span class="posto-title">Posto Central</span>
+            <span class="posto-desc">Atendimento da unidade Central</span>
           </div>
+          <span class="posto-arrow">→</span>
         </button>
 
         <button type="button" class="btn-posto-choice" onclick="definirPosto('teotonio')">
-          <span style="font-size: 1.4rem;">📍</span>
-          <div>
-            <div style="font-weight: 700; color: var(--text);">CRAS Teotônio Vilela</div>
-            <div style="font-size: 0.78rem; color: var(--muted); font-weight: normal;">Atendimento da unidade Teotônio</div>
+          <div class="posto-meta">
+            <span class="posto-title">CRAS Teotônio Vilela</span>
+            <span class="posto-desc">Atendimento da unidade Teotônio</span>
           </div>
+          <span class="posto-arrow">→</span>
         </button>
 
         <button type="button" class="btn-posto-choice" onclick="definirPosto('rosa_modelli')">
-          <span style="font-size: 1.4rem;">📍</span>
-          <div>
-            <div style="font-weight: 700; color: var(--text);">CRAS Rosa Modelli</div>
-            <div style="font-size: 0.78rem; color: var(--muted); font-weight: normal;">Atendimento da unidade Rosa Modelli</div>
+          <div class="posto-meta">
+            <span class="posto-title">CRAS Rosa Modelli</span>
+            <span class="posto-desc">Atendimento da unidade Rosa Modelli</span>
           </div>
+          <span class="posto-arrow">→</span>
         </button>
       </div>
     </div>
