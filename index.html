@@ -1277,9 +1277,6 @@
         const aindaEmAtendimento = ativos.find(x => x.row === state.activeFicha.row);
         if (aindaEmAtendimento) {
           salvarFichaAtiva(aindaEmAtendimento);
-        } else {
-          // Finalizado ou devolvido à fila em outro momento
-          salvarFichaAtiva(null);
         }
       }
 
@@ -1292,8 +1289,9 @@
       if (!cpf) return "Não informado";
       const s = String(cpf).trim();
       const digitos = s.replace(/\D/g, "");
-      if (digitos.length === 11) {
-        return `${digitos.slice(0, 3)}.***.***-${digitos.slice(9)}`;
+      if (digitos.length >= 8 && digitos.length <= 11) {
+        const pad = digitos.padStart(11, "0");
+        return `${pad.slice(0, 3)}.***.***-${pad.slice(9)}`;
       }
       return s;
     }
@@ -1399,6 +1397,7 @@
         }
       } catch (e) {
         mostrarToast("Erro ao aceitar atendimento");
+      } finally {
         if (btn) btn.disabled = false;
       }
     }
@@ -1482,9 +1481,29 @@
 
     function copiarTexto(texto) {
       if (!texto) return;
-      navigator.clipboard.writeText(texto).then(() => {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(texto).then(() => {
+          mostrarToast(`CPF ${texto} copiado`);
+        }).catch(() => fallbackCopiar(texto));
+      } else {
+        fallbackCopiar(texto);
+      }
+    }
+
+    function fallbackCopiar(texto) {
+      try {
+        const temp = document.createElement("textarea");
+        temp.value = texto;
+        temp.style.position = "fixed";
+        temp.style.opacity = "0";
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand("copy");
+        document.body.removeChild(temp);
         mostrarToast(`CPF ${texto} copiado`);
-      });
+      } catch (e) {
+        mostrarToast(`CPF: ${texto}`);
+      }
     }
 
     function mostrarToast(msg, duracao = 2400) {
