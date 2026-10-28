@@ -1386,7 +1386,10 @@
           salvarFichaAtiva(item);
           buscarFila(true);
         } else {
-          mostrarToast(resultado.erro || "Já aceito por outro entrevistador");
+          const msgAviso = (resultado && (resultado.codigo === "JA_ACEITO" || resultado.codigo === "JA_FINALIZADO"))
+            ? "Outro servidor já aceitou este atendimento."
+            : ((resultado && resultado.erro) || "Outro servidor já aceitou este atendimento.");
+          mostrarToast(msgAviso, 4000);
           buscarFila(true);
         }
       } catch (e) {
@@ -1479,11 +1482,11 @@
       });
     }
 
-    function mostrarToast(msg) {
+    function mostrarToast(msg, duracao = 2400) {
       elToast.textContent = msg;
       elToast.classList.add("show");
       clearTimeout(window._toastTimer);
-      window._toastTimer = setTimeout(() => elToast.classList.remove("show"), 2200);
+      window._toastTimer = setTimeout(() => elToast.classList.remove("show"), duracao);
     }
 
     function escaparHtml(str) {

@@ -296,18 +296,11 @@ function executarAcao_(payload) {
     var agora = horaAgoraBrasil_();
 
     if (action === "aceitar") {
-      if (statusAtual === "EM_ATENDIMENTO") {
+      if (statusAtual === "EM_ATENDIMENTO" || statusAtual === "FINALIZADO") {
         return respostaJson_({
           ok: false,
           codigo: "JA_ACEITO",
-          erro: "Este cidadão já foi aceito."
-        });
-      }
-      if (statusAtual === "FINALIZADO") {
-        return respostaJson_({
-          ok: false,
-          codigo: "JA_FINALIZADO",
-          erro: "Este atendimento já foi finalizado."
+          erro: "Outro servidor já aceitou este atendimento."
         });
       }
 
