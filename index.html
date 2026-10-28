@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CadÚnico — Fila do Setor</title>
+  <link rel="icon" id="dynamicFavicon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%231351B4'/><circle cx='11' cy='11' r='3.5' fill='%23FFCD07'/><circle cx='21' cy='10' r='4' fill='%23168821'/><path d='M6 24c0-3.5 3-5.5 6-5.5s6 2 6 5.5' fill='white'/><path d='M16 24c0-4 3-6.5 7-6.5s6 2.5 6 6.5' fill='%23FFCD07'/></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -534,6 +535,26 @@
         text-align: center;
       }
     }
+
+    .page-footer {
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      margin-top: 3.5rem;
+      padding: 1.5rem 1rem;
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .footer-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
   </style>
 </head>
 <body>
@@ -551,6 +572,7 @@
           <option value="teotonio">CRAS Teotônio Vilela</option>
           <option value="rosa_modelli">CRAS Rosa Modelli</option>
         </select>
+        <button type="button" class="btn-ghost" id="btnTestarAlerta" title="Testar alerta de nova chegada na fila">🔔 Testar Alerta</button>
         <button type="button" class="btn-ghost" id="btnOpenConfig" style="display: none;">Admin Planilha</button>
       </div>
     </div>
@@ -637,6 +659,14 @@
     </section>
 
   </main>
+
+  <footer class="page-footer">
+    <div class="footer-inner">
+      <span>Cadastro Único • Fila do Setor Interno</span>
+      <span>•</span>
+      <span>Desenvolvido por Vinícius Sulpicio</span>
+    </div>
+  </footer>
 
   <!-- Painel Admin Remoto (acessível apenas via #admin na URL) -->
   <div class="modal-backdrop" id="configModal">
@@ -918,6 +948,9 @@
 
       if (elModalEscolhaPosto) elModalEscolhaPosto.classList.remove("open");
       salvarFichaAtiva(null);
+      pararAlertaAba();
+      rowsConhecidas = new Set();
+      primeiraCargaConcluida = false;
       state.fila = [];
       renderizarFila();
       buscarFila();
@@ -937,6 +970,11 @@
     async function init() {
       if (elSelectPosto) elSelectPosto.value = state.postoAtivo;
 
+      // Limpa dados legados de localStorage para garantir isolamento por aba
+      try {
+        localStorage.removeItem(STORAGE_KEYS.ACTIVE_FICHA);
+      } catch (e) {}
+
       renderizarVisaoAtiva();
       await carregarConfigRemota();
       verificarModoAdmin();
@@ -944,10 +982,10 @@
       window.addEventListener("hashchange", verificarModoAdmin);
 
       buscarFila();
-      // Polling inteligente a cada 6s (pausado se a aba estiver minimizada para poupar cota)
+      // Polling contínuo a cada 7s para atualizar e alertar novos atendimentos mesmo em segundo plano
       setInterval(() => {
-        if (!document.hidden) buscarFila(true);
-      }, 6000);
+        buscarFila(true);
+      }, 7000);
 
       // Consulta a planilha de controle a cada 5 minutos
       setInterval(() => {
@@ -957,6 +995,17 @@
       elSelectPosto.addEventListener("change", () => {
         definirPosto(elSelectPosto.value);
       });
+
+      const elBtnTestar = document.getElementById("btnTestarAlerta");
+      if (elBtnTestar) {
+        elBtnTestar.addEventListener("click", () => {
+          solicitarPermissaoNotificacao();
+          mostrarToast("Alerta em 3 segundos... mude de aba ou minimize!");
+          setTimeout(() => {
+            iniciarAlertaAba(1, ["Cidadão de Teste"]);
+          }, 3000);
+        });
+      }
 
       elBtnOpenConfig.addEventListener("click", () => {
         elInputUrlCentral.value = state.postosUrls.central || "";
@@ -1026,6 +1075,83 @@
       return `${baseScript}${sep}action=${action}${paramSheet}${extras}&_t=${Date.now()}`;
     }
 
+    const TITULO_PADRAO = "CadÚnico — Fila do Setor";
+    const FAVICON_PADRAO = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%231351B4'/><circle cx='11' cy='11' r='3.5' fill='%23FFCD07'/><circle cx='21' cy='10' r='4' fill='%23168821'/><path d='M6 24c0-3.5 3-5.5 6-5.5s6 2 6 5.5' fill='white'/><path d='M16 24c0-4 3-6.5 7-6.5s6 2.5 6 6.5' fill='%23FFCD07'/></svg>";
+    const FAVICON_VERMELHO = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='%23DC2626'/><circle cx='16' cy='16' r='6' fill='%23FFFFFF'/></svg>";
+
+    let timerPiscarAba = null;
+    let piscarAlternado = false;
+    let rowsConhecidas = new Set();
+    let primeiraCargaConcluida = false;
+
+    function solicitarPermissaoNotificacao() {
+      if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission();
+      }
+    }
+
+    // Solicita permissão de notificação no primeiro clique da página
+    window.addEventListener("click", solicitarPermissaoNotificacao, { once: true });
+
+    function dispararNotificacaoDesktop(qtdNovos, nomesNovos) {
+      if (!("Notification" in window) || Notification.permission !== "granted") return;
+      try {
+        const titulo = qtdNovos > 1
+          ? `(${qtdNovos}) Novos Atendimentos — CadÚnico`
+          : `Novo Atendimento — CadÚnico`;
+        const corpo = nomesNovos && nomesNovos.length > 0
+          ? `${nomesNovos.join(", ")} aguardando chamada.`
+          : `Novo cidadão aguardando chamada na fila.`;
+
+        const notif = new Notification(titulo, {
+          body: corpo,
+          icon: FAVICON_VERMELHO,
+          tag: "cadunico-novo-atendimento"
+        });
+
+        notif.onclick = () => {
+          window.focus();
+          pararAlertaAba();
+          notif.close();
+        };
+      } catch (e) {}
+    }
+
+    function iniciarAlertaAba(qtdNovos, nomesNovos = []) {
+      if (timerPiscarAba) return;
+      dispararNotificacaoDesktop(qtdNovos, nomesNovos);
+
+      const elFavicon = document.getElementById("dynamicFavicon");
+      const textoAviso = qtdNovos > 1
+        ? `🔴 (${qtdNovos}) NOVOS ATENDIMENTOS`
+        : `🔴 (1) NOVO ATENDIMENTO`;
+
+      piscarAlternado = true;
+      document.title = textoAviso;
+      if (elFavicon) elFavicon.href = FAVICON_VERMELHO;
+
+      timerPiscarAba = setInterval(() => {
+        piscarAlternado = !piscarAlternado;
+        document.title = piscarAlternado ? textoAviso : `Atenção — Fila do Setor`;
+        if (elFavicon) elFavicon.href = piscarAlternado ? FAVICON_VERMELHO : FAVICON_PADRAO;
+      }, 800);
+    }
+
+    function pararAlertaAba() {
+      if (timerPiscarAba) {
+        clearInterval(timerPiscarAba);
+        timerPiscarAba = null;
+        document.title = TITULO_PADRAO;
+        const elFavicon = document.getElementById("dynamicFavicon");
+        if (elFavicon) elFavicon.href = FAVICON_PADRAO;
+      }
+    }
+
+    window.addEventListener("focus", pararAlertaAba);
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) pararAlertaAba();
+    });
+
     async function buscarFila(silencioso = false) {
       if (!state.apiUrl) {
         processarDados({
@@ -1065,6 +1191,19 @@
         return a.row - b.row;
       });
 
+      const rowsAtuais = lista.map(x => x.row);
+
+      if (primeiraCargaConcluida) {
+        const novosItens = lista.filter(x => !rowsConhecidas.has(x.row));
+        if (novosItens.length > 0 && document.hidden) {
+          const nomesNovos = novosItens.map(x => x.nome).filter(Boolean);
+          iniciarAlertaAba(novosItens.length, nomesNovos);
+        }
+      } else {
+        primeiraCargaConcluida = true;
+      }
+      rowsConhecidas = new Set(rowsAtuais);
+
       const ativos = Array.isArray(data.emAtendimento) ? data.emAtendimento : [];
       const meuNome = (state.entrevistador || "").trim().toLowerCase();
 
@@ -1072,11 +1211,9 @@
         const aindaEmAtendimento = ativos.find(x => x.row === state.activeFicha.row);
         if (aindaEmAtendimento) {
           salvarFichaAtiva(aindaEmAtendimento);
-        }
-      } else if (meuNome) {
-        const recuperada = ativos.find(x => String(x.entrevistador || "").trim().toLowerCase() === meuNome);
-        if (recuperada) {
-          salvarFichaAtiva(recuperada);
+        } else {
+          // Finalizado ou devolvido à fila em outro momento
+          salvarFichaAtiva(null);
         }
       }
 
@@ -1258,16 +1395,16 @@
     function salvarFichaAtiva(ficha) {
       state.activeFicha = ficha;
       if (ficha) {
-        localStorage.setItem(STORAGE_KEYS.ACTIVE_FICHA, JSON.stringify(ficha));
+        try { sessionStorage.setItem(STORAGE_KEYS.ACTIVE_FICHA, JSON.stringify(ficha)); } catch (e) {}
       } else {
-        localStorage.removeItem(STORAGE_KEYS.ACTIVE_FICHA);
+        try { sessionStorage.removeItem(STORAGE_KEYS.ACTIVE_FICHA); } catch (e) {}
       }
       renderizarVisaoAtiva();
     }
 
     function carregarFichaSalva() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEYS.ACTIVE_FICHA);
+        const raw = sessionStorage.getItem(STORAGE_KEYS.ACTIVE_FICHA);
         return raw ? JSON.parse(raw) : null;
       } catch (e) {
         return null;

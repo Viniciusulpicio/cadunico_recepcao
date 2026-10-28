@@ -296,11 +296,11 @@ function executarAcao_(payload) {
     var agora = horaAgoraBrasil_();
 
     if (action === "aceitar") {
-      if (statusAtual === "EM_ATENDIMENTO" && donoAtual.toLowerCase() !== entrevistador.toLowerCase()) {
+      if (statusAtual === "EM_ATENDIMENTO") {
         return respostaJson_({
           ok: false,
           codigo: "JA_ACEITO",
-          erro: "Este cidadão já foi aceito por " + (donoAtual || "outro entrevistador") + "."
+          erro: "Este cidadão já foi aceito."
         });
       }
       if (statusAtual === "FINALIZADO") {
