@@ -555,6 +555,37 @@
       gap: 0.6rem;
       flex-wrap: wrap;
     }
+
+    .banner-notif {
+      background: #EFF6FF;
+      border: 1px solid #BFDBFE;
+      color: var(--blue-dark);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1rem;
+      font-size: 0.86rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .btn-notif {
+      background: var(--blue);
+      color: #FFF;
+      border: none;
+      border-radius: 6px;
+      padding: 0.4rem 0.85rem;
+      font-family: var(--font-sans);
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-notif:hover {
+      background: var(--blue-dark);
+    }
   </style>
 </head>
 <body>
@@ -588,6 +619,11 @@
           <span class="count-badge" id="countTotal">0</span>
         </div>
         <div class="sync-status" id="lblStatus">Atualizado agora</div>
+      </div>
+
+      <div id="bannerPermissaoNotificacao" class="banner-notif" style="display: none;">
+        <span>🔔 <strong>Ativar avisos na tela:</strong> receba um alerta no computador quando um cidadão chegar.</span>
+        <button type="button" class="btn-notif" id="btnAtivarNotificacoes">Permitir Notificações</button>
       </div>
 
       <div class="card-table">
@@ -947,6 +983,7 @@
       localStorage.setItem(STORAGE_KEYS.API_URL, state.apiUrl);
 
       if (elModalEscolhaPosto) elModalEscolhaPosto.classList.remove("open");
+      solicitarPermissaoNotificacao();
       salvarFichaAtiva(null);
       pararAlertaAba();
       rowsConhecidas = new Set();
@@ -995,6 +1032,16 @@
       elSelectPosto.addEventListener("change", () => {
         definirPosto(elSelectPosto.value);
       });
+
+      const elBtnAtivarNotif = document.getElementById("btnAtivarNotificacoes");
+      if (elBtnAtivarNotif) {
+        elBtnAtivarNotif.addEventListener("click", () => {
+          solicitarPermissaoNotificacao();
+        });
+      }
+
+      solicitarPermissaoNotificacao();
+      atualizarBannerPermissao();
 
       const elBtnTestar = document.getElementById("btnTestarAlerta");
       if (elBtnTestar) {
@@ -1084,14 +1131,30 @@
     let rowsConhecidas = new Set();
     let primeiraCargaConcluida = false;
 
-    function solicitarPermissaoNotificacao() {
+    function atualizarBannerPermissao() {
+      const elBanner = document.getElementById("bannerPermissaoNotificacao");
+      if (!elBanner) return;
       if ("Notification" in window && Notification.permission === "default") {
-        Notification.requestPermission();
+        elBanner.style.display = "flex";
+      } else {
+        elBanner.style.display = "none";
       }
     }
 
-    // Solicita permissão de notificação no primeiro clique da página
-    window.addEventListener("click", solicitarPermissaoNotificacao, { once: true });
+    async function solicitarPermissaoNotificacao() {
+      if (!("Notification" in window)) return;
+      if (Notification.permission === "default") {
+        try {
+          await Notification.requestPermission();
+        } catch (e) {}
+      }
+      atualizarBannerPermissao();
+    }
+
+    // Solicita na abertura e no primeiro toque/clique/tecla
+    ["click", "keydown", "mousedown", "touchstart"].forEach(evt => {
+      window.addEventListener(evt, solicitarPermissaoNotificacao, { once: true });
+    });
 
     function dispararNotificacaoDesktop(qtdNovos, nomesNovos) {
       if (!("Notification" in window) || Notification.permission !== "granted") return;
