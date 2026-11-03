@@ -291,16 +291,37 @@ function executarAcao_(payload) {
     var horaAceiteCell = sheet.getRange(row, 13);
     var horaFimCell = sheet.getRange(row, 14);
 
-    var statusAtual = String(statusCell.getDisplayValue() || "").trim().toUpperCase();
-    var donoAtual = String(entrevistadorCell.getDisplayValue() || "").trim();
+    var rawStatus = String(statusCell.getValue() || "").trim().toUpperCase();
+    var displayStatus = String(statusCell.getDisplayValue() || "").trim().toUpperCase();
+    var statusAtual = displayStatus || rawStatus;
+
+    var donoRaw = String(entrevistadorCell.getValue() || "").trim();
+    var donoDisplay = String(entrevistadorCell.getDisplayValue() || "").trim();
+    var donoAtual = donoDisplay || donoRaw;
+
+    var horaAceiteRaw = String(horaAceiteCell.getValue() || "").trim();
+    var horaAceiteDisplay = String(horaAceiteCell.getDisplayValue() || "").trim();
+    var horaAceiteAtual = horaAceiteDisplay || horaAceiteRaw;
+
     var agora = horaAgoraBrasil_();
 
     if (action === "aceitar") {
-      if (statusAtual === "EM_ATENDIMENTO" || statusAtual === "FINALIZADO") {
+      var jaOcupado = (
+        rawStatus === "EM_ATENDIMENTO" ||
+        displayStatus === "EM_ATENDIMENTO" ||
+        rawStatus === "FINALIZADO" ||
+        displayStatus === "FINALIZADO" ||
+        rawStatus.indexOf("ATENDIMENTO") !== -1 ||
+        displayStatus.indexOf("ATENDIMENTO") !== -1 ||
+        (donoAtual !== "" && donoAtual !== "—") ||
+        horaAceiteAtual !== ""
+      );
+
+      if (jaOcupado) {
         return respostaJson_({
           ok: false,
           codigo: "JA_ACEITO",
-          erro: "Outro servidor já aceitou este atendimento."
+          erro: "Outro servidor já aceitou este atendimento" + (donoAtual ? " (" + donoAtual + ")" : "") + "."
         });
       }
 
@@ -335,6 +356,14 @@ function executarAcao_(payload) {
     }
 
     if (action === "devolver") {
+      if (donoAtual && entrevistador && donoAtual.toLowerCase() !== entrevistador.toLowerCase()) {
+        return respostaJson_({
+          ok: false,
+          codigo: "DONO_DIFERENTE",
+          erro: "Este atendimento está com " + donoAtual + " e não pode ser devolvido por outro atendente."
+        });
+      }
+
       statusCell.setValue("AGUARDANDO");
       entrevistadorCell.setValue("");
       horaAceiteCell.setValue("");

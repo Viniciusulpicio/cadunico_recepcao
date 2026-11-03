@@ -90,6 +90,41 @@
       gap: 0.6rem;
     }
 
+    .atendente-box {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.35rem 0.6rem;
+    }
+
+    .atendente-label {
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
+    .atendente-input {
+      border: none;
+      background: transparent;
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--blue-dark);
+      width: 125px;
+    }
+
+    .atendente-input:focus {
+      outline: none;
+      background: var(--surface);
+      border-radius: 4px;
+    }
+
     .posto-select {
       border: 1px solid var(--border);
       background: var(--bg);
@@ -613,6 +648,10 @@
       </div>
 
       <div class="top-actions">
+        <div class="atendente-box" title="Identificação deste computador/guichê na planilha">
+          <span class="atendente-label">Atendente:</span>
+          <input type="text" class="atendente-input" id="inputEntrevistador" placeholder="Seu nome/guichê..." maxlength="25" />
+        </div>
         <select class="posto-select" id="selectPosto" title="Selecione o Posto ou CRAS">
           <option value="central">Posto Central</option>
           <option value="teotonio">CRAS Teotônio Vilela</option>
@@ -832,8 +871,23 @@
       };
     }
 
+    function carregarIdentificadorAtendente() {
+      try {
+        let salvo = localStorage.getItem(STORAGE_KEYS.INTERVIEWER);
+        if (!salvo || !salvo.trim()) {
+          const numAleatorio = Math.floor(100 + Math.random() * 900);
+          salvo = `Guichê ${numAleatorio}`;
+          localStorage.setItem(STORAGE_KEYS.INTERVIEWER, salvo);
+        }
+        return salvo.trim();
+      } catch (e) {
+        return "Guichê " + Math.floor(100 + Math.random() * 900);
+      }
+    }
+
     const postoInicial = obterPostoInicial();
     const urlsSalvas = carregarPostosUrlsSalvos();
+    const entrevistadorInicial = carregarIdentificadorAtendente();
 
     let state = {
       postoAtivo: postoInicial,
@@ -841,11 +895,12 @@
       apiUrl: urlsSalvas[postoInicial] || "",
       sheetUrl: "",
       planilhaNome: "",
-      entrevistador: "Atendimento",
+      entrevistador: entrevistadorInicial,
       activeFicha: carregarFichaSalva(),
       fila: []
     };
 
+    const elInputEntrevistador = document.getElementById("inputEntrevistador");
     const elSelectPosto = document.getElementById("selectPosto");
     const elCountTotal = document.getElementById("countTotal");
     const elLblStatus = document.getElementById("lblStatus");
@@ -1020,6 +1075,17 @@
 
     async function init() {
       if (elSelectPosto) elSelectPosto.value = state.postoAtivo;
+
+      if (elInputEntrevistador) {
+        elInputEntrevistador.value = state.entrevistador;
+        elInputEntrevistador.addEventListener("change", () => {
+          const novo = (elInputEntrevistador.value || "").trim() || `Guichê ${Math.floor(100 + Math.random() * 900)}`;
+          state.entrevistador = novo;
+          elInputEntrevistador.value = novo;
+          try { localStorage.setItem(STORAGE_KEYS.INTERVIEWER, novo); } catch (e) {}
+          mostrarToast(`Identificação salva: ${novo}`);
+        });
+      }
 
       // Limpa dados legados de localStorage para garantir isolamento por aba
       try {
@@ -1276,7 +1342,13 @@
       if (state.activeFicha) {
         const aindaEmAtendimento = ativos.find(x => x.row === state.activeFicha.row);
         if (aindaEmAtendimento) {
-          salvarFichaAtiva(aindaEmAtendimento);
+          const dono = (aindaEmAtendimento.entrevistador || "").trim().toLowerCase();
+          if (dono && meuNome && dono !== meuNome) {
+            salvarFichaAtiva(null);
+            mostrarToast(`Este atendimento foi assumido por ${aindaEmAtendimento.entrevistador}.`, 4000);
+          } else {
+            salvarFichaAtiva(aindaEmAtendimento);
+          }
         }
       }
 
@@ -1368,15 +1440,26 @@
     }
 
     async function aceitarAtendimento(rowNumber) {
+      if (state.activeFicha) {
+        mostrarToast("Você já possui um atendimento em andamento. Finalize-o antes de aceitar outro.", 3500);
+        return;
+      }
+
       const item = state.fila.find(x => x.row === rowNumber);
       if (!item) return;
 
       const btn = document.getElementById(`btnAccept_${rowNumber}`);
-      if (btn) btn.disabled = true;
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = "Aceitando...";
+      }
 
       if (!state.apiUrl) {
         mostrarToast("Nenhuma planilha configurada para este posto.");
-        if (btn) btn.disabled = false;
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = "Aceitar";
+        }
         return;
       }
 
@@ -1386,19 +1469,24 @@
         const resultado = await res.json();
 
         if (resultado && resultado.ok) {
+          item.entrevistador = state.entrevistador;
           salvarFichaAtiva(item);
           buscarFila(true);
         } else {
           const msgAviso = (resultado && (resultado.codigo === "JA_ACEITO" || resultado.codigo === "JA_FINALIZADO"))
-            ? "Outro servidor já aceitou este atendimento."
+            ? ((resultado && resultado.erro) || "Outro servidor já aceitou este atendimento.")
             : ((resultado && resultado.erro) || "Outro servidor já aceitou este atendimento.");
           mostrarToast(msgAviso, 4000);
           buscarFila(true);
         }
       } catch (e) {
-        mostrarToast("Erro ao aceitar atendimento");
+        mostrarToast("Erro ao aceitar atendimento. Atualizando a fila...");
+        buscarFila(true);
       } finally {
-        if (btn) btn.disabled = false;
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = "Aceitar";
+        }
       }
     }
 
@@ -1433,6 +1521,9 @@
 
     async function devolverAtendimentoParaFila() {
       if (!state.activeFicha) return;
+      const conf = confirm("Deseja realmente devolver este cidadão para a fila de espera?");
+      if (!conf) return;
+
       const rowNumber = state.activeFicha.row;
       elBtnDevolver.disabled = true;
 
@@ -1444,14 +1535,19 @@
       }
 
       try {
-        const url = montarUrlEndpoint("devolver", `&row=${encodeURIComponent(rowNumber)}`);
+        const url = montarUrlEndpoint("devolver", `&row=${encodeURIComponent(rowNumber)}&entrevistador=${encodeURIComponent(state.entrevistador)}`);
         const res = await fetch(url, { method: "GET", redirect: "follow" });
         const resultado = await res.json();
         if (resultado && resultado.ok) {
           salvarFichaAtiva(null);
           buscarFila(true);
+          mostrarToast("Cidadão devolvido para a fila.");
         } else {
           mostrarToast((resultado && resultado.erro) || "Erro ao devolver para a fila");
+          if (resultado && resultado.codigo === "DONO_DIFERENTE") {
+            salvarFichaAtiva(null);
+            buscarFila(true);
+          }
         }
       } catch (e) {
         mostrarToast("Erro ao devolver para a fila");
