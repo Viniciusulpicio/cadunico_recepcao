@@ -330,6 +330,16 @@ function executarAcao_(payload) {
       horaAceiteCell.setValue(agora);
       SpreadsheetApp.flush();
 
+      // Confirmação final após gravação na planilha
+      var confirmacaoDono = String(sheet.getRange(row, 12).getValue() || "").trim();
+      if (confirmacaoDono && confirmacaoDono.toLowerCase() !== entrevistador.toLowerCase()) {
+        return respostaJson_({
+          ok: false,
+          codigo: "JA_ACEITO",
+          erro: "Outro servidor já aceitou este atendimento (" + confirmacaoDono + ")."
+        });
+      }
+
       return respostaJson_({
         ok: true,
         status: "EM_ATENDIMENTO",
