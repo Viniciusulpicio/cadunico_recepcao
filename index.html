@@ -541,24 +541,53 @@
       transform: translateX(3px);
     }
 
-    /* Toast discreto */
+    /* Toast discreto / Notificações */
     .toast {
       position: fixed;
       bottom: 1.25rem;
       right: 1.25rem;
       background: var(--text);
       color: #FFF;
-      padding: 0.6rem 1rem;
-      border-radius: 6px;
-      font-size: 0.84rem;
+      padding: 0.65rem 1.15rem;
+      border-radius: 8px;
+      font-size: 0.88rem;
       font-weight: 600;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.15s ease;
+      transform: translateY(8px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 99999;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.15);
     }
 
     .toast.show {
       opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Alerta de alto destaque (para conflito de aceite) */
+    .toast.alerta {
+      bottom: auto;
+      top: 1.75rem;
+      left: 50%;
+      right: auto;
+      transform: translate(-50%, -15px);
+      background: #DC2626;
+      color: #FFFFFF;
+      padding: 1.1rem 2.2rem;
+      border-radius: 12px;
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      border: 3px solid #FEF2F2;
+      box-shadow: 0 20px 30px -10px rgba(220, 38, 38, 0.5), 0 10px 15px -5px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      max-width: 90vw;
+    }
+
+    .toast.alerta.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
     }
 
     @media (max-width: 680px) {
@@ -1476,7 +1505,7 @@
           const msgAviso = (resultado && (resultado.codigo === "JA_ACEITO" || resultado.codigo === "JA_FINALIZADO"))
             ? ((resultado && resultado.erro) || "Outro servidor já aceitou este atendimento.")
             : ((resultado && resultado.erro) || "Outro servidor já aceitou este atendimento.");
-          mostrarToast(msgAviso, 4000);
+          mostrarToast(`⚠️ ${msgAviso}`, 6000, "alerta");
           buscarFila(true);
         }
       } catch (e) {
@@ -1602,11 +1631,25 @@
       }
     }
 
-    function mostrarToast(msg, duracao = 2400) {
+    function mostrarToast(msg, duracao = 2400, tipo = "info") {
       elToast.textContent = msg;
+      elToast.className = "toast";
+      const textoLower = String(msg).toLowerCase();
+      if (
+        tipo === "alerta" ||
+        textoLower.includes("outro servidor") ||
+        textoLower.includes("já aceito") ||
+        textoLower.includes("ja aceito") ||
+        textoLower.includes("assumido por")
+      ) {
+        elToast.classList.add("alerta");
+      }
       elToast.classList.add("show");
       clearTimeout(window._toastTimer);
-      window._toastTimer = setTimeout(() => elToast.classList.remove("show"), duracao);
+      window._toastTimer = setTimeout(() => {
+        elToast.classList.remove("show");
+        elToast.classList.remove("alerta");
+      }, duracao);
     }
 
     function escaparHtml(str) {
