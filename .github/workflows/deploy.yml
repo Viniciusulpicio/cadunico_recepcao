@@ -26,9 +26,11 @@ jobs:
 
       - name: Prepare static site
         run: |
-          mkdir -p _site
+          mkdir -p _site/manual
           cp index.html _site/index.html
           cp config.json _site/config.json
+          cp docs/MANUAL-IMPRESSAO.html _site/manual/index.html
+          cp docs/MANUAL-IMPRESSAO.html _site/manual.html
           touch _site/.nojekyll
 
       - name: Setup Pages
