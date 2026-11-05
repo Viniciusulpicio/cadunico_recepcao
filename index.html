@@ -489,6 +489,54 @@
       gap: 0.5rem;
     }
 
+    /* Opções do Modal de Devolução */
+    .option-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      transition: all 0.15s ease;
+      background: var(--surface);
+      margin-bottom: 0.65rem;
+    }
+
+    .option-card:hover {
+      border-color: var(--blue);
+      background: #F8FAFC;
+    }
+
+    .option-card.selected {
+      border-color: var(--blue);
+      background: #EFF6FF;
+      box-shadow: 0 0 0 1px var(--blue);
+    }
+
+    .option-card input[type="radio"] {
+      margin-top: 0.2rem;
+      accent-color: var(--blue);
+      cursor: pointer;
+    }
+
+    .option-card-content {
+      flex: 1;
+    }
+
+    .option-card-title {
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: var(--text);
+      margin-bottom: 0.2rem;
+    }
+
+    .option-card-desc {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.3;
+    }
+
     .btn-posto-choice {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -855,6 +903,61 @@
     </div>
   </div>
 
+  <!-- Modal Devolver ou Redirecionar Atendimento -->
+  <div class="modal-backdrop" id="modalDevolverFila">
+    <div class="modal-box" style="max-width: 480px;">
+      <h3 style="font-size: 1.15rem; margin-bottom: 0.35rem;">Devolver para a fila</h3>
+      <p id="modalDevolverResumoCidadao" style="color: var(--muted); margin-bottom: 1.1rem; font-size: 0.85rem; line-height: 1.4;">
+        Selecione o motivo da devolução:
+      </p>
+
+      <label class="option-card selected" id="cardDevolverEngano">
+        <input type="radio" name="tipoDevolucao" id="radioDevolverEngano" value="engano" checked>
+        <div class="option-card-content">
+          <div class="option-card-title">1. Peguei por engano</div>
+          <div class="option-card-desc">Devolve para a fila de espera mantendo o mesmo atendimento e dados inalterados.</div>
+        </div>
+      </label>
+
+      <label class="option-card" id="cardDevolverIncorreto">
+        <input type="radio" name="tipoDevolucao" id="radioDevolverIncorreto" value="incorreto">
+        <div class="option-card-content">
+          <div class="option-card-title">2. Atendimento incorreto / Redirecionar</div>
+          <div class="option-card-desc">Finaliza este atendimento e duplica a passagem na fila com o novo tipo de atendimento e o mesmo horário de chegada.</div>
+        </div>
+      </label>
+
+      <div id="secaoNovoTipoAtendimento" style="display: none; margin-top: 0.75rem; margin-bottom: 0.75rem; padding: 0.75rem; background: #F8FAFC; border: 1px solid var(--border); border-radius: 8px;">
+        <label for="selectNovoTipoAtendimento" style="display: block; font-weight: 700; font-size: 0.82rem; margin-bottom: 0.4rem; color: var(--text);">
+          Selecione o novo tipo de atendimento:
+        </label>
+        <select id="selectNovoTipoAtendimento" class="modal-input" style="font-family: var(--font-sans); margin-bottom: 0.5rem; cursor: pointer;">
+          <option value="">Selecione o novo tipo...</option>
+          <option value="Atualização Cadastral">Atualização Cadastral</option>
+          <option value="Inclusão Cadastral">Inclusão Cadastral</option>
+          <option value="Solicitação Administração do Bolsa Familia">Solicitação Administração do Bolsa Familia</option>
+          <option value="Emissão Comprovante CadÚnico">Emissão Comprovante CadÚnico</option>
+          <option value="Emissão da Carteira da Pessoa Idosa">Emissão da Carteira da Pessoa Idosa</option>
+          <option value="Exclusão da Familia">Exclusão da Familia</option>
+          <option value="Solicitação de Atendimento Domiciliar">Solicitação de Atendimento Domiciliar</option>
+          <option value="Informações Gerais">Informações Gerais</option>
+          <option value="Não cumprimento de condicionalidades PBF - CRAS">Não cumprimento de condicionalidades PBF - CRAS</option>
+          <option value="Solicitação Desligamento Voluntário PBF">Solicitação Desligamento Voluntário PBF</option>
+          <option value="Atendimento Telefônico">Atendimento Telefônico</option>
+          <option value="Encaminhamento">Encaminhamento</option>
+          <option value="Encaminhamento para outros setores ou políticas publicas">Encaminhamento para outros setores ou políticas publicas</option>
+          <option value="__outro__">Outro (especificar)...</option>
+        </select>
+        <input type="text" id="inputOutroTipoAtendimento" class="modal-input" placeholder="Digite o tipo de atendimento..." style="display: none; margin-bottom: 0;" />
+      </div>
+
+      <div class="modal-actions" style="margin-top: 1.25rem;">
+        <button type="button" class="btn-ghost" id="btnCancelarDevolucao">Cancelar</button>
+        <button type="button" class="btn-accept" id="btnConfirmarDevolucao">Devolver para a fila</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toastMsg">Copiado</div>
 
   <script>
@@ -958,6 +1061,18 @@
     const elBtnOpenConfig = document.getElementById("btnOpenConfig");
     const elBtnSaveConfig = document.getElementById("btnSaveConfig");
     const elToast = document.getElementById("toastMsg");
+
+    const elModalDevolverFila = document.getElementById("modalDevolverFila");
+    const elModalDevolverResumoCidadao = document.getElementById("modalDevolverResumoCidadao");
+    const elCardDevolverEngano = document.getElementById("cardDevolverEngano");
+    const elCardDevolverIncorreto = document.getElementById("cardDevolverIncorreto");
+    const elRadioDevolverEngano = document.getElementById("radioDevolverEngano");
+    const elRadioDevolverIncorreto = document.getElementById("radioDevolverIncorreto");
+    const elSecaoNovoTipoAtendimento = document.getElementById("secaoNovoTipoAtendimento");
+    const elSelectNovoTipoAtendimento = document.getElementById("selectNovoTipoAtendimento");
+    const elInputOutroTipoAtendimento = document.getElementById("inputOutroTipoAtendimento");
+    const elBtnCancelarDevolucao = document.getElementById("btnCancelarDevolucao");
+    const elBtnConfirmarDevolucao = document.getElementById("btnConfirmarDevolucao");
 
     const OBF_KEY = "cadunico_cras_setor_2026";
 
@@ -1201,7 +1316,24 @@
       });
 
       elBtnFinalizar.addEventListener("click", finalizarAtendimentoAtual);
-      elBtnDevolver.addEventListener("click", devolverAtendimentoParaFila);
+      elBtnDevolver.addEventListener("click", abrirModalDevolucao);
+
+      elBtnCancelarDevolucao.addEventListener("click", fecharModalDevolucao);
+      elBtnConfirmarDevolucao.addEventListener("click", confirmarDevolucaoOuRedirecionamento);
+
+      elCardDevolverEngano.addEventListener("click", () => alternarOpcaoDevolucao("engano"));
+      elCardDevolverIncorreto.addEventListener("click", () => alternarOpcaoDevolucao("incorreto"));
+      elRadioDevolverEngano.addEventListener("change", () => alternarOpcaoDevolucao("engano"));
+      elRadioDevolverIncorreto.addEventListener("change", () => alternarOpcaoDevolucao("incorreto"));
+
+      elSelectNovoTipoAtendimento.addEventListener("change", () => {
+        if (elSelectNovoTipoAtendimento.value === "__outro__") {
+          elInputOutroTipoAtendimento.style.display = "block";
+          elInputOutroTipoAtendimento.focus();
+        } else {
+          elInputOutroTipoAtendimento.style.display = "none";
+        }
+      });
     }
 
     function montarUrlEndpoint(action, extras = "") {
@@ -1548,11 +1680,72 @@
       }
     }
 
-    async function devolverAtendimentoParaFila() {
+    function abrirModalDevolucao() {
       if (!state.activeFicha) return;
-      const conf = confirm("Deseja realmente devolver este cidadão para a fila de espera?");
-      if (!conf) return;
+      elModalDevolverResumoCidadao.innerHTML = `
+        <strong>${escaparHtml(state.activeFicha.nome)}</strong> (CPF: ${escaparHtml(mascararCpf(state.activeFicha.cpf))})<br>
+        <span style="color: var(--muted); font-size: 0.8rem;">Atendimento atual: <strong>${escaparHtml(state.activeFicha.tipoAtendimento)}</strong></span>
+      `;
+      alternarOpcaoDevolucao("engano");
+      elSelectNovoTipoAtendimento.value = "";
+      elInputOutroTipoAtendimento.value = "";
+      elInputOutroTipoAtendimento.style.display = "none";
+      elBtnConfirmarDevolucao.disabled = false;
+      elBtnCancelarDevolucao.disabled = false;
+      elModalDevolverFila.classList.add("open");
+    }
 
+    function fecharModalDevolucao() {
+      elModalDevolverFila.classList.remove("open");
+    }
+
+    function alternarOpcaoDevolucao(opcao) {
+      if (opcao === "engano") {
+        elRadioDevolverEngano.checked = true;
+        elCardDevolverEngano.classList.add("selected");
+        elCardDevolverIncorreto.classList.remove("selected");
+        elSecaoNovoTipoAtendimento.style.display = "none";
+        elBtnConfirmarDevolucao.textContent = "Devolver para a fila";
+      } else {
+        elRadioDevolverIncorreto.checked = true;
+        elCardDevolverIncorreto.classList.add("selected");
+        elCardDevolverEngano.classList.remove("selected");
+        elSecaoNovoTipoAtendimento.style.display = "block";
+        elBtnConfirmarDevolucao.textContent = "Redirecionar para a fila";
+      }
+    }
+
+    async function confirmarDevolucaoOuRedirecionamento() {
+      if (!state.activeFicha) return;
+      const ehEngano = elRadioDevolverEngano.checked;
+
+      if (ehEngano) {
+        fecharModalDevolucao();
+        await devolverAtendimentoMesmoTipo();
+        return;
+      }
+
+      let novoTipo = elSelectNovoTipoAtendimento.value.trim();
+      if (novoTipo === "__outro__") {
+        novoTipo = elInputOutroTipoAtendimento.value.trim();
+      }
+
+      if (!novoTipo) {
+        mostrarToast("Selecione ou digite o novo tipo de atendimento.", 3000, "alerta");
+        return;
+      }
+
+      if (novoTipo.toLowerCase() === String(state.activeFicha.tipoAtendimento || "").trim().toLowerCase()) {
+        mostrarToast("O novo atendimento deve ser diferente do atual.", 3000, "alerta");
+        return;
+      }
+
+      fecharModalDevolucao();
+      await redirecionarAtendimentoNovoTipo(novoTipo);
+    }
+
+    async function devolverAtendimentoMesmoTipo() {
+      if (!state.activeFicha) return;
       const rowNumber = state.activeFicha.row;
       elBtnDevolver.disabled = true;
 
@@ -1580,6 +1773,43 @@
         }
       } catch (e) {
         mostrarToast("Erro ao devolver para a fila");
+      } finally {
+        elBtnDevolver.disabled = false;
+      }
+    }
+
+    async function redirecionarAtendimentoNovoTipo(novoTipo) {
+      if (!state.activeFicha) return;
+      const rowNumber = state.activeFicha.row;
+      elBtnDevolver.disabled = true;
+
+      if (!state.apiUrl) {
+        salvarFichaAtiva(null);
+        elBtnDevolver.disabled = false;
+        buscarFila(true);
+        mostrarToast("Atendimento redirecionado (offline).");
+        return;
+      }
+
+      mostrarToast("Redirecionando atendimento...", 2000);
+
+      try {
+        const url = montarUrlEndpoint("redirecionar", `&row=${encodeURIComponent(rowNumber)}&entrevistador=${encodeURIComponent(state.entrevistador)}&novoTipo=${encodeURIComponent(novoTipo)}`);
+        const res = await fetch(url, { method: "GET", redirect: "follow" });
+        const resultado = await res.json();
+        if (resultado && resultado.ok) {
+          salvarFichaAtiva(null);
+          buscarFila(true);
+          mostrarToast(`Redirecionado para a fila: ${novoTipo}`, 4000, "sucesso");
+        } else {
+          mostrarToast((resultado && resultado.erro) || "Erro ao redirecionar atendimento");
+          if (resultado && resultado.codigo === "DONO_DIFERENTE") {
+            salvarFichaAtiva(null);
+            buscarFila(true);
+          }
+        }
+      } catch (e) {
+        mostrarToast("Erro ao redirecionar atendimento");
       } finally {
         elBtnDevolver.disabled = false;
       }

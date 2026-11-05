@@ -31,6 +31,13 @@ A planilha possui as seguintes colunas de triagem e controle:
 
 Quando o entrevistador clica em **Aceitar** no painel web, o Web App grava seu nome na coluna L, marca K como `EM_ATENDIMENTO` e anota o horário em M. Ao clicar em **Finalizar**, o status vai para `FINALIZADO` com horário em N.
 
+### Devolução para a Fila (2 Possibilidades):
+Ao clicar no botão **Devolver para a fila**, uma janela permite escolher entre:
+1. **Peguei por engano:** Devolve o cidadão de volta para a fila (`AGUARDANDO`), limpando o entrevistador e o horário de aceite, mantendo os dados exatamente iguais.
+2. **Atendimento incorreto / Redirecionar:** Quando o cidadão solicitou um serviço diferente do que precisa:
+   - Finaliza o registro atual com o nome do entrevistador e hora de término (`FINALIZADO`).
+   - Duplica a passagem para uma nova linha na planilha com status `AGUARDANDO`, preservando os dados cadastrais e o mesmo horário de chegada original, porém atualizando o **Tipo de Atendimento** selecionado.
+
 ---
 
 ## 3. Passo a Passo Visual: Criar Nova Planilha (Troca Mensal/Anual)

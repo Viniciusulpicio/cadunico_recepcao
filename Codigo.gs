@@ -24,25 +24,27 @@
 var SHEET_NAME = "RECEPÇÃO MENSAL";
 var FUSO_HORARIO = "America/Sao_Paulo";
 var RESOLUCAO_SETOR = "Encaminhado para o atendimento interno (setor)";
-var PROP_ACTIVE_SHEET_ID = "ACTIVE_SHEET_ID";
 
 /**
- * Gatilho automático ao editar a planilha na recepção (caso o script esteja dentro da própria planilha)
+ * Gatilho automático ao editar a planilha na recepção
  */
 function onEdit(e) {
   if (!e || !e.source) return;
   var sheet = e.source.getActiveSheet();
 
+  // Verifica se a edição foi na aba "RECEPÇÃO MENSAL"
   if (sheet.getName() !== SHEET_NAME) return;
 
   var range = e.range;
   var row = range.getRow();
   var col = range.getColumn();
 
+  // Verifica se a edição foi a partir da linha 4 e depois da coluna B
   if (row >= 4 && col > 2) {
-    var dateCell = sheet.getRange(row, 1);
-    var timeCell = sheet.getRange(row, 2);
+    var dateCell = sheet.getRange(row, 1); // Coluna A (Data)
+    var timeCell = sheet.getRange(row, 2); // Coluna B (Hora)
 
+    // Se a célula de Data estiver vazia, preenche com a data e hora do Brasil
     if (dateCell.getValue() === "") {
       var now = new Date();
       var dataBrasil = Utilities.formatDate(now, FUSO_HORARIO, "dd/MM/yyyy");
@@ -52,8 +54,11 @@ function onEdit(e) {
       timeCell.setValue(horaBrasil);
     }
 
+    // Garante cabeçalhos de controle na linha 3 se ainda não existirem
     garantirCabecalhosControle_(sheet);
 
+    // Se a coluna G (Resolução = col 7) foi preenchida como encaminhado ao setor
+    // e a coluna K (Status = col 11) está vazia, define como AGUARDANDO
     var resolucaoVal = String(sheet.getRange(row, 7).getDisplayValue() || "").trim();
     var statusCell = sheet.getRange(row, 11);
     var statusAtual = String(statusCell.getValue() || "").trim();
@@ -65,31 +70,7 @@ function onEdit(e) {
 }
 
 /**
- * Obtém a planilha ativa (permite trocar de planilha todo mês remotamente pelo ID/link
- * sem precisar reimplantar o Apps Script nem mexer nos computadores do CRAS)
- */
-function obterPlanilha_(params) {
-  var idParam = extrairSheetId_((params && (params.sheetId || params.sheetUrl)) || "");
-  var idSalvo = PropertiesService.getScriptProperties().getProperty(PROP_ACTIVE_SHEET_ID) || "";
-  var targetId = idParam || idSalvo;
-
-  if (targetId) {
-    return SpreadsheetApp.openById(targetId);
-  }
-  return SpreadsheetApp.getActiveSpreadsheet();
-}
-
-function extrairSheetId_(valor) {
-  var str = String(valor || "").trim();
-  if (!str) return "";
-  var match = str.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
-  if (match && match[1]) return match[1];
-  if (/^[a-zA-Z0-9-_]{20,}$/.test(str)) return str;
-  return "";
-}
-
-/**
- * Endpoint HTTP GET - Retorna a fila de aguardando e o atendimento ativo
+ * Endpoint HTTP GET - Retorna a fila de aguardando (e o atendimento ativo do entrevistador, se houver)
  */
 function doGet(e) {
   var params = (e && e.parameter) ? e.parameter : {};
@@ -99,40 +80,20 @@ function doGet(e) {
     return executarAcao_(params);
   }
 
-  var ss;
-  try {
-    ss = obterPlanilha_(params);
-  } catch (err) {
-    return respostaJson_({ ok: false, erro: "Não foi possível abrir a planilha configurada. Verifique o link/permissão." });
-  }
-
-  if (!ss) {
-    return respostaJson_({ ok: false, erro: "Nenhuma planilha vinculada. Configure o link da planilha no painel #admin." });
-  }
-
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName(SHEET_NAME) || ss.getSheets()[0];
   if (!sheet) {
     return respostaJson_({ ok: false, erro: "Aba '" + SHEET_NAME + "' não encontrada." });
   }
 
-  var hoje = dataHojeBrasil_();
-  var agora = horaAgoraBrasil_();
   var lastRow = sheet.getLastRow();
-
   if (lastRow < 4) {
-    return respostaJson_({
-      ok: true,
-      fila: [],
-      emAtendimento: [],
-      hoje: hoje,
-      atualizadoEm: agora,
-      planilhaNome: ss.getName(),
-      planilhaId: ss.getId()
-    });
+    return respostaJson_({ ok: true, fila: [], emAtendimento: [], hoje: dataHojeBrasil_() });
   }
 
   var numRows = lastRow - 3;
   var valores = sheet.getRange(4, 1, numRows, 14).getDisplayValues();
+  var hoje = dataHojeBrasil_();
   var somenteHoje = params.todosOsDias !== "1";
 
   var fila = [];
@@ -156,28 +117,14 @@ function doGet(e) {
     var entrevistador = String(r[11] || "").trim();
     var horaAceite = String(r[12] || "").trim();
 
+    // Ignora linhas sem nome e sem CPF
     if (!nome && !cpf) continue;
 
-    // Preenche Data e Hora automaticamente mesmo se a planilha do mês novo não tiver onEdit
-    if (data === "") {
-      data = hoje;
-      hora = hora || agora;
-      try {
-        sheet.getRange(rowNumber, 1, 1, 2).setValues([[data, hora]]);
-      } catch (ignore) {}
-    }
-
+    // Filtra apenas quem foi "Encaminhado para o atendimento interno (setor)"
     if (!ehEncaminhadoSetor_(resolucao)) continue;
 
-    if (somenteHoje && data !== "" && !mesmaData_(data, hoje)) continue;
-
-    if (statusFila === "") {
-      statusFila = "AGUARDANDO";
-      try {
-        garantirCabecalhosControle_(sheet);
-        sheet.getRange(rowNumber, 11).setValue("AGUARDANDO");
-      } catch (ignore) {}
-    }
+    // Se filtro de hoje estiver ativo, mostra linhas de hoje (ou sem data caso recém digitado)
+    if (somenteHoje && data !== "" && data !== hoje) continue;
 
     var item = {
       row: rowNumber,
@@ -192,7 +139,7 @@ function doGet(e) {
       classificacao: classificacao || "Geral",
       tipoPrioridade: tipoPrioridade,
       prioritario: ehPrioritario_(classificacao, tipoPrioridade),
-      status: statusFila,
+      status: statusFila || "AGUARDANDO",
       entrevistador: entrevistador,
       horaAceite: horaAceite
     };
@@ -207,16 +154,14 @@ function doGet(e) {
   return respostaJson_({
     ok: true,
     hoje: hoje,
-    atualizadoEm: agora,
-    planilhaNome: ss.getName(),
-    planilhaId: ss.getId(),
+    atualizadoEm: horaAgoraBrasil_(),
     fila: fila,
     emAtendimento: emAtendimento
   });
 }
 
 /**
- * Endpoint HTTP POST
+ * Endpoint HTTP POST - Aceitar atendimento, finalizar atendimento ou devolver à fila
  */
 function doPost(e) {
   var payload = {};
@@ -234,155 +179,120 @@ function doPost(e) {
 }
 
 /**
- * Executa ações com LockService
+ * Executa transição de status com LockService para impedir conflitos
  */
 function executarAcao_(payload) {
   var lock = LockService.getScriptLock();
   try {
-    lock.waitLock(10000);
+    lock.waitLock(10000); // Aguarda até 10s se outra pessoa estiver clicando junto
   } catch (e) {
     return respostaJson_({ ok: false, erro: "Servidor ocupado. Tente novamente em 2 segundos." });
   }
 
   try {
     var action = String(payload.action || "").trim();
-
-    // Ação remota para o administrador trocar a planilha do mês sem tocar nos PCs do CRAS
-    if (action === "definirPlanilha") {
-      var novoId = extrairSheetId_(payload.sheetUrl || payload.sheetId || "");
-      if (!novoId) {
-        return respostaJson_({ ok: false, erro: "Link ou ID da planilha inválido." });
-      }
-      try {
-        var novaSs = SpreadsheetApp.openById(novoId);
-        var aba = novaSs.getSheetByName(SHEET_NAME) || novaSs.getSheets()[0];
-        if (aba) garantirCabecalhosControle_(aba);
-        PropertiesService.getScriptProperties().setProperty(PROP_ACTIVE_SHEET_ID, novoId);
-        return respostaJson_({
-          ok: true,
-          planilhaId: novoId,
-          planilhaNome: novaSs.getName()
-        });
-      } catch (errOpen) {
-        return respostaJson_({
-          ok: false,
-          erro: "Não foi possível abrir essa planilha. Verifique se sua conta tem permissão de edição nela."
-        });
-      }
-    }
-
     var row = parseInt(payload.row, 10);
     var entrevistador = String(payload.entrevistador || "Entrevistador").trim();
 
-    if (!row || row < 4) {
-      return respostaJson_({ ok: false, erro: "Linha inválida." });
-    }
+    if (!row || row < 4) return respostaJson_({ ok: false, erro: "Linha inválida." });
 
-    var ss = obterPlanilha_(payload);
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = ss.getSheetByName(SHEET_NAME) || ss.getSheets()[0];
-    if (!sheet) {
-      return respostaJson_({ ok: false, erro: "Aba não encontrada." });
-    }
+    if (!sheet) return respostaJson_({ ok: false, erro: "Aba não encontrada." });
 
     garantirCabecalhosControle_(sheet);
 
-    var statusCell = sheet.getRange(row, 11);
-    var entrevistadorCell = sheet.getRange(row, 12);
-    var horaAceiteCell = sheet.getRange(row, 13);
-    var horaFimCell = sheet.getRange(row, 14);
-
-    var rawStatus = String(statusCell.getValue() || "").trim().toUpperCase();
-    var displayStatus = String(statusCell.getDisplayValue() || "").trim().toUpperCase();
-    var statusAtual = displayStatus || rawStatus;
-
-    var donoRaw = String(entrevistadorCell.getValue() || "").trim();
-    var donoDisplay = String(entrevistadorCell.getDisplayValue() || "").trim();
-    var donoAtual = donoDisplay || donoRaw;
-
-    var horaAceiteRaw = String(horaAceiteCell.getValue() || "").trim();
-    var horaAceiteDisplay = String(horaAceiteCell.getDisplayValue() || "").trim();
-    var horaAceiteAtual = horaAceiteDisplay || horaAceiteRaw;
-
+    // Colunas K, L, M e N (Status, Entrevistador, Hora Aceite, Hora Fim)
+    var controleRange = sheet.getRange(row, 11, 1, 4); 
+    var valoresAtuais = controleRange.getDisplayValues()[0];
+    
+    var statusAtual = String(valoresAtuais[0] || "").trim().toUpperCase();
+    var donoAtual = String(valoresAtuais[1] || "").trim();
     var agora = horaAgoraBrasil_();
+    var hoje = dataHojeBrasil_();
 
     if (action === "aceitar") {
-      var jaOcupado = (
-        rawStatus === "EM_ATENDIMENTO" ||
-        displayStatus === "EM_ATENDIMENTO" ||
-        rawStatus === "FINALIZADO" ||
-        displayStatus === "FINALIZADO" ||
-        rawStatus.indexOf("ATENDIMENTO") !== -1 ||
-        displayStatus.indexOf("ATENDIMENTO") !== -1 ||
-        (donoAtual !== "" && donoAtual !== "—") ||
-        horaAceiteAtual !== ""
-      );
-
-      if (jaOcupado) {
-        return respostaJson_({
-          ok: false,
-          codigo: "JA_ACEITO",
-          erro: "Outro servidor já aceitou este atendimento" + (donoAtual ? " (" + donoAtual + ")" : "") + "."
-        });
+      if (statusAtual === "EM_ATENDIMENTO" && donoAtual.toLowerCase() !== entrevistador.toLowerCase()) {
+        return respostaJson_({ ok: false, erro: "Já foi aceito por " + (donoAtual || "outro entrevistador") + "." });
+      }
+      if (statusAtual === "FINALIZADO") {
+        return respostaJson_({ ok: false, erro: "Este atendimento já foi finalizado." });
       }
 
-      statusCell.setValue("EM_ATENDIMENTO");
-      entrevistadorCell.setValue(entrevistador);
-      horaAceiteCell.setValue(agora);
+      controleRange.setValues([["EM_ATENDIMENTO", entrevistador, agora, ""]]);
       SpreadsheetApp.flush();
 
-      // Confirmação final após gravação na planilha
-      var confirmacaoDono = String(sheet.getRange(row, 12).getValue() || "").trim();
-      if (confirmacaoDono && confirmacaoDono.toLowerCase() !== entrevistador.toLowerCase()) {
-        return respostaJson_({
-          ok: false,
-          codigo: "JA_ACEITO",
-          erro: "Outro servidor já aceitou este atendimento (" + confirmacaoDono + ")."
-        });
-      }
-
-      return respostaJson_({
-        ok: true,
-        status: "EM_ATENDIMENTO",
-        row: row,
-        entrevistador: entrevistador,
-        horaAceite: agora
-      });
+      return respostaJson_({ ok: true, status: "EM_ATENDIMENTO", row: row, entrevistador: entrevistador, horaAceite: agora });
     }
 
     if (action === "finalizar") {
-      statusCell.setValue("FINALIZADO");
-      if (!donoAtual && entrevistador) {
-        entrevistadorCell.setValue(entrevistador);
-      }
-      horaFimCell.setValue(agora);
+      var nomeFinal = donoAtual || entrevistador;
+      controleRange.setValues([["FINALIZADO", nomeFinal, valoresAtuais[2], agora]]);
       SpreadsheetApp.flush();
 
-      return respostaJson_({
-        ok: true,
-        status: "FINALIZADO",
-        row: row,
-        horaFim: agora
-      });
+      return respostaJson_({ ok: true, status: "FINALIZADO", row: row, horaFim: agora });
     }
 
+    // Possibilidade 1: Devolver igual para a fila (pegou por engano)
     if (action === "devolver") {
-      if (donoAtual && entrevistador && donoAtual.toLowerCase() !== entrevistador.toLowerCase()) {
-        return respostaJson_({
-          ok: false,
-          codigo: "DONO_DIFERENTE",
-          erro: "Este atendimento está com " + donoAtual + " e não pode ser devolvido por outro atendente."
-        });
+      controleRange.setValues([["AGUARDANDO", "", "", ""]]);
+      SpreadsheetApp.flush();
+
+      return respostaJson_({ ok: true, status: "AGUARDANDO", row: row });
+    }
+
+    // Possibilidade 2: Atendimento incorreto / Redirecionar (duplica mantendo dados e horário)
+    if (action === "redirecionar") {
+      var novoTipo = String(payload.novoTipo || "").trim();
+      if (!novoTipo) {
+        return respostaJson_({ ok: false, erro: "Novo tipo de atendimento não informado." });
       }
 
-      statusCell.setValue("AGUARDANDO");
-      entrevistadorCell.setValue("");
-      horaAceiteCell.setValue("");
+      var atendenteAtual = donoAtual || entrevistador;
+
+      // 1. Finaliza a passagem original na planilha
+      controleRange.setValues([["FINALIZADO", atendenteAtual, valoresAtuais[2], agora]]);
+
+      // 2. Coleta os dados originais da linha (colunas A a J)
+      var dadosOriginais = sheet.getRange(row, 1, 1, 10).getDisplayValues()[0];
+      var dataOriginal = dadosOriginais[0] || hoje;
+      var horaOriginal = dadosOriginais[1] || agora;
+      var nome = dadosOriginais[2] || "";
+      var cpf = dadosOriginais[3] || "";
+      var local = dadosOriginais[5] || "";
+      var resolucao = RESOLUCAO_SETOR;
+      var obs = dadosOriginais[7] || "";
+      var classificacao = dadosOriginais[8] || "Geral";
+      var tipoPrioridade = dadosOriginais[9] || "";
+
+      var targetRow = encontrarProximaLinhaDisponivel_(sheet);
+
+      var novaLinha = [
+        dataOriginal,
+        horaOriginal,
+        nome,
+        cpf,
+        novoTipo,
+        local,
+        resolucao,
+        obs,
+        classificacao,
+        tipoPrioridade,
+        "AGUARDANDO",
+        "",
+        "",
+        ""
+      ];
+
+      sheet.getRange(targetRow, 1, 1, 14).setValues([novaLinha]);
       SpreadsheetApp.flush();
 
       return respostaJson_({
         ok: true,
-        status: "AGUARDANDO",
-        row: row
+        status: "REDIRECIONADO",
+        rowOrigem: row,
+        novaLinha: targetRow,
+        novoTipo: novoTipo
       });
     }
 
@@ -390,6 +300,25 @@ function executarAcao_(payload) {
   } finally {
     lock.releaseLock();
   }
+}
+
+function encontrarProximaLinhaDisponivel_(sheet) {
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 4) return 4;
+
+  var numRowsParaVerificar = Math.min(lastRow + 1, 2500);
+  if (numRowsParaVerificar > 3) {
+    var valores = sheet.getRange(4, 3, numRowsParaVerificar - 3, 2).getValues();
+    for (var i = 0; i < valores.length; i++) {
+      var nome = String(valores[i][0] || "").trim();
+      var cpf = String(valores[i][1] || "").trim();
+      if (!nome && !cpf) {
+        return i + 4;
+      }
+    }
+  }
+
+  return lastRow + 1;
 }
 
 function ehEncaminhadoSetor_(valor) {
@@ -418,18 +347,6 @@ function garantirCabecalhosControle_(sheet) {
 
 function dataHojeBrasil_() {
   return Utilities.formatDate(new Date(), FUSO_HORARIO, "dd/MM/yyyy");
-}
-
-function mesmaData_(a, b) {
-  var norm = function(s) {
-    var partes = String(s || "").trim().split(/[\/\-]/);
-    if (partes.length !== 3) return String(s || "").trim();
-    var d = ("0" + parseInt(partes[0], 10)).slice(-2);
-    var m = ("0" + parseInt(partes[1], 10)).slice(-2);
-    var y = partes[2].length === 2 ? "20" + partes[2] : partes[2];
-    return d + "/" + m + "/" + y;
-  };
-  return norm(a) === norm(b);
 }
 
 function horaAgoraBrasil_() {
