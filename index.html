@@ -949,9 +949,7 @@
           <option value="WhatsApp - Resposta à Família">WhatsApp - Resposta à Família</option>
           <option value="WhatsApp - Comunicado à Família">WhatsApp - Comunicado à Família</option>
           <option value="WhatsApp - Aviso Prévio de CD">WhatsApp - Aviso Prévio de CD</option>
-          <option value="__outro__">Outro (especificar)...</option>
         </select>
-        <input type="text" id="inputOutroTipoAtendimento" class="modal-input" placeholder="Digite o tipo de atendimento..." style="display: none; margin-bottom: 0;" />
       </div>
 
       <div class="modal-actions" style="margin-top: 1.25rem;">
@@ -1073,7 +1071,6 @@
     const elRadioDevolverIncorreto = document.getElementById("radioDevolverIncorreto");
     const elSecaoNovoTipoAtendimento = document.getElementById("secaoNovoTipoAtendimento");
     const elSelectNovoTipoAtendimento = document.getElementById("selectNovoTipoAtendimento");
-    const elInputOutroTipoAtendimento = document.getElementById("inputOutroTipoAtendimento");
     const elBtnCancelarDevolucao = document.getElementById("btnCancelarDevolucao");
     const elBtnConfirmarDevolucao = document.getElementById("btnConfirmarDevolucao");
 
@@ -1328,15 +1325,6 @@
       elCardDevolverIncorreto.addEventListener("click", () => alternarOpcaoDevolucao("incorreto"));
       elRadioDevolverEngano.addEventListener("change", () => alternarOpcaoDevolucao("engano"));
       elRadioDevolverIncorreto.addEventListener("change", () => alternarOpcaoDevolucao("incorreto"));
-
-      elSelectNovoTipoAtendimento.addEventListener("change", () => {
-        if (elSelectNovoTipoAtendimento.value === "__outro__") {
-          elInputOutroTipoAtendimento.style.display = "block";
-          elInputOutroTipoAtendimento.focus();
-        } else {
-          elInputOutroTipoAtendimento.style.display = "none";
-        }
-      });
     }
 
     function montarUrlEndpoint(action, extras = "") {
@@ -1691,8 +1679,6 @@
       `;
       alternarOpcaoDevolucao("engano");
       elSelectNovoTipoAtendimento.value = "";
-      elInputOutroTipoAtendimento.value = "";
-      elInputOutroTipoAtendimento.style.display = "none";
       elBtnConfirmarDevolucao.disabled = false;
       elBtnCancelarDevolucao.disabled = false;
       elModalDevolverFila.classList.add("open");
@@ -1728,13 +1714,10 @@
         return;
       }
 
-      let novoTipo = elSelectNovoTipoAtendimento.value.trim();
-      if (novoTipo === "__outro__") {
-        novoTipo = elInputOutroTipoAtendimento.value.trim();
-      }
+      const novoTipo = elSelectNovoTipoAtendimento.value.trim();
 
       if (!novoTipo) {
-        mostrarToast("Selecione ou digite o novo tipo de atendimento.", 3000, "alerta");
+        mostrarToast("Selecione o novo tipo de atendimento.", 3000, "alerta");
         return;
       }
 
