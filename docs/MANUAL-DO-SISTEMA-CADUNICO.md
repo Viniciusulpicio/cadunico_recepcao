@@ -10,7 +10,9 @@ Para começar o mês novo de qualquer setor ou posto, nunca crie uma planilha em
 
 Quando você clica com o botão direito e seleciona **Fazer uma cópia**, o Google Sheets copia junto todo o código do Apps Script, os menus personalizados, as fórmulas e as formatações. Se você criar uma planilha nova do zero, nada disso vai funcionar.
 
-**Dica para virada de mês dos setores:** O caminho mais rápido é duplicar a planilha do próprio setor do mês que acabou de fechar e apenas apagar os dados dos atendimentos antigos. Fazendo dessa forma, a nova planilha já vem com o nome dos servidores, os números de guichê e todas as configurações individuais de cada pessoa já montadas, sem precisar preencher tudo de novo.
+> **Atenção — Diferença entre Planilha de Fila (Recepção) e Planilhas de Relatório de Servidor:**
+> - **Planilha de Fila (`RECEPCAO` + `Config_Postos_CadUnico`):** Usada pela recepção para enviar cidadãos ao painel web dos entrevistadores. **Exige Implantação como App da Web** no Apps Script a cada novo mês (Seção 2).
+> - **Planilhas de Relatório (`RELATORIO SERVIDOR`, `RELATORIO CD` e `Gestão Mensal de Atendimentos`):** Usadas para contabilizar a produção individual de cada servidor e o fechamento estatístico do mês. **Não precisam de implantação Web App** — basta duplicar e colar o link na aba `Configuração Mensal` (Seção 5).
 
 ---
 
@@ -23,10 +25,10 @@ Quando você clica com o botão direito e seleciona **Fazer uma cópia**, o Goog
 ### Estrutura no Google Drive
 ![Pastas Principais no Google Drive](img/00-drive-pastas-raiz.png)
 
-Na raiz do Drive da conta, o trabalho está dividido em cinco frentes principais:
+Na raiz do Drive da conta, o trabalho está dividido em cinco pastas principais:
 - **`adm`:** Fichas administrativas do Bolsa Família geradas a partir de formulário.
 - **`cadastramento domiciliar`:** Solicitações de visita em domicílio, roteirização e termos.
-- **`relatorios`:** Planilha consolidada de atendimentos da cidade, modelos originais e histórico.
+- **`relatorios`:** Reúne a planilha consolidada (`Gestão Mensal de Atendimentos`), a planilha de links da fila (`Config_Postos_CadUnico`), os `modelos originais` e as pastas mensais de cada posto.
 - **`avaliacao atendimento`:** Pesquisa de satisfação dos munícipes e painéis gerenciais mensais por servidor.
 - **`MODELOS DOCUMENTOS`:** 20 modelos de termos, declarações, encaminhamentos e a planilha `BAIRROS X CRAS.xlsx`.
 
@@ -39,6 +41,8 @@ Na raiz do Drive da conta, o trabalho está dividido em cinco frentes principais
 
 ## 2. Painel de Fila dos Postos (Recepção e Entrevistadores)
 
+Este módulo cuida exclusivamente da **fila de espera em tempo real** entre a recepção e os entrevistadores dos três postos de atendimento.
+
 ### Como os Entrevistadores Usam o Painel no Navegador
 ![Painel de Fila Web Frontend](img/01-painel-fila-frontend-web.png)
 
@@ -47,7 +51,7 @@ O endereço do painel é `https://viniciusulpicio.github.io/cadunico_recepcao/`.
 - CRAS Teotônio Vilela: `https://viniciusulpicio.github.io/cadunico_recepcao/?posto=teotonio`
 - CRAS Rosa Modelli: `https://viniciusulpicio.github.io/cadunico_recepcao/?posto=rosa_modelli`
 
-Quando a recepção cadastra o atendimento na planilha e preenche a coluna G com `"Encaminhado para o atendimento interno (setor)"`, a pessoa entra na fila do painel web. O entrevistador clica em **Aceitar**, atende o cidadão e depois clica em **Finalizar**. A planilha recebe a hora de início, hora de término e o nome do servidor de forma automática.
+Quando a recepção cadastra o atendimento na planilha `RECEPCAO` do posto e preenche a coluna G com `"Encaminhado para o atendimento interno (setor)"`, a pessoa entra na fila do painel web. O entrevistador clica em **Aceitar**, atende o cidadão e depois clica em **Finalizar**. A planilha recebe a hora de início, hora de término e o nome do servidor de forma automática.
 
 ### Devolução para a Fila e Redirecionamento de Atendimento
 Se o entrevistador precisar devolver o atendimento para a fila, o botão **Devolver para a fila** oferece duas opções:
@@ -56,15 +60,13 @@ Se o entrevistador precisar devolver o atendimento para a fila, o botão **Devol
    - O sistema finaliza o atendimento atual (`FINALIZADO`) contabilizando para o entrevistador que fez a triagem.
    - Cria automaticamente uma nova linha com status `AGUARDANDO`, mantendo o horário de chegada original da pessoa para não prejudicá-la na fila, e permite selecionar um dos **16 tipos oficiais da planilha** (`Inclusão Cadastral`, `Atualização Cadastral`, `Exclusão da Familia`, `Solicitação Administração do Bolsa Familia`, `Emissão Comprovante CadÚnico`, `Emissão da Carteira da Pessoa Idosa`, `Encaminhamento`, `Solicitação de Atendimento Domiciliar`, `Informações Gerais`, `Não cumprimento de condicionalidades PBF - CRAS`, `Solicitação Desligamento Voluntário PBF`, `Atendimento Telefônico`, `Encaminhamento para outros setores ou políticas publicas`, `WhatsApp - Resposta à Família`, `WhatsApp - Comunicado à Família` ou `WhatsApp - Aviso Prévio de CD`).
 
-### Como Montar a Planilha de um Novo Mês
+### Como Configurar a Planilha `RECEPCAO` de um Novo Mês (Fila Web)
 
-#### 1. Fazer Cópia da Planilha
-Vá até a pasta do posto no Google Drive, clique com o botão direito na planilha do mês anterior e selecione **Fazer uma cópia**. Renomeie a planilha com o mês seguinte (exemplo: `2026/11 - RECEPCAO - CENTRAL`) e apague apenas as linhas preenchidas na aba `RECEPÇÃO MENSAL`, preservando o cabeçalho (linhas 1 a 3).
-
-Duplicar direto a planilha do setor do mês anterior é a forma mais prática, pois preserva os nomes dos entrevistadores, as escalas e as configurações já validadas de cada servidor.
+#### 1. Fazer Cópia da Planilha `RECEPCAO`
+Vá até a pasta do posto no Google Drive, clique com o botão direito na planilha `RECEPCAO` do mês anterior (ou no modelo `yyyy/xx - RECEPCAO` dentro de `modelos originais`) e selecione **Fazer uma cópia**. Renomeie com o mês novo (exemplo: `2026/11 - RECEPCAO - CENTRAL`) e apague apenas as linhas preenchidas na aba `RECEPÇÃO MENSAL`, preservando o cabeçalho (linhas 1 a 3).
 
 #### 2. Abrir o Apps Script
-Com a nova planilha aberta, vá em **Extensões → Apps Script**.
+Com a nova planilha `RECEPCAO` aberta, vá em **Extensões → Apps Script**.
 ![Extensões Apps Script](img/01-extensoes-apps-script.png)
 
 #### 3. Abrir o Menu de Implantação
@@ -85,7 +87,7 @@ Essa etapa é necessária para o site conseguir ler a planilha sem pedir login d
 Clique em **Implantar** e copie a URL que termina em `/exec`.
 ![Copiar URL Gerada](img/01-apps-script-copiar-url.png)
 
-#### 7. Atualizar a Planilha de Configuração
+#### 7. Atualizar a Planilha `Config_Postos_CadUnico`
 Abra a planilha `Config_Postos_CadUnico` no Drive e cole a URL na linha correspondente ao posto (`central`, `teotonio` ou `rosa_modelli`).
 ![Planilha Config Postos URLs](img/01-planilha-config-postos-urls.png)
 
@@ -162,29 +164,28 @@ Atende pessoas acamadas ou com mobilidade reduzida. O sistema recebe pedidos via
 
 ---
 
-## 5. Relatórios Estatísticos, Gestão Mensal e Busca
+## 5. Relatórios Individuais dos Servidores, Fechamento Mensal e Busca
 
-Consolida o total de atendimentos de todos os postos de Marília para relatórios e prestação de contas.
+Diferente do Painel de Fila (Seção 2), este módulo controla as **planilhas individuais de produção de cada servidor** (`RELATORIO SERVIDOR` e `RELATORIO CD`) e o painel estatístico consolidado na planilha mestre `Gestão Mensal de Atendimentos`.
 
 ### Pasta de Relatórios e Modelos Originais
 ![Pasta Relatórios no Google Drive](img/04-drive-pasta-relatorios.png)
 
-A pasta `modelos originais` guarda as matrizes que nunca devem ser editadas diretamente, apenas duplicadas:
-- `yyyy/xx - RECEPCAO`
-- `yyyy/xx - RELATORIO CD`
-- `yyyy/xx- RELATORIO SERVIDOR`
+A pasta `modelos originais` guarda as matrizes oficiais que nunca devem ser editadas diretamente, apenas duplicadas:
+- `yyyy/xx- RELATORIO SERVIDOR` *(planilha individual de produção de cada entrevistador/técnico)*
+- `yyyy/xx - RELATORIO CD` *(planilha de produção das visitas domiciliares)*
+- `yyyy/xx - RECEPCAO` *(matriz exclusiva da recepção/fila — ver Seção 2)*
 ![Modelos Originais para Duplicar](img/04-drive-modelos-originais-duplicar.png)
 
-### Dashboard e Configuração de Servidores
+### Como Virar o Mês dos Relatórios dos Servidores e Dashboard
+1. **Duplicar as Planilhas dos Servidores:** Duplique a planilha `RELATORIO SERVIDOR` do mês anterior de cada funcionário (ou a pasta inteira do posto do mês anterior, apagando apenas os registros antigos). Diferente da planilha de recepção, as planilhas de relatório individual **não precisam de implantação no Apps Script**.
+2. **Vincular na Aba `Configuração Mensal`:** Abra a planilha mestre `Gestão Mensal de Atendimentos`, vá na aba `Configuração Mensal` e cole o link da nova planilha mensal de cada servidor:
+![Configuração Mensal Servidores](img/04-configuracao-mensal-servidores.png)
+3. **Acompanhar o Dashboard Consolidado:** A aba `Dashboard` soma automaticamente os atendimentos por local (Central, Rosa Modelli, Teotônio Vilela, Domicílio, Ação Itinerante, etc.) e tipo de demanda:
 ![Demonstrativo Consolidado de Atendimentos](img/04-dashboard-consolidado.png)
 
-A aba `Dashboard` soma os atendimentos por local (Central, Rosa Modelli, Teotônio Vilela, Domicílio, Ação Itinerante, etc.) e tipo de demanda.
-
-A aba `Configuração Mensal` vincula a planilha individual de cada servidor:
-![Configuração Mensal Servidores](img/04-configuracao-mensal-servidores.png)
-
 ### Rotina Obrigatória: Congelar Dados do Mês Encerrado
-As abas mensais trazem os dados das recepções por meio de fórmulas. Para evitar que os dados mudem ou sumam quando as planilhas dos postos forem arquivadas, congele a aba assim que o mês terminar:
+As abas mensais trazem os dados das planilhas do mês por meio de fórmulas. Para evitar que os dados mudem ou sumam quando as planilhas antigas forem arquivadas, congele a aba assim que o mês terminar:
 
 1. Abra a planilha `Gestão Mensal de Atendimentos`.
 2. Vá até a aba do mês encerrado (exemplo: `10/2026`).
@@ -246,23 +247,17 @@ Na pasta `MODELOS DOCUMENTOS` do Google Drive estão padronizados os 20 arquivos
 
 ---
 
-## 8. Backup Automático Diário (Servidor 24h) e Recuperação de Desastres
+## 8. Backup Automático Diário e Recuperação de Desastres
 
-Para proteger o setor contra invasão da conta Google ou exclusão acidental de planilhas e códigos, um servidor dedicado 24h (`rk322x-box` / `192.168.0.215`) executa automaticamente o backup completo todos os dias às **03:00 da manhã**.
+Para proteger o setor contra invasão da conta Google, exclusão maliciosa ou perda acidental de planilhas e códigos, todo o sistema conta com uma rotina externa automatizada de backup diário executada às **03:00 da manhã** sob custódia técnica.
 
-### Como Acessar os Arquivos Salvos
-- **Pelo Navegador (Filebrowser):** `http://rk322x-box:8082/files/backups_cadunico`
-- **Pela Rede Local (Samba):** `\\192.168.0.215\Compartilhado\backups_cadunico`
+### O que o Backup Preserva Automaticamente
+1. **Espelho Integral do Google Drive (Protegido Contra Exclusão):** Todas as pastas (`adm`, `avaliacao atendimento`, `cadastramento domiciliar`, `MODELOS DOCUMENTOS` e `relatorios`), planilhas mensais, documentos mestre e PDFs são salvos diariamente mantendo a mesma estrutura do Drive. A rotina nunca apaga arquivos anteriores: mesmo que alguém invada a conta do Google Drive e exclua tudo na nuvem, as cópias permanecem intactas no servidor de backup.
+2. **Todos os 80+ Scripts (`.gs` / `.html`) Junto de Suas Planilhas:** Mesmo que os projetos no Google Apps Script tenham o nome genérico `"Projeto sem título"`, o extrator automático lê o vínculo oficial (`parentId`) da planilha dona e salva os códigos dentro da pasta **`Nome da Planilha [SCRIPT]/`** exatamente ao lado do arquivo `.xlsx` correspondente.
+3. **Histórico de Versões e Pacotes Diários/Mensais:** Toda vez que uma planilha é alterada, a versão anterior é arquivada separadamente com data e hora, além de pacotes completos fechados dos últimos 30 dias e de todos os meses encerrados.
 
-### O que o Backup Salva Automaticamente
-1. **Mesma Organização do Google Drive (`rclone copy`):** Todas as pastas (`adm`, `avaliacao atendimento`, `cadastramento domiciliar`, `MODELOS DOCUMENTOS` e `relatorios`) ficam espelhadas com a mesma estrutura do Drive. Como o sistema usa o comando `copy` (e nunca `sync`), **mesmo que alguém apague tudo no Google Drive, nenhum arquivo é apagado no servidor de backup**.
-2. **Todos os 80+ Scripts (`.gs` / `.html`) Junto de Suas Planilhas:** Mesmo que os projetos no Google Apps Script tenham o nome genérico `"Projeto sem título"`, o extrator automático (`pull_scripts.py`) lê o vínculo oficial (`parentId`) da planilha dona e salva os códigos dentro da pasta **`Nome da Planilha [SCRIPT]/`** exatamente ao lado do arquivo `.xlsx` correspondente.
-3. **Histórico de Alterações e Snapshots Compactados (`.tar.gz`):** Sempre que uma planilha é alterada no Drive, a cópia anterior é guardada com data e hora em `historico_alterados/`. Além disso, o servidor gera pacotes diários `cadunico-AAAA-MM-DD.tar.gz` (mantendo os últimos 30 dias + todo dia 01 de cada mês preservado permanentemente).
-
-### Como Restaurar em Caso de Perda ou Invasão
-1. Acesse `http://rk322x-box:8082/files/backups_cadunico`, localize a pasta do setor e baixe a planilha `.xlsx` e a pasta `Nome da Planilha [SCRIPT]/`.
-2. Suba a planilha `.xlsx` novamente para o Google Drive e clique em **Arquivo → Salvar como Planilhas Google**.
-3. Na planilha restaurada, abra **Extensões → Apps Script**, cole o código `.gs` salvo na pasta `[SCRIPT]`, salve (`Ctrl + S`) e ative o gatilho no menu **⚙️ Ativar Automação Automática**.
+### Como Solicitar Restauração em Caso de Perda ou Invasão
+Caso qualquer planilha, fórmula ou script seja apagado ou corrompido no Google Drive, basta entrar em contato com o responsável técnico (Seção 10) informando qual planilha ou pasta precisa ser restaurada para receber imediatamente o arquivo `.xlsx` íntegro e o código Apps Script correspondente.
 
 ---
 
@@ -271,18 +266,18 @@ Para proteger o setor contra invasão da conta Google ou exclusão acidental de 
 | Ocorrência | Onde Olhar | Como Resolver |
 | :--- | :--- | :--- |
 | O formulário do ADM ou do CD recebeu resposta, mas a planilha não gerou o PDF | Gatilho automático desarmado | Abra a planilha e clique no menu do setor em **Ativar Automação Automática**. Autorize as permissões da conta Google. |
-| O painel de fila no site não carrega a lista de pessoas | Permissão de acesso do Apps Script | Na planilha de recepção do posto, vá em **Implantar → Gerenciar implantações**, clique no lápis de editar e confirme se está com **Quem pode acessar: Qualquer pessoa**. Copie a URL e cole na `Config_Postos_CadUnico`. |
+| O painel de fila no site não carrega a lista de pessoas | Permissão de acesso do Apps Script | Na planilha `RECEPCAO` do posto, vá em **Implantar → Gerenciar implantações**, clique no lápis de editar e confirme se está com **Quem pode acessar: Qualquer pessoa**. Copie a URL e cole na `Config_Postos_CadUnico`. |
 | O Google Drive avisou que o armazenamento de 15 GB está no fim | Excesso de xerox antigas no Drive | Na planilha de CD, acione o menu **⚡ CD Atendimento Domiciliar → Apagar PDFs e Limpar Links de Visitas Concluídas**. Em seguida, esvazie a lixeira do Drive da conta. |
 | O roteirizador do CD não traça rota ou para com erro | Endereço com número incorreto ou fora de Marília | Verifique se o endereço da solicitação tem o formato `Rua Nome da Rua, 123`. Corrija a célula e use **Automação CD → Limpar Cache de Endereços**. |
 | A planilha de Gestão Mensal demora muito para abrir | Fórmulas de meses passados ainda ativas | Vá na aba do mês anterior e execute o menu **Busca → Congelar Dados do Mês Atual**. |
-| Uma planilha ou script foi apagado ou corrompido no Google Drive | Servidor de Backup 24h (`backups_cadunico`) | Acesse `http://rk322x-box:8082/files/backups_cadunico`, baixe a planilha `.xlsx` e a pasta `[SCRIPT]` correspondente (ou acione o suporte técnico abaixo). |
+| Uma planilha, fórmula ou script foi apagado ou corrompido no Google Drive | Backup Diário Externo | Entre em contato com o responsável técnico abaixo para receber o arquivo `.xlsx` e a pasta `[SCRIPT]` restaurados a partir do backup diário. |
 
 ---
 
 ## 10. Suporte Técnico e Contato do Desenvolvedor
 
-Em caso de invasão da conta Google, necessidade de restauração completa dos snapshots de backup, ajustes no painel web de fila ou dúvidas técnicas sobre a infraestrutura dos sistemas, entre em contato diretamente com o desenvolvedor:
+Caso precise recuperar planilhas ou scripts apagados a partir do backup diário, restaurar o ambiente em caso de invasão da conta Google, ajustar o painel web de fila ou tirar dúvidas técnicas sobre o funcionamento das automações, entre em contato:
 
-- **Responsável Técnico:** Vinícius Sulpicio
+- **Responsável Técnico / Desenvolvedor:** Vinícius Sulpicio
 - **E-mail:** `viniciusulpicio@gmail.com`
 - **GitHub / Código-Fonte:** `https://github.com/Viniciusulpicio/cadunico_recepcao`

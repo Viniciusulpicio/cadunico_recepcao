@@ -1,49 +1,57 @@
-# 04 - Relatórios, Fechamento Mensal e Busca
+# 04 - Relatórios de Servidores, Fechamento Mensal e Busca
 
-Este módulo documenta a gestão consolidada dos atendimentos de todos os postos na planilha `Gestão Mensal de Atendimentos.xlsx`.
+Este módulo documenta a criação mensal das planilhas de produção individual dos servidores (`RELATORIO SERVIDOR` e `RELATORIO CD`) e a consolidação estatística na planilha mestre `Gestão Mensal de Atendimentos`.
+
+> **Importante — Diferença entre Fila (Recepção) e Relatórios:**  
+> Embora fiquem organizadas dentro da pasta `relatorios` no Google Drive, as planilhas funcionam de formas distintas:
+> - **Planilhas de Fila (`yyyy/xx - RECEPCAO` + `Config_Postos_CadUnico`):** Alimentam o site da fila de espera dos 3 postos e **exigem Implantação como App da Web** no Apps Script (ver [Módulo 01](01-painel-recepcao-e-fila.md)).
+> - **Planilhas de Relatório (`yyyy/xx - RELATORIO SERVIDOR`, `yyyy/xx - RELATORIO CD` e `Gestão Mensal de Atendimentos`):** Registram a produção estatística mensal de cada entrevistador/técnico e **não precisam de implantação Web App** — basta duplicar na virada do mês e vincular o link na aba `Configuração Mensal`.
 
 ---
 
-## 1. Estrutura de Pastas e Modelos Originais
+## 1. Estrutura da Pasta `relatorios` e Modelos Originais
 
 ![Pasta Relatórios no Google Drive](img/04-drive-pasta-relatorios.png)
 
 Dentro da pasta `relatorios` do Google Drive:
-- **`Gestão Mensal de Atendimentos`:** Painel mestre consolidado de estatísticas.
-- **`Config_Postos_CadUnico`:** Planilha que armazena os links dos Apps Scripts de cada unidade.
-- **`modelos originais`:** Pasta com as planilhas base oficiais para duplicar.
+- **`Gestão Mensal de Atendimentos`:** Painel mestre consolidado de estatísticas e busca por CPF/Nome.
+- **`modelos originais`:** Pasta com as planilhas matrizes oficiais para duplicação mensal:
+  - `yyyy/xx - RELATORIO SERVIDOR` *(produção individual de cada entrevistador/técnico)*
+  - `yyyy/xx - RELATORIO CD` *(produção de visitas domiciliares)*
+  - `yyyy/xx - RECEPCAO` *(exclusiva para a recepção/fila do posto — ver Módulo 01)*
 
-> **Aviso de Duplicação:** Para iniciar um novo mês ou novo setor, acesse a pasta `modelos originais`, clique com o botão direito e selecione **Fazer uma cópia**. Nunca crie planilhas em branco.
 ![Modelos Originais para Duplicar](img/04-drive-modelos-originais-duplicar.png)
 
 ---
 
-## 2. Dashboard e Configuração Mensal de Servidores
+## 2. Virada de Mês dos Relatórios dos Servidores e Dashboard
 
-![Demonstrativo Consolidado de Atendimentos](img/04-dashboard-consolidado.png)
-
-A aba `Dashboard` resume os atendimentos realizados por local (Central, Rosa Modelli, Teotônio Vilela, Domicílio, Ação Itinerante, etc.) e por tipo de serviço.
-
-A aba `Configuração Mensal` vincula a planilha individual de cada servidor:
-![Configuração Mensal Servidores](img/04-configuracao-mensal-servidores.png)
+1. **Duplicar as Planilhas dos Servidores:**
+   - Na virada do mês, duplique a pasta do mês anterior (ou os modelos `RELATORIO SERVIDOR` / `RELATORIO CD`) para cada servidor de cada unidade (Central, Rosa Modelli e Teotônio Vilela) e limpe os registros do mês encerrado.
+2. **Vincular na Aba `Configuração Mensal`:**
+   - Abra a planilha mestre `Gestão Mensal de Atendimentos` na aba `Configuração Mensal` e cole o link da nova planilha mensal de cada servidor na linha correspondente:
+   ![Configuração Mensal Servidores](img/04-configuracao-mensal-servidores.png)
+3. **Conferir o Dashboard Consolidado:**
+   - A aba `Dashboard` passa a somar automaticamente os atendimentos realizados por local (Central, Rosa Modelli, Teotônio Vilela, Domicílio, Ação Itinerante, etc.) e por tipo de serviço:
+   ![Demonstrativo Consolidado de Atendimentos](img/04-dashboard-consolidado.png)
 
 ---
 
 ## 3. Rotina Crítica: Congelamento do Mês Encerrado
 
-As abas utilizam fórmulas dinâmicas para puxar os dados das planilhas de recepção. Ao final de cada mês, é **obrigatório congelar** para evitar perda de dados históricos ou lentidão:
+As abas mensais da `Gestão Mensal de Atendimentos` utilizam fórmulas dinâmicas para puxar os dados das planilhas do mês. Ao final de cada mês, é **obrigatório congelar** a aba encerrada antes de arquivar as planilhas:
 
-1. Abra a aba do mês recém-encerrado.
+1. Abra a aba do mês recém-encerrado (ex: `10/2026`).
 2. Clique no menu superior: **🔍 Busca → Congelar Dados do Mês Atual**.
 ![Menu Busca e Congelar Dados](img/04-menu-busca-e-congelar.png)
 3. Confirme a caixa de diálogo clicando em **Sim**.
-4. O script converterá as fórmulas do intervalo `Z4:AH` em valores estáticos (texto puro), preservando o histórico permanentemente.
+4. O script converterá as fórmulas do intervalo `Z4:AH` em valores estáticos (texto puro), preservando o histórico permanentemente e mantendo a planilha rápida.
 
 ---
 
 ## 4. Como Adicionar Novos Meses na Ferramenta de Busca
 
-A função de busca por Nome/CPF pesquisa em uma lista de abas. Quando um novo mês for criado:
+A função de busca por Nome/CPF pesquisa em uma lista de abas. Quando um novo mês for criado na `Gestão Mensal de Atendimentos`:
 
 1. Abra a planilha e vá em **Extensões → Apps Script**.
 2. Abra o arquivo `codigo.gs` e localize a linha ~58:
@@ -51,7 +59,7 @@ A função de busca por Nome/CPF pesquisa em uma lista de abas. Quando um novo m
    var abasMensais = ['08/2026', '09/2026', '10/2026'];
    ```
 3. Adicione o novo mês à lista (ex: `['08/2026', '09/2026', '10/2026', '11/2026']`).
-4. Salve o script (Ctrl + S).
+4. Salve o script (`Ctrl + S`).
 
 ---
 
