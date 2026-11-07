@@ -36,7 +36,23 @@ Ao clicar no botão **Devolver para a fila**, uma janela permite escolher entre:
 1. **Peguei por engano:** Devolve o cidadão de volta para a fila (`AGUARDANDO`), limpando o entrevistador e o horário de aceite, mantendo os dados exatamente iguais.
 2. **Atendimento incorreto / Redirecionar:** Quando o cidadão solicitou um serviço diferente do que precisa:
    - Finaliza o registro atual com o nome do entrevistador e hora de término (`FINALIZADO`).
-   - Duplica a passagem para uma nova linha na planilha com status `AGUARDANDO`, preservando os dados cadastrais e o mesmo horário de chegada original, porém atualizando o **Tipo de Atendimento** selecionado.
+   - Duplica a passagem para uma nova linha na planilha com status `AGUARDANDO`, preservando os dados cadastrais e o mesmo horário de chegada original, porém atualizando o **Tipo de Atendimento** selecionado entre os **16 tipos oficiais da planilha**:
+     1. `Inclusão Cadastral`
+     2. `Atualização Cadastral`
+     3. `Exclusão da Familia`
+     4. `Solicitação Administração do Bolsa Familia`
+     5. `Emissão Comprovante CadÚnico`
+     6. `Emissão da Carteira da Pessoa Idosa`
+     7. `Encaminhamento`
+     8. `Solicitação de Atendimento Domiciliar`
+     9. `Informações Gerais`
+     10. `Não cumprimento de condicionalidades PBF - CRAS`
+     11. `Solicitação Desligamento Voluntário PBF`
+     12. `Atendimento Telefônico`
+     13. `Encaminhamento para outros setores ou políticas publicas`
+     14. `WhatsApp - Resposta à Família`
+     15. `WhatsApp - Comunicado à Família`
+     16. `WhatsApp - Aviso Prévio de CD`
 
 ---
 

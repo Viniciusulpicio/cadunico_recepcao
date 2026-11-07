@@ -1,6 +1,6 @@
 # Manual de Operação e Manutenção dos Sistemas do Cadastro Único e Bolsa Família
 **Prefeitura Municipal de Marília - Secretaria Municipal de Assistência Social**  
-*Responsável técnico: Vinícius Sulpicio*
+*Responsável técnico: Vinícius Sulpicio (`viniciusulpicio@gmail.com`)*
 
 ---
 
@@ -23,14 +23,17 @@ Quando você clica com o botão direito e seleciona **Fazer uma cópia**, o Goog
 ### Estrutura no Google Drive
 ![Pastas Principais no Google Drive](img/00-drive-pastas-raiz.png)
 
-Na raiz do Drive da conta, o trabalho está dividido em quatro pastas:
+Na raiz do Drive da conta, o trabalho está dividido em cinco frentes principais:
 - **`adm`:** Fichas administrativas do Bolsa Família geradas a partir de formulário.
 - **`cadastramento domiciliar`:** Solicitações de visita em domicílio, roteirização e termos.
 - **`relatorios`:** Planilha consolidada de atendimentos da cidade, modelos originais e histórico.
-- **`MODELOS DOCUMENTOS`:** Modelos de termos e ofícios.
+- **`avaliacao atendimento`:** Pesquisa de satisfação dos munícipes e painéis gerenciais mensais por servidor.
+- **`MODELOS DOCUMENTOS`:** 20 modelos de termos, declarações, encaminhamentos e a planilha `BAIRROS X CRAS.xlsx`.
 
-### Repositório do Painel Web
-O código do painel de fila web fica hospedado no GitHub no repositório de Vinícius Sulpicio (`https://github.com/Viniciusulpicio/cadunico_recepcao`). As atualizações no site continuarão sob manutenção externa, então o foco no dia a dia é manter as planilhas e os links de conexão do Google Apps Script atualizados.
+### Repositório do Painel Web e Manual Online
+- **Painel de Fila:** `https://viniciusulpicio.github.io/cadunico_recepcao/`
+- **Manual Imprimível Online:** `https://viniciusulpicio.github.io/cadunico_recepcao/manual`
+- **Repositório GitHub:** `https://github.com/Viniciusulpicio/cadunico_recepcao`
 
 ---
 
@@ -44,7 +47,14 @@ O endereço do painel é `https://viniciusulpicio.github.io/cadunico_recepcao/`.
 - CRAS Teotônio Vilela: `https://viniciusulpicio.github.io/cadunico_recepcao/?posto=teotonio`
 - CRAS Rosa Modelli: `https://viniciusulpicio.github.io/cadunico_recepcao/?posto=rosa_modelli`
 
-Quando a recepção cadastra o atendimento na planilha e preenche a coluna G com "Encaminhado para o atendimento interno (setor)", a pessoa entra na fila do painel web. O entrevistador clica em **Aceitar**, atende o cidadão e depois clica em **Finalizar**. A planilha recebe a hora de início, hora de término e o nome do servidor de forma automática.
+Quando a recepção cadastra o atendimento na planilha e preenche a coluna G com `"Encaminhado para o atendimento interno (setor)"`, a pessoa entra na fila do painel web. O entrevistador clica em **Aceitar**, atende o cidadão e depois clica em **Finalizar**. A planilha recebe a hora de início, hora de término e o nome do servidor de forma automática.
+
+### Devolução para a Fila e Redirecionamento de Atendimento
+Se o entrevistador precisar devolver o atendimento para a fila, o botão **Devolver para a fila** oferece duas opções:
+1. **Peguei por engano:** Retorna o cidadão imediatamente para o status `AGUARDANDO`, limpando o nome do entrevistador e o horário de aceite sem alterar os dados originais.
+2. **Atendimento incorreto / Redirecionar:** Quando a demanda real do cidadão é diferente da cadastrada na recepção:
+   - O sistema finaliza o atendimento atual (`FINALIZADO`) contabilizando para o entrevistador que fez a triagem.
+   - Cria automaticamente uma nova linha com status `AGUARDANDO`, mantendo o horário de chegada original da pessoa para não prejudicá-la na fila, e permite selecionar um dos **16 tipos oficiais da planilha** (`Inclusão Cadastral`, `Atualização Cadastral`, `Exclusão da Familia`, `Solicitação Administração do Bolsa Familia`, `Emissão Comprovante CadÚnico`, `Emissão da Carteira da Pessoa Idosa`, `Encaminhamento`, `Solicitação de Atendimento Domiciliar`, `Informações Gerais`, `Não cumprimento de condicionalidades PBF - CRAS`, `Solicitação Desligamento Voluntário PBF`, `Atendimento Telefônico`, `Encaminhamento para outros setores ou políticas publicas`, `WhatsApp - Resposta à Família`, `WhatsApp - Comunicado à Família` ou `WhatsApp - Aviso Prévio de CD`).
 
 ### Como Montar a Planilha de um Novo Mês
 
@@ -225,7 +235,38 @@ Quando o cidadão envia a avaliação no Google Forms:
 
 ---
 
-## 7. O que Fazer se Alguma Coisa Der Errado
+## 7. Modelos de Documentos Oficiais, Territorialização e Formulário Verde F1
+
+Na pasta `MODELOS DOCUMENTOS` do Google Drive estão padronizados os 20 arquivos editáveis (`.odt`, `.docx` e `.doc`) de uso diário:
+- **Declarações e Termos:** Declaração de Residência (Titular e Responsável Legal), Declaração de Comparecimento, Termo de Renda e Composição Familiar, Termo de Família Unipessoal (Titular e RL) e Requerimento de Troca de RF.
+- **Exclusão e Desligamento:** Ficha de Exclusão de Pessoa, Ficha de Exclusão da Família, Termo de Responsabilidade de Exclusão BPC e Declaração de Desligamento Voluntário do PBF.
+- **Encaminhamentos para a Rede:** CRAS, Centro POP, INSS/BPC, Educação e Encaminhamento Genérico.
+- **Abrangência dos CRAS (`BAIRROS X CRAS.xlsx`):** Tabela oficial que vincula cada bairro de Marília ao seu respectivo CRAS de referência.
+- **Formulário Verde F1 Digital (`formulario_verde`):** Matrizes em alta definição do Formulário Principal F1 prontas para preenchimento em tela (`FORMULARIO_VERDE_F1_PREENCHIVEL.pdf`) ou impressão (`FORMULARIO_VERDE_F1_OFICIAL_DOCS.docx`).
+
+---
+
+## 8. Backup Automático Diário (Servidor 24h) e Recuperação de Desastres
+
+Para proteger o setor contra invasão da conta Google ou exclusão acidental de planilhas e códigos, um servidor dedicado 24h (`rk322x-box` / `192.168.0.215`) executa automaticamente o backup completo todos os dias às **03:00 da manhã**.
+
+### Como Acessar os Arquivos Salvos
+- **Pelo Navegador (Filebrowser):** `http://rk322x-box:8082/files/backups_cadunico`
+- **Pela Rede Local (Samba):** `\\192.168.0.215\Compartilhado\backups_cadunico`
+
+### O que o Backup Salva Automaticamente
+1. **Mesma Organização do Google Drive (`rclone copy`):** Todas as pastas (`adm`, `avaliacao atendimento`, `cadastramento domiciliar`, `MODELOS DOCUMENTOS` e `relatorios`) ficam espelhadas com a mesma estrutura do Drive. Como o sistema usa o comando `copy` (e nunca `sync`), **mesmo que alguém apague tudo no Google Drive, nenhum arquivo é apagado no servidor de backup**.
+2. **Todos os 80+ Scripts (`.gs` / `.html`) Junto de Suas Planilhas:** Mesmo que os projetos no Google Apps Script tenham o nome genérico `"Projeto sem título"`, o extrator automático (`pull_scripts.py`) lê o vínculo oficial (`parentId`) da planilha dona e salva os códigos dentro da pasta **`Nome da Planilha [SCRIPT]/`** exatamente ao lado do arquivo `.xlsx` correspondente.
+3. **Histórico de Alterações e Snapshots Compactados (`.tar.gz`):** Sempre que uma planilha é alterada no Drive, a cópia anterior é guardada com data e hora em `historico_alterados/`. Além disso, o servidor gera pacotes diários `cadunico-AAAA-MM-DD.tar.gz` (mantendo os últimos 30 dias + todo dia 01 de cada mês preservado permanentemente).
+
+### Como Restaurar em Caso de Perda ou Invasão
+1. Acesse `http://rk322x-box:8082/files/backups_cadunico`, localize a pasta do setor e baixe a planilha `.xlsx` e a pasta `Nome da Planilha [SCRIPT]/`.
+2. Suba a planilha `.xlsx` novamente para o Google Drive e clique em **Arquivo → Salvar como Planilhas Google**.
+3. Na planilha restaurada, abra **Extensões → Apps Script**, cole o código `.gs` salvo na pasta `[SCRIPT]`, salve (`Ctrl + S`) e ative o gatilho no menu **⚙️ Ativar Automação Automática**.
+
+---
+
+## 9. O que Fazer se Alguma Coisa Der Errado
 
 | Ocorrência | Onde Olhar | Como Resolver |
 | :--- | :--- | :--- |
@@ -234,3 +275,14 @@ Quando o cidadão envia a avaliação no Google Forms:
 | O Google Drive avisou que o armazenamento de 15 GB está no fim | Excesso de xerox antigas no Drive | Na planilha de CD, acione o menu **⚡ CD Atendimento Domiciliar → Apagar PDFs e Limpar Links de Visitas Concluídas**. Em seguida, esvazie a lixeira do Drive da conta. |
 | O roteirizador do CD não traça rota ou para com erro | Endereço com número incorreto ou fora de Marília | Verifique se o endereço da solicitação tem o formato `Rua Nome da Rua, 123`. Corrija a célula e use **Automação CD → Limpar Cache de Endereços**. |
 | A planilha de Gestão Mensal demora muito para abrir | Fórmulas de meses passados ainda ativas | Vá na aba do mês anterior e execute o menu **Busca → Congelar Dados do Mês Atual**. |
+| Uma planilha ou script foi apagado ou corrompido no Google Drive | Servidor de Backup 24h (`backups_cadunico`) | Acesse `http://rk322x-box:8082/files/backups_cadunico`, baixe a planilha `.xlsx` e a pasta `[SCRIPT]` correspondente (ou acione o suporte técnico abaixo). |
+
+---
+
+## 10. Suporte Técnico e Contato do Desenvolvedor
+
+Em caso de invasão da conta Google, necessidade de restauração completa dos snapshots de backup, ajustes no painel web de fila ou dúvidas técnicas sobre a infraestrutura dos sistemas, entre em contato diretamente com o desenvolvedor:
+
+- **Responsável Técnico:** Vinícius Sulpicio
+- **E-mail:** `viniciusulpicio@gmail.com`
+- **GitHub / Código-Fonte:** `https://github.com/Viniciusulpicio/cadunico_recepcao`
