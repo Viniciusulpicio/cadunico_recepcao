@@ -247,7 +247,7 @@ Na pasta `MODELOS DOCUMENTOS` do Google Drive estão padronizados os 20 arquivos
 
 ---
 
-## 8. Backup Automático Diário e Recuperação de Desastres
+## 8. Backup Automático Diário, Recuperação de Desastres e Suporte Técnico
 
 Para proteger o setor contra invasão da conta Google, exclusão maliciosa ou perda acidental de planilhas e códigos, todo o sistema conta com uma rotina externa automatizada de backup diário executada às **03:00 da manhã** sob custódia técnica.
 
@@ -256,8 +256,12 @@ Para proteger o setor contra invasão da conta Google, exclusão maliciosa ou pe
 2. **Todos os 80+ Scripts (`.gs` / `.html`) Junto de Suas Planilhas:** Mesmo que os projetos no Google Apps Script tenham o nome genérico `"Projeto sem título"`, o extrator automático lê o vínculo oficial (`parentId`) da planilha dona e salva os códigos dentro da pasta **`Nome da Planilha [SCRIPT]/`** exatamente ao lado do arquivo `.xlsx` correspondente.
 3. **Histórico de Versões e Pacotes Diários/Mensais:** Toda vez que uma planilha é alterada, a versão anterior é arquivada separadamente com data e hora, além de pacotes completos fechados dos últimos 30 dias e de todos os meses encerrados.
 
-### Como Solicitar Restauração em Caso de Perda ou Invasão
-Caso qualquer planilha, fórmula ou script seja apagado ou corrompido no Google Drive, basta entrar em contato com o responsável técnico (Seção 10) informando qual planilha ou pasta precisa ser restaurada para receber imediatamente o arquivo `.xlsx` íntegro e o código Apps Script correspondente.
+### Como Solicitar Restauração ou Suporte Técnico
+Caso precise recuperar planilhas ou scripts apagados a partir do backup diário, restaurar o ambiente em caso de invasão da conta Google, ajustar o painel web de fila ou tirar dúvidas técnicas sobre o funcionamento das automações, entre em contato diretamente com o desenvolvedor:
+
+- **Responsável Técnico / Desenvolvedor:** Vinícius Sulpicio
+- **E-mail:** `viniciusulpicio@gmail.com`
+- **GitHub / Código-Fonte:** `https://github.com/Viniciusulpicio/cadunico_recepcao`
 
 ---
 
@@ -270,14 +274,4 @@ Caso qualquer planilha, fórmula ou script seja apagado ou corrompido no Google 
 | O Google Drive avisou que o armazenamento de 15 GB está no fim | Excesso de xerox antigas no Drive | Na planilha de CD, acione o menu **⚡ CD Atendimento Domiciliar → Apagar PDFs e Limpar Links de Visitas Concluídas**. Em seguida, esvazie a lixeira do Drive da conta. |
 | O roteirizador do CD não traça rota ou para com erro | Endereço com número incorreto ou fora de Marília | Verifique se o endereço da solicitação tem o formato `Rua Nome da Rua, 123`. Corrija a célula e use **Automação CD → Limpar Cache de Endereços**. |
 | A planilha de Gestão Mensal demora muito para abrir | Fórmulas de meses passados ainda ativas | Vá na aba do mês anterior e execute o menu **Busca → Congelar Dados do Mês Atual**. |
-| Uma planilha, fórmula ou script foi apagado ou corrompido no Google Drive | Backup Diário Externo | Entre em contato com o responsável técnico abaixo para receber o arquivo `.xlsx` e a pasta `[SCRIPT]` restaurados a partir do backup diário. |
-
----
-
-## 10. Suporte Técnico e Contato do Desenvolvedor
-
-Caso precise recuperar planilhas ou scripts apagados a partir do backup diário, restaurar o ambiente em caso de invasão da conta Google, ajustar o painel web de fila ou tirar dúvidas técnicas sobre o funcionamento das automações, entre em contato:
-
-- **Responsável Técnico / Desenvolvedor:** Vinícius Sulpicio
-- **E-mail:** `viniciusulpicio@gmail.com`
-- **GitHub / Código-Fonte:** `https://github.com/Viniciusulpicio/cadunico_recepcao`
+| Uma planilha, fórmula ou script foi apagado ou corrompido no Google Drive | Backup Diário Externo | Entre em contato com **Vinícius Sulpicio** (`viniciusulpicio@gmail.com` — Seção 8) para receber o arquivo `.xlsx` e a pasta `[SCRIPT]` restaurados a partir do backup diário. |
