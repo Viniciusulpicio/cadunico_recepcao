@@ -1201,7 +1201,8 @@
       }
     }
 
-    function abrirModalTcms() {
+    function abrirModalTcms(forcarLimpar = false) {
+      if (elModalTcms.classList.contains("open") && !forcarLimpar) return;
       elInputTcmsNome.value = state.entrevistador || "";
       elInputTcmsMatricula.value = state.matricula || "";
       elInputTcmsToken.value = "";
@@ -1477,7 +1478,7 @@
 
       // Polling a cada 7s
       setInterval(() => {
-        if (state.tcmsAceito && elScreenLockOverlay.style.display !== "flex") {
+        if (state.tcmsAceito && elScreenLockOverlay.style.display !== "flex" && !elModalTcms.classList.contains("open")) {
           buscarFila(true);
         }
       }, 7000);
@@ -1739,7 +1740,7 @@
     });
 
     async function buscarFila(silencioso = false) {
-      if (!state.tcmsAceito) return;
+      if (!state.tcmsAceito || elModalTcms.classList.contains("open")) return;
 
       if (!state.apiUrl) {
         processarDados({
@@ -1757,8 +1758,11 @@
         const data = await res.json();
 
         if (data && data.codigo === "NAO_AUTORIZADO") {
+          state.tcmsAceito = false;
+          localStorage.removeItem(STORAGE_KEYS.TCMS_ACEITO);
+          atualizarUiOperador();
           mostrarToast("Chave de segurança do posto inválida. Atualize suas credenciais.", 4000, "alerta");
-          abrirModalTcms();
+          abrirModalTcms(true);
           return;
         }
 
