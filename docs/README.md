@@ -16,13 +16,13 @@ Guia mestre de governança, sustentação, backup e manutenção de todos os sis
 1. [00 - Visão Geral e Gestão de Acessos](00-visao-geral-e-acessos.md)
    Contas mestras, bibliotecas externas (`pdf-lib`), serviços de mapa, níveis de permissão e contato técnico.
 2. [01 - Painel de Recepção e Fila de Atendimento](01-painel-recepcao-e-fila.md)
-   Operação exclusiva do front-end web de fila, planilha `RECEPCAO`, `Config_Postos_CadUnico`, devolução/redirecionamento entre os 16 tipos oficiais e deploy do Web App.
+   Operação do front-end web de fila, planilha `RECEPCAO`, `Config_Postos_CadUnico`, devolução/redirecionamento nos 16 tipos oficiais, deploy do Web App e Alerta da Coordenação (Casos Especiais).
 3. [02 - Sistema de Administração de Benefícios (ADM / PBF)](02-administracao-beneficios-adm.md)
    Geração automatizada de formulários e processos administrativos em PDF mesclado com anexos.
 4. [03 - Sistema de Cadastramento Domiciliar (CD)](03-cadastramento-domiciliar-cd.md)
-   Geração de termos em PDF, roteirização geográfica inteligente (2-opt) e integração com WhatsApp.
+   Geração de termos em PDF, preenchimento vetorial do Formulário Verde F1, roteirização geográfica (2-opt), WhatsApp e limpeza automática da cota de 15 GB.
 5. [04 - Relatórios de Servidores, Fechamento Mensal e Busca](04-relatorios-e-fechamento-mensal.md)
-   Planilhas individuais de produção (`RELATORIO SERVIDOR` e `RELATORIO CD`), vinculação na `Gestão Mensal de Atendimentos`, congelamento mensal e busca por CPF/Nome.
+   Planilhas individuais de produção (`RELATORIO SERVIDOR` e `RELATORIO CD`), aba mestre `Casos_Especiais`, congelamento mensal e busca por CPF/Nome.
 6. [05 - Avaliação de Atendimento e Desempenho](05-avaliacao-de-atendimento.md)
    Formulário de satisfação dos munícipes, geração automática de dashboards mensais e notas por atendente.
 7. [06 - Modelos de Documentos, Territorialização e Formulário Verde F1](06-modelos-e-formulario-verde.md)

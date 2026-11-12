@@ -43,9 +43,17 @@ A planilha `BAIRROS X CRAS.xlsx` (dentro de `MODELOS DOCUMENTOS`) relaciona todo
 
 ---
 
-## 3. Formulário Verde F1 Digital e Preenchível
+## 3. Formulário Verde F1 Digital e Automação Vetorial
 
-As versões reconstruídas em alta resolução (300 DPI) do Formulário Principal de Cadastramento (F1) estão preservadas no pacote técnico `formulario_verde`:
+As versões reconstruídas em alta resolução e o script de emissão vetorial estão preservados no pacote técnico `formulario_verde`:
 
-- **`FORMULARIO_VERDE_F1_PREENCHIVEL.pdf`:** Versão PDF com campos editáveis diretamente no computador antes da impressão.
-- **`FORMULARIO_VERDE_F1_OFICIAL_DOCS.docx` / `FORMULARIO_VERDE_F1_GOOGLE_DOCS.docx`:** Matrizes editáveis compatíveis com Microsoft Word e Google Docs para emissão em lote ou impressão de reposição.
+- **`FORMULARIO VERDE F1.pdf` (Oficial Caixa / Governo Federal - ID `1M1MzdRQ1QFCwdOv4U0DF2XovNLpIpWqF`):** Matriz oficial do Ministério do Desenvolvimento Social / Caixa Econômica Federal em folha A4 paisagem, utilizada como fundo pelo motor `pdf-lib`.
+- **`FORMULARIO_VERDE_F1_PREENCHIVEL.pdf`:** Versão PDF interativa com campos de formulário editáveis diretamente no navegador ou Adobe Reader.
+- **`FORMULARIO_VERDE_F1_OFICIAL_DOCS.docx` / `FORMULARIO_VERDE_F1_GOOGLE_DOCS.docx`:** Matrizes editáveis compatíveis com Microsoft Word e Google Docs para emissão em contingência ou impressão manual de reposição.
+- **`codigo_apps_script.gs` / `codigo_apps_script.txt`:** Script completo do Google Apps Script com o motor `pdf-lib` calibrado:
+  - Posiciona o Formulário Verde F1 na **Página 1** do dossiê final.
+  - Desenha os dados do titular e município diretamente nos grids de caracteres com passo submilimétrico ($11.33\text{ pt}$).
+  - Assenta o Código Familiar de 11 dígitos exatamente nas 11 caixinhas ($X=165.35$, passo $11.30\text{ pt}$, baseline $Y=136.5$).
+  - Preenche o telefone fixo institucional `(14) 3434-1840` em negrito e centralizado na caixa branca inferior.
+  - Marca a modalidade (`Inclusão` ou `Alteração`) com `X` centralizado no interior do quadrado.
+  - Mescla o Termo Domiciliar (`DOCUMENTO MESTRE` ou `DOCUMENTO MESTRE RL`) e concatena até 10 categorias de anexos digitais enviados pelo Forms.

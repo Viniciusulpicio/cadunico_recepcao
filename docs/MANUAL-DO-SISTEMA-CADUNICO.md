@@ -60,6 +60,13 @@ Se o entrevistador precisar devolver o atendimento para a fila, o botão **Devol
    - O sistema finaliza o atendimento atual (`FINALIZADO`) contabilizando para o entrevistador que fez a triagem.
    - Cria automaticamente uma nova linha com status `AGUARDANDO`, mantendo o horário de chegada original da pessoa para não prejudicá-la na fila, e permite selecionar um dos **16 tipos oficiais da planilha** (`Inclusão Cadastral`, `Atualização Cadastral`, `Exclusão da Familia`, `Solicitação Administração do Bolsa Familia`, `Emissão Comprovante CadÚnico`, `Emissão da Carteira da Pessoa Idosa`, `Encaminhamento`, `Solicitação de Atendimento Domiciliar`, `Informações Gerais`, `Não cumprimento de condicionalidades PBF - CRAS`, `Solicitação Desligamento Voluntário PBF`, `Atendimento Telefônico`, `Encaminhamento para outros setores ou políticas publicas`, `WhatsApp - Resposta à Família`, `WhatsApp - Comunicado à Família` ou `WhatsApp - Aviso Prévio de CD`).
 
+### Alerta da Coordenação e Bloqueio de Casos Especiais na Triagem
+As planilhas de recepção possuem sincronização automática com a coordenação para identificar munícipes com orientações restritivas ou bloqueios antes do atendimento:
+
+![Alerta da Coordenação na Recepção](img/01-alerta-coordenacao-bloqueio.png)
+
+Ao digitar o CPF na coluna D da planilha `RECEPCAO`, se o cidadão estiver cadastrado na aba `Casos_Especiais` da `Gestão Mensal de Atendimentos` (sincronizada via `IMPORTRANGE` na aba técnica `NAO_MEXER`), um alerta modal surge na tela exibindo a data, o gestor responsável e a orientação detalhada (ex: *"Não realize o atendimento comum. Siga as orientações acima!"*), evitando encaminhamentos equivocados.
+
 ### Como Configurar a Planilha `RECEPCAO` de um Novo Mês (Fila Web)
 
 #### 1. Fazer Cópia da Planilha `RECEPCAO`
@@ -162,6 +169,16 @@ Atende pessoas acamadas ou com mobilidade reduzida. O sistema recebe pedidos via
 3. Na barra lateral que se abre, clique em **📲 Abrir no WhatsApp Web**.
 4. O WhatsApp Web abrirá a conversa com a mensagem pré-preenchida contendo a data da visita e os documentos necessários.
 
+### Preenchimento Vetorial do Formulário Verde F1 e Gestão de Cota (15 GB)
+- **Desenho Direto no PDF (`pdf-lib`):** O script `codigo_apps_script.gs` gera o Formulário Verde F1 como **Página 1** do dossiê em A4 paisagem a partir do arquivo oficial (`FORMULARIO VERDE F1.pdf` - ID `1M1MzdRQ1QFCwdOv4U0DF2XovNLpIpWqF`). Preenche os campos cadastrais com precisão milimétrica:
+  - **Recibo Superior:** Nome do titular e município `MARÍLIA` em caixa alta e negrito (`size: 9.5`), centralizado na linha de "Local".
+  - **Titular e Município:** Caracteres centralizados nas caixinhas individuais com passo calibrado de $11.33\text{ pt}$ (evitando letras coladas nas bordas em sobrenomes longos) e município `MARILIA` assentado no fundo da grade ($Y=185.0$).
+  - **Código Familiar:** 11 dígitos preenchendo exatamente as 11 caixinhas de ponta a ponta ($X=165.35$, passo $11.30\text{ pt}$, $Y=136.5$).
+  - **Telefone:** Preenche fixo `(14) 3434-1840` em negrito e centralizado no retângulo branco inferior.
+  - **Modalidade:** Assinala `X` perfeitamente alinhado no quadrado branco de `Inclusão` ou `Alteração`.
+  - **Concatenação Ordenada:** Concatena em seguida o Termo Domiciliar (Google Docs preenchido com as tags `{{NOME}}`, `{{CPF}}`, etc.) e até 10 categorias de anexos comprobatórios sem distorções.
+- **Limpeza em Cascata:** Ao marcar uma visita como `CONCLUIDO` ou `ARQUIVADO` na coluna P da planilha central, o gatilho `aoEditarStatus` apaga imediatamente o PDF gerado e todos os arquivos residuais da pasta de uploads. Um gatilho temporal reforça essa limpeza diariamente às 02:00 para manter o Drive dentro da cota gratuita de 15 GB.
+
 ---
 
 ## 5. Relatórios Individuais dos Servidores, Fechamento Mensal e Busca
@@ -176,6 +193,14 @@ A pasta `modelos originais` guarda as matrizes oficiais que nunca devem ser edit
 - `yyyy/xx - RELATORIO CD` *(planilha de produção das visitas domiciliares)*
 - `yyyy/xx - RECEPCAO` *(matriz exclusiva da recepção/fila — ver Seção 2)*
 ![Modelos Originais para Duplicar](img/04-drive-modelos-originais-duplicar.png)
+
+### Cadastro Centralizado de Orientações (Aba `Casos_Especiais`)
+A planilha `Gestão Mensal de Atendimentos` inclui a aba `Casos_Especiais`, responsável por alimentar os alertas de bloqueio de toda a rede:
+
+![Aba Casos Especiais na Gestão Mensal](img/04-aba-casos-especiais.png)
+
+- **Campos:** `CPF`, `Data da Ocorrência`, `Resumo do Caso / Orientação da Gestora` e `Gestor(a) Responsável`.
+- **Efeito Imediato:** Qualquer registro inserido nessa aba é replicado via `IMPORTRANGE` para a aba técnica `NAO_MEXER` das três recepções (Central, Rosa Modelli e Teotônio Vilela), acionando o aviso em pop-up na triagem.
 
 ### Como Virar o Mês dos Relatórios dos Servidores e Dashboard
 1. **Duplicar as Planilhas dos Servidores:** Duplique a planilha `RELATORIO SERVIDOR` do mês anterior de cada funcionário (ou a pasta inteira do posto do mês anterior, apagando apenas os registros antigos). Diferente da planilha de recepção, as planilhas de relatório individual **não precisam de implantação no Apps Script**.

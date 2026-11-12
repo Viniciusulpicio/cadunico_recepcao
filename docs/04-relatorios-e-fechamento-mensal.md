@@ -37,7 +37,23 @@ Dentro da pasta `relatorios` do Google Drive:
 
 ---
 
-## 3. Rotina Crítica: Congelamento do Mês Encerrado
+## 3. Gestão Centralizada de Casos Especiais (Aba `Casos_Especiais`)
+
+A planilha mestre `Gestão Mensal de Atendimentos` centraliza as diretrizes da coordenação para munícipes que exigem tratamento diferenciado, bloqueio temporário ou orientações especiais:
+
+![Aba Casos Especiais na Gestão Mensal](img/04-aba-casos-especiais.png)
+
+### Estrutura de Colunas:
+- **Coluna A:** `CPF` (com ou sem pontuação).
+- **Coluna B:** `Data da Ocorrência` (data de inclusão da determinação).
+- **Coluna C:** `Resumo do Caso / Orientação da Gestora` (detalhamento da conduta que a recepção deve adotar).
+- **Coluna D:** `Gestor(a) Responsável` (nome da autoridade que registrou a orientação, ex: *Angela*).
+
+Todas as planilhas `RECEPCAO` dos postos leem essa aba via `IMPORTRANGE` em tempo real. Sempre que um CPF listado for inserido na recepção, a tela exibe o alerta com a orientação antes de prosseguir com o atendimento.
+
+---
+
+## 4. Rotina Crítica: Congelamento do Mês Encerrado
 
 As abas mensais da `Gestão Mensal de Atendimentos` utilizam fórmulas dinâmicas para puxar os dados das planilhas do mês. Ao final de cada mês, é **obrigatório congelar** a aba encerrada antes de arquivar as planilhas:
 
@@ -49,7 +65,7 @@ As abas mensais da `Gestão Mensal de Atendimentos` utilizam fórmulas dinâmica
 
 ---
 
-## 4. Como Adicionar Novos Meses na Ferramenta de Busca
+## 5. Como Adicionar Novos Meses na Ferramenta de Busca
 
 A função de busca por Nome/CPF pesquisa em uma lista de abas. Quando um novo mês for criado na `Gestão Mensal de Atendimentos`:
 
@@ -63,7 +79,7 @@ A função de busca por Nome/CPF pesquisa em uma lista de abas. Quando um novo m
 
 ---
 
-## 5. Como Operar a Busca Geral
+## 6. Como Operar a Busca Geral
 
 1. Clique no menu **🔍 Busca → Buscar Atendimento (Nome ou CPF)**.
 2. Digite o nome (completo ou parcial) ou os números do CPF (com ou sem pontuação).

@@ -3,15 +3,15 @@
   "postos": {
     "central": {
       "nome": "Posto Central",
-      "scriptUrl": ""
+      "scriptUrl": "https://script.google.com/macros/s/AKfycbw0rpdaJH1ot4jtUEj-4INmcmmfxJoRhEVB88xDkZkTiMg_A-nv6Ir5CqD4uW4JNySk/exec"
     },
     "teotonio": {
       "nome": "CRAS Teotônio Vilela",
-      "scriptUrl": ""
+      "scriptUrl": "https://script.google.com/macros/s/AKfycbysCultDKUc2fKCQJmiin6qxsMt4WQ9TOZMAxVjpKdH0s5iElGNbHxSNJ-UqbYajcvraQ/exec"
     },
     "rosa_modelli": {
       "nome": "CRAS Rosa Modelli",
-      "scriptUrl": "https://script.google.com/macros/s/AKfycbw6THZwdIMGO4L8xmUUk6el3AnokgLIjOeGeV8NfUOJkXqV6tfshXLvev5lP-dwznaK/exec"
+      "scriptUrl": "https://script.google.com/macros/s/AKfycbzvc4AiVbzsRhNy1sRn7tGzrTzTpueMNg3ATEYmGUV53-46XiVDoIkNIvTQ7Bu-1rPc6A/exec"
     }
   }
 }

@@ -56,7 +56,24 @@ Ao clicar no botão **Devolver para a fila**, uma janela permite escolher entre:
 
 ---
 
-## 3. Passo a Passo Visual: Criar Nova Planilha (Troca Mensal/Anual)
+## 3. Alerta da Coordenação e Bloqueio de Casos Especiais na Triagem
+
+Para evitar atendimentos indevidos ou assegurar o cumprimento de orientações emitidas pela chefia, as planilhas de recepção contam com um sistema automático de bloqueio e alerta em tempo real:
+
+![Alerta da Coordenação na Recepção](img/01-alerta-coordenacao-bloqueio.png)
+
+1. **Sincronização Centralizada:** A aba oculta `NAO_MEXER` das planilhas `RECEPCAO` importa via `IMPORTRANGE` a relação atualizada de cidadãos da aba `Casos_Especiais` da planilha `Gestão Mensal de Atendimentos`.
+2. **Gatilho de Verificação:** Ao preencher o CPF do munícipe na coluna D da aba `RECEPÇÃO MENSAL`, o evento `onEdit` faz uma checagem instantânea contra a base de casos especiais.
+3. **Bloqueio em Modal:** Se o CPF constar na lista, a tela exibe uma caixa modal contendo:
+   - Identificação do cidadão (CPF).
+   - Data da ocorrência registrada.
+   - Gestor(a) responsável pela determinação.
+   - Texto completo com a orientação da gestora.
+   - Instrução mandatória: *"Não realize o atendimento comum. Siga as orientações acima!"*.
+
+---
+
+## 4. Passo a Passo Visual: Criar Nova Planilha (Troca Mensal/Anual)
 
 > **Regra de Ouro:** **SEMPRE DUPLIQUE** a planilha do mês anterior ou use a pasta `relatorios/modelos originais/` (Botão direito → **Fazer uma cópia**). Ao duplicar, **todo o código do Apps Script e os menus já vão juntos automaticamente**.
 

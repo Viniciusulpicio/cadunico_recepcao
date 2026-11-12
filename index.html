@@ -90,57 +90,88 @@
       gap: 0.6rem;
     }
 
-    .atendente-box {
+    .operador-box {
       display: flex;
       align-items: center;
-      gap: 0.35rem;
+      gap: 0.45rem;
       background: var(--bg);
       border: 1px solid var(--border);
       border-radius: 6px;
-      padding: 0.35rem 0.6rem;
+      padding: 0.35rem 0.65rem;
+      font-size: 0.82rem;
     }
 
-    .atendente-label {
-      font-size: 0.74rem;
+    .operador-badge {
       font-weight: 700;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.02em;
+      color: var(--text);
+      max-width: 140px;
       white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .atendente-input {
-      border: none;
-      background: transparent;
-      font-family: var(--font-sans);
-      font-size: 0.85rem;
+    .tag-tcms {
       font-weight: 700;
-      color: var(--blue-dark);
-      width: 125px;
+      font-size: 0.72rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
     }
 
-    .atendente-input:focus {
-      outline: none;
-      background: var(--surface);
-      border-radius: 4px;
+    .tag-tcms.ativo {
+      background: #DCFCE7;
+      color: #166534;
+    }
+
+    .tag-tcms.pendente {
+      background: #FEF3C7;
+      color: #92400E;
+    }
+
+    .btn-mini-link {
+      background: none;
+      border: none;
+      color: var(--blue);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 0 0.15rem;
+    }
+
+    .btn-lock {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: #FFF;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.4rem 0.65rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .btn-lock:hover {
+      background: #F8FAFC;
+      color: var(--text);
     }
 
     .posto-select {
       border: 1px solid var(--border);
-      background: var(--bg);
       border-radius: 6px;
-      padding: 0.4rem 0.65rem;
+      padding: 0.4rem 0.75rem;
       font-family: var(--font-sans);
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--blue-dark);
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--text);
+      background: var(--surface);
       cursor: pointer;
+      outline: none;
     }
 
     .posto-select:focus {
-      outline: none;
       border-color: var(--blue);
-      background: var(--surface);
     }
 
     .btn-ghost {
@@ -249,16 +280,18 @@
     .col-nome {
       font-weight: 700;
       color: var(--text);
-      font-size: 0.98rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
     }
 
     .tag-prio {
-      display: inline-block;
-      margin-left: 0.5rem;
-      font-size: 0.72rem;
-      font-weight: 700;
+      background: #FEE2E2;
       color: var(--red);
-      background: #FEF2F2;
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
       padding: 0.15rem 0.45rem;
       border-radius: 4px;
       vertical-align: middle;
@@ -279,7 +312,8 @@
 
     .col-resolucao {
       color: var(--muted);
-      font-size: 0.84rem;
+      font-size: 0.85rem;
+      max-width: 280px;
     }
 
     .btn-accept {
@@ -287,11 +321,12 @@
       color: #FFF;
       border: none;
       border-radius: 6px;
-      padding: 0.5rem 1rem;
+      padding: 0.5rem 1.15rem;
       font-family: var(--font-sans);
       font-size: 0.85rem;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
+      transition: background 0.15s ease;
       white-space: nowrap;
     }
 
@@ -300,26 +335,18 @@
     }
 
     .btn-accept:disabled {
-      opacity: 0.5;
-      cursor: wait;
+      opacity: 0.6;
+      cursor: not-allowed;
     }
 
     .empty-box {
-      padding: 3.5rem 1rem;
+      padding: 4rem 1rem;
       text-align: center;
       color: var(--muted);
       font-size: 0.95rem;
     }
 
-    /* =====================================================
-       MODO FICHA EM TELA CHEIA (CLEAN & DIRETO)
-       ===================================================== */
-    .ficha-view {
-      display: none;
-      max-width: 760px;
-      margin: 1rem auto 0;
-    }
-
+    /* Alternância de Telas */
     body.in-attendance .queue-view {
       display: none;
     }
@@ -328,13 +355,18 @@
       display: block;
     }
 
+    .ficha-view {
+      display: none;
+    }
+
+    /* Ficha em Destaque */
     .ficha-card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-top: 5px solid var(--blue);
       border-radius: 12px;
       padding: 2.25rem;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      border-top: 6px solid var(--blue);
     }
 
     .ficha-card.is-priority {
@@ -343,41 +375,42 @@
 
     .ficha-header {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      margin-bottom: 0.5rem;
+      align-items: center;
+      margin-bottom: 1.25rem;
     }
 
     .ficha-eyebrow {
-      font-size: 0.8rem;
-      font-weight: 600;
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
       color: var(--muted);
     }
 
     .ficha-name {
-      font-size: clamp(1.85rem, 3.5vw, 2.6rem);
+      font-size: 1.9rem;
       font-weight: 800;
       color: var(--text);
-      letter-spacing: -0.02em;
-      line-height: 1.15;
-      margin-bottom: 1.75rem;
+      line-height: 1.2;
+      margin-bottom: 2rem;
     }
 
     .ficha-rows {
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      padding: 1.25rem 0;
-      margin-bottom: 1.75rem;
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.25rem 2rem;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
     }
 
     .field-label {
-      font-size: 0.78rem;
+      font-size: 0.75rem;
       font-weight: 600;
+      text-transform: uppercase;
       color: var(--muted);
-      margin-bottom: 0.25rem;
+      margin-bottom: 0.35rem;
     }
 
     .field-val {
@@ -400,11 +433,10 @@
 
     .btn-copy {
       background: #EFF6FF;
+      border: 1px solid #BFDBFE;
       color: var(--blue);
-      border: none;
-      border-radius: 5px;
-      padding: 0.3rem 0.65rem;
-      font-family: var(--font-sans);
+      border-radius: 6px;
+      padding: 0.35rem 0.65rem;
       font-size: 0.78rem;
       font-weight: 700;
       cursor: pointer;
@@ -416,7 +448,6 @@
 
     .ficha-footer {
       display: flex;
-      align-items: center;
       justify-content: space-between;
       gap: 1rem;
     }
@@ -441,7 +472,7 @@
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.45);
+      background: rgba(15, 23, 42, 0.55);
       display: none;
       align-items: center;
       justify-content: center;
@@ -463,7 +494,7 @@
     }
 
     .modal-box h3 {
-      font-size: 1.05rem;
+      font-size: 1.15rem;
       margin-bottom: 0.4rem;
     }
 
@@ -480,7 +511,7 @@
       border-radius: 6px;
       font-family: var(--font-mono);
       font-size: 0.84rem;
-      margin-bottom: 1rem;
+      margin-bottom: 0.85rem;
     }
 
     .modal-actions {
@@ -521,156 +552,63 @@
     }
 
     .option-card-content {
-      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
     }
 
     .option-card-title {
+      font-size: 0.9rem;
       font-weight: 700;
-      font-size: 0.92rem;
       color: var(--text);
-      margin-bottom: 0.2rem;
     }
 
     .option-card-desc {
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       color: var(--muted);
-      line-height: 1.3;
+      line-height: 1.35;
     }
 
-    .btn-posto-choice {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.95rem 1.15rem;
-      font-family: var(--font-sans);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      text-align: left;
-      transition: all 0.15s ease;
-      width: 100%;
-    }
-
-    .btn-posto-choice:hover {
-      background: #EFF6FF;
-      border-color: var(--blue);
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
-    }
-
-    .btn-posto-choice .posto-meta {
-      display: flex;
-      flex-direction: column;
-      gap: 0.2rem;
-    }
-
-    .btn-posto-choice .posto-title {
-      font-weight: 700;
-      font-size: 0.98rem;
-      color: var(--text);
-    }
-
-    .btn-posto-choice .posto-desc {
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-
-    .btn-posto-choice .posto-arrow {
-      color: var(--blue);
-      font-weight: 700;
-      font-size: 1.1rem;
-      opacity: 0.6;
-      transition: transform 0.15s ease, opacity 0.15s ease;
-    }
-
-    .btn-posto-choice:hover .posto-arrow {
-      opacity: 1;
-      transform: translateX(3px);
-    }
-
-    /* Toast discreto / Notificações */
+    /* Toast */
     .toast {
       position: fixed;
-      bottom: 1.25rem;
-      right: 1.25rem;
+      bottom: 2rem;
+      right: 2rem;
       background: var(--text);
       color: #FFF;
-      padding: 0.65rem 1.15rem;
+      padding: 0.75rem 1.25rem;
       border-radius: 8px;
       font-size: 0.88rem;
-      font-weight: 600;
-      opacity: 0;
-      pointer-events: none;
-      transform: translateY(8px);
-      transition: opacity 0.2s ease, transform 0.2s ease;
-      z-index: 99999;
-      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.15);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      display: none;
+      z-index: 1000;
     }
 
     .toast.show {
-      opacity: 1;
-      transform: translateY(0);
+      display: block;
+      animation: fadeIn 0.2s ease-out;
     }
 
-    /* Alerta de alto destaque (para conflito de aceite) */
     .toast.alerta {
-      bottom: auto;
-      top: 1.75rem;
-      left: 50%;
-      right: auto;
-      transform: translate(-50%, -15px);
-      background: #DC2626;
+      background: #991B1B;
       color: #FFFFFF;
-      padding: 1.1rem 2.2rem;
-      border-radius: 12px;
-      font-size: 1.15rem;
-      font-weight: 800;
-      letter-spacing: -0.01em;
-      border: 3px solid #FEF2F2;
-      box-shadow: 0 20px 30px -10px rgba(220, 38, 38, 0.5), 0 10px 15px -5px rgba(0, 0, 0, 0.2);
-      text-align: center;
-      max-width: 90vw;
+      font-weight: 700;
+      border-left: 4px solid #FCA5A5;
     }
 
-    .toast.alerta.show {
-      opacity: 1;
-      transform: translate(-50%, 0);
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    @media (max-width: 680px) {
-      .ficha-rows {
-        grid-template-columns: 1fr;
-      }
-      .ficha-footer {
-        flex-direction: column-reverse;
-        align-items: stretch;
-      }
-      .btn-finish, .btn-ghost {
-        width: 100%;
-        text-align: center;
-      }
-    }
-
+    /* Rodapé */
     .page-footer {
-      margin-top: auto;
-      padding: 0.75rem 1rem;
-      text-align: center;
-      font-size: 0.74rem;
-      color: #94A3B8;
       border-top: 1px solid var(--border);
       background: var(--surface);
-    }
-
-    .page-footer a {
+      padding: 1.25rem 1.5rem;
+      margin-top: auto;
+      font-size: 0.8rem;
       color: var(--muted);
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    .page-footer a:hover {
-      color: var(--blue);
-      text-decoration: underline;
     }
 
     .footer-inner {
@@ -679,14 +617,68 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0.5rem;
+      gap: 0.75rem;
       flex-wrap: wrap;
     }
 
+    .footer-inner a {
+      color: var(--blue);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .footer-inner a:hover {
+      text-decoration: underline;
+    }
+
+    /* Botões Escolha de Posto */
+    .btn-posto-choice {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.9rem 1.15rem;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s ease;
+    }
+
+    .btn-posto-choice:hover {
+      border-color: var(--blue);
+      background: #EFF6FF;
+      transform: translateY(-1px);
+    }
+
+    .posto-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .posto-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .posto-desc {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .posto-arrow {
+      font-size: 1.2rem;
+      color: var(--blue);
+      font-weight: 700;
+    }
+
+    /* Banner Notificações */
     .banner-notif {
       background: #EFF6FF;
       border: 1px solid #BFDBFE;
-      color: var(--blue-dark);
       border-radius: 8px;
       padding: 0.75rem 1rem;
       margin-bottom: 1rem;
@@ -713,6 +705,30 @@
     .btn-notif:hover {
       background: var(--blue-dark);
     }
+
+    /* Overlay de Bloqueio por Inatividade */
+    .screen-lock-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .lock-box {
+      background: var(--surface);
+      border-radius: 12px;
+      max-width: 440px;
+      width: 100%;
+      padding: 2.25rem 2rem;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
   </style>
 </head>
 <body>
@@ -725,10 +741,15 @@
       </div>
 
       <div class="top-actions">
-        <div class="atendente-box" title="Identificação deste computador/guichê na planilha">
-          <span class="atendente-label">Atendente:</span>
-          <input type="text" class="atendente-input" id="inputEntrevistador" placeholder="Seu nome/guichê..." maxlength="25" />
+        <div class="operador-box" id="boxPerfilOperador" title="Identificação individual e sigilo (Portaria MDS nº 502/2017 e LGPD)">
+          <span style="color:var(--muted); font-size:0.78rem;">Operador:</span>
+          <span class="operador-badge" id="lblOperadorNome">Não identificado</span>
+          <span class="tag-tcms pendente" id="tagTcmsStatus">🛡️ TCMS Pendente</span>
+          <button type="button" class="btn-mini-link" id="btnTrocarOperador" title="Trocar identificação ou renovar TCMS">Alterar</button>
         </div>
+        <button type="button" class="btn-lock" id="btnBloquearTela" title="Bloquear tela por segurança contra olhares de terceiros (LGPD Art. 46)">
+          <span>🔒</span> Bloquear
+        </button>
         <select class="posto-select" id="selectPosto" title="Selecione o Posto ou CRAS">
           <option value="central">Posto Central</option>
           <option value="teotonio">CRAS Teotônio Vilela</option>
@@ -762,7 +783,7 @@
             <tr>
               <th>Hora</th>
               <th>Nome do RUF</th>
-              <th>CPF</th>
+              <th>CPF (Protegido)</th>
               <th>Tipo de Atendimento</th>
               <th>Resolução do Atendimento</th>
               <th></th>
@@ -785,9 +806,10 @@
 
         <div class="ficha-rows">
           <div>
-            <div class="field-label">CPF</div>
+            <div class="field-label">CPF (Dado Confidencial)</div>
             <div class="cpf-copy-group">
               <span class="cpf-number" id="fichaCpf">—</span>
+              <button type="button" class="btn-ghost" id="btnToggleMaskCpf" style="padding:0.35rem 0.65rem;" title="Ocultar ou revelar dígitos do CPF">👁️ Revelar</button>
               <button type="button" class="btn-copy" id="btnCopyFichaCpf">Copiar</button>
             </div>
           </div>
@@ -808,9 +830,13 @@
           </div>
 
           <div id="fichaObsWrap" style="grid-column: 1 / -1; display: none;">
-            <div class="field-label">Observações</div>
+            <div class="field-label">Observações da Recepção</div>
             <div class="field-val" id="fichaObsTexto">—</div>
           </div>
+        </div>
+
+        <div style="margin-top: 0.5rem; margin-bottom: 2rem; padding: 0.65rem 0.85rem; background: #EFF6FF; border-left: 3px solid var(--blue); border-radius: 4px; font-size: 0.8rem; color: #1E3A8A; line-height: 1.4;">
+          🛡️ <strong>Uso Restrito e Sigiloso:</strong> Dados exibidos sob sigilo profissional (LGPD Art. 46 e Portaria MC nº 810/2022). O acesso individual a esta ficha foi registrado na trilha de auditoria da unidade.
         </div>
 
         <div class="ficha-footer">
@@ -830,9 +856,68 @@
     <div class="footer-inner">
       <span>Cadastro Único • Fila do Setor Interno</span>
       <span>•</span>
+      <span style="color:var(--green-dark); font-weight:700;">🔒 Conformidade LGPD (Lei nº 13.709/2018) & Decreto nº 11.016/2022</span>
+      <span>•</span>
       <span>Desenvolvido por <a href="https://github.com/Viniciusulpicio" target="_blank" rel="noopener noreferrer">Vinícius Sulpicio</a></span>
     </div>
   </footer>
+
+  <!-- Modal TCMS (Termo de Compromisso e Manutenção de Sigilo) -->
+  <div class="modal-backdrop" id="modalTcms">
+    <div class="modal-box" style="max-width: 580px; max-height: 90vh; overflow-y: auto;">
+      <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.4rem;">
+        <span style="background:#EFF6FF; color:var(--blue); font-weight:800; font-size:0.75rem; padding:0.2rem 0.5rem; border-radius:4px;">LGPD • CADÚNICO</span>
+        <span style="font-size:0.78rem; color:var(--muted);">Portaria MC nº 810/2022 & Portaria MDS nº 502/2017</span>
+      </div>
+      <h3 style="font-size: 1.25rem; margin-bottom: 0.4rem;">Termo de Compromisso e Manutenção de Sigilo (TCMS)</h3>
+      <p style="color: var(--muted); margin-bottom: 1rem; font-size: 0.84rem; line-height: 1.45;">
+        O acesso às informações das famílias do Cadastro Único é estritamente pessoal, intransferível e restrito às atribuições institucionais, nos termos da Lei Geral de Proteção de Dados (Lei nº 13.709/2018) e do Decreto nº 11.016/2022.
+      </p>
+
+      <div style="margin-bottom: 0.75rem;">
+        <label class="field-label" for="inputTcmsNome">Nome Completo do Servidor / Entrevistador *</label>
+        <input type="text" class="modal-input" id="inputTcmsNome" placeholder="Ex: Maria Aparecida da Silva" maxlength="60" required>
+      </div>
+
+      <div style="margin-bottom: 0.75rem;">
+        <label class="field-label" for="inputTcmsMatricula">Matrícula / Registro Funcional *</label>
+        <input type="text" class="modal-input" id="inputTcmsMatricula" placeholder="Ex: 12345 / PMS" maxlength="30" required>
+      </div>
+
+      <div style="margin-bottom: 0.75rem;">
+        <label class="field-label" for="inputTcmsToken">Chave de Segurança do Posto (Token de Acesso) *</label>
+        <input type="password" class="modal-input" id="inputTcmsToken" placeholder="Chave fornecida pela coordenação do posto" value="CADUNICO_SEC_2026" required>
+      </div>
+
+      <div style="background: #F8FAFC; border: 1px solid var(--border); border-radius: 6px; padding: 0.85rem; font-size: 0.8rem; color: #334155; line-height: 1.5; margin-bottom: 1rem;">
+        <strong>Obrigações e Sanções Legais:</strong><br>
+        • É proibido repassar login/chave ou consultar dados de parentes/conhecidos por interesse particular.<br>
+        • É proibido fotografar, copiar ou vazar dados de famílias sem finalidade institucional autorizada.<br>
+        • O descumprimento sujeita o servidor a apuração disciplinar, responsabilidade civil e penal (Art. 36 e 37 da Portaria MC nº 810/2022).
+      </div>
+
+      <label style="display:flex; align-items:flex-start; gap:0.6rem; font-size:0.83rem; color:var(--text); cursor:pointer; margin-bottom:1.25rem;">
+        <input type="checkbox" id="checkTcmsConcordo" style="margin-top:0.2rem;" required>
+        <span>Li, compreendi e assumo formalmente o compromisso de manutenção de sigilo e integridade dos dados atendidos.</span>
+      </label>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-accept" id="btnAssinarTcms" style="width:100%; justify-content:center; padding:0.75rem;">Assinar Eletronicamente e Acessar Fila</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay de Bloqueio por Inatividade -->
+  <div class="screen-lock-overlay" id="screenLockOverlay" style="display: none;">
+    <div class="lock-box">
+      <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">🔒</div>
+      <h2 style="font-size: 1.3rem; margin-bottom: 0.35rem;">Sessão Bloqueada por Inatividade</h2>
+      <p style="color: var(--muted); font-size: 0.86rem; margin-bottom: 1.25rem; line-height: 1.45;">
+        Por segurança e conformidade com a LGPD e o Decreto nº 11.016/2022, a tela foi bloqueada para proteger os dados das famílias contra visualização por terceiros no balcão.
+      </p>
+      <button type="button" class="btn-accept" id="btnDesbloquearTela" style="width: 100%; justify-content: center; padding: 0.75rem;">Desbloquear Sessão</button>
+    </div>
+  </div>
 
   <!-- Painel Admin Remoto (acessível apenas via #admin na URL) -->
   <div class="modal-backdrop" id="configModal">
@@ -971,6 +1056,9 @@
       POSTOS_URLS: "cadunico_postos_urls_v1",
       API_URL: "cadunico_api_url_v1",
       INTERVIEWER: "cadunico_entrevistador_v1",
+      MATRICULA: "cadunico_matricula_v1",
+      TOKEN_POSTO: "cadunico_token_posto_v1",
+      TCMS_ACEITO: "cadunico_tcms_aceito_v1",
       ACTIVE_FICHA: "cadunico_ficha_ativa_v1",
       GH_TOKEN: "cadunico_gh_token_v1"
     };
@@ -993,34 +1081,29 @@
     }
 
     function carregarPostosUrlsSalvos() {
+      const defaults = {
+        central: "https://script.google.com/macros/s/AKfycbw0rpdaJH1ot4jtUEj-4INmcmmfxJoRhEVB88xDkZkTiMg_A-nv6Ir5CqD4uW4JNySk/exec",
+        teotonio: "https://script.google.com/macros/s/AKfycbysCultDKUc2fKCQJmiin6qxsMt4WQ9TOZMAxVjpKdH0s5iElGNbHxSNJ-UqbYajcvraQ/exec",
+        rosa_modelli: "https://script.google.com/macros/s/AKfycbzvc4AiVbzsRhNy1sRn7tGzrTzTpueMNg3ATEYmGUV53-46XiVDoIkNIvTQ7Bu-1rPc6A/exec"
+      };
       try {
         const raw = localStorage.getItem(STORAGE_KEYS.POSTOS_URLS);
-        if (raw) return JSON.parse(raw);
-      } catch (e) {}
-      return {
-        central: "",
-        teotonio: "",
-        rosa_modelli: "https://script.google.com/macros/s/AKfycbw6THZwdIMGO4L8xmUUk6el3AnokgLIjOeGeV8NfUOJkXqV6tfshXLvev5lP-dwznaK/exec"
-      };
-    }
-
-    function carregarIdentificadorAtendente() {
-      try {
-        let salvo = localStorage.getItem(STORAGE_KEYS.INTERVIEWER);
-        if (!salvo || !salvo.trim()) {
-          const numAleatorio = Math.floor(100 + Math.random() * 900);
-          salvo = `Guichê ${numAleatorio}`;
-          localStorage.setItem(STORAGE_KEYS.INTERVIEWER, salvo);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === "object") {
+            return {
+              central: parsed.central || defaults.central,
+              teotonio: parsed.teotonio || defaults.teotonio,
+              rosa_modelli: parsed.rosa_modelli || defaults.rosa_modelli
+            };
+          }
         }
-        return salvo.trim();
-      } catch (e) {
-        return "Guichê " + Math.floor(100 + Math.random() * 900);
-      }
+      } catch (e) {}
+      return defaults;
     }
 
     const postoInicial = obterPostoInicial();
     const urlsSalvas = carregarPostosUrlsSalvos();
-    const entrevistadorInicial = carregarIdentificadorAtendente();
 
     let state = {
       postoAtivo: postoInicial,
@@ -1028,21 +1111,39 @@
       apiUrl: urlsSalvas[postoInicial] || "",
       sheetUrl: "",
       planilhaNome: "",
-      entrevistador: entrevistadorInicial,
+      entrevistador: localStorage.getItem(STORAGE_KEYS.INTERVIEWER) || "",
+      matricula: localStorage.getItem(STORAGE_KEYS.MATRICULA) || "",
+      tokenPosto: localStorage.getItem(STORAGE_KEYS.TOKEN_POSTO) || "CADUNICO_SEC_2026",
+      tcmsAceito: localStorage.getItem(STORAGE_KEYS.TCMS_ACEITO) === "true",
       activeFicha: carregarFichaSalva(),
+      revelarCpfFicha: false,
       fila: []
     };
 
-    const elInputEntrevistador = document.getElementById("inputEntrevistador");
     const elSelectPosto = document.getElementById("selectPosto");
     const elCountTotal = document.getElementById("countTotal");
     const elLblStatus = document.getElementById("lblStatus");
     const elQueueTableBody = document.getElementById("queueTableBody");
 
+    const elLblOperadorNome = document.getElementById("lblOperadorNome");
+    const elTagTcmsStatus = document.getElementById("tagTcmsStatus");
+    const elBtnTrocarOperador = document.getElementById("btnTrocarOperador");
+    const elBtnBloquearTela = document.getElementById("btnBloquearTela");
+    const elScreenLockOverlay = document.getElementById("screenLockOverlay");
+    const elBtnDesbloquearTela = document.getElementById("btnDesbloquearTela");
+
+    const elModalTcms = document.getElementById("modalTcms");
+    const elInputTcmsNome = document.getElementById("inputTcmsNome");
+    const elInputTcmsMatricula = document.getElementById("inputTcmsMatricula");
+    const elInputTcmsToken = document.getElementById("inputTcmsToken");
+    const elCheckTcmsConcordo = document.getElementById("checkTcmsConcordo");
+    const elBtnAssinarTcms = document.getElementById("btnAssinarTcms");
+
     const elFichaCard = document.getElementById("fichaCard");
     const elFichaTagPrio = document.getElementById("fichaTagPrio");
     const elFichaNome = document.getElementById("fichaNome");
     const elFichaCpf = document.getElementById("fichaCpf");
+    const elBtnToggleMaskCpf = document.getElementById("btnToggleMaskCpf");
     const elBtnCopyFichaCpf = document.getElementById("btnCopyFichaCpf");
     const elFichaHora = document.getElementById("fichaHora");
     const elFichaTipoAtendimento = document.getElementById("fichaTipoAtendimento");
@@ -1057,7 +1158,6 @@
     const elInputUrlCentral = document.getElementById("inputUrlCentral");
     const elInputUrlTeotonio = document.getElementById("inputUrlTeotonio");
     const elInputUrlRosaModelli = document.getElementById("inputUrlRosaModelli");
-    const elInputAdminPass = document.getElementById("inputAdminPass");
     const elLblPlanilhaAtiva = document.getElementById("lblPlanilhaAtiva");
     const elBtnOpenConfig = document.getElementById("btnOpenConfig");
     const elBtnSaveConfig = document.getElementById("btnSaveConfig");
@@ -1074,16 +1174,95 @@
     const elBtnCancelarDevolucao = document.getElementById("btnCancelarDevolucao");
     const elBtnConfirmarDevolucao = document.getElementById("btnConfirmarDevolucao");
 
-    const OBF_KEY = "cadunico_cras_setor_2026";
-
-    function desofuscarTexto(b64) {
-      if (!b64) return "";
-      try {
-        const raw = atob(b64);
-        return Array.from(raw).map((ch, i) => String.fromCharCode(ch.charCodeAt(0) ^ OBF_KEY.charCodeAt(i % OBF_KEY.length))).join("");
-      } catch (e) {
-        return "";
+    /* Gerenciamento de Sessão e Termo de Sigilo */
+    function atualizarUiOperador() {
+      if (state.tcmsAceito && state.entrevistador) {
+        elLblOperadorNome.textContent = state.entrevistador;
+        elTagTcmsStatus.textContent = "🛡️ TCMS Ativo";
+        elTagTcmsStatus.className = "tag-tcms ativo";
+      } else {
+        elLblOperadorNome.textContent = "Não identificado";
+        elTagTcmsStatus.textContent = "🛡️ TCMS Pendente";
+        elTagTcmsStatus.className = "tag-tcms pendente";
       }
+    }
+
+    function abrirModalTcms() {
+      elInputTcmsNome.value = state.entrevistador || "";
+      elInputTcmsMatricula.value = state.matricula || "";
+      elInputTcmsToken.value = state.tokenPosto || "CADUNICO_SEC_2026";
+      elCheckTcmsConcordo.checked = Boolean(state.tcmsAceito);
+      elModalTcms.classList.add("open");
+    }
+
+    function assinarTcms() {
+      const nome = elInputTcmsNome.value.trim();
+      const matricula = elInputTcmsMatricula.value.trim();
+      const token = elInputTcmsToken.value.trim();
+      const concordo = elCheckTcmsConcordo.checked;
+
+      if (!nome) {
+        mostrarToast("Informe seu nome completo institucional.", 3000, "alerta");
+        return;
+      }
+      if (!matricula) {
+        mostrarToast("Informe sua matrícula funcional.", 3000, "alerta");
+        return;
+      }
+      if (!token) {
+        mostrarToast("Informe a chave de segurança do posto.", 3000, "alerta");
+        return;
+      }
+      if (!concordo) {
+        mostrarToast("Você precisa aceitar os termos do sigilo para prosseguir.", 3500, "alerta");
+        return;
+      }
+
+      state.entrevistador = nome;
+      state.matricula = matricula;
+      state.tokenPosto = token;
+      state.tcmsAceito = true;
+
+      localStorage.setItem(STORAGE_KEYS.INTERVIEWER, nome);
+      localStorage.setItem(STORAGE_KEYS.MATRICULA, matricula);
+      localStorage.setItem(STORAGE_KEYS.TOKEN_POSTO, token);
+      localStorage.setItem(STORAGE_KEYS.TCMS_ACEITO, "true");
+
+      elModalTcms.classList.remove("open");
+      atualizarUiOperador();
+      mostrarToast("TCMS assinado com sucesso. Fila liberada.");
+      buscarFila();
+    }
+
+    /* Bloqueio por Inatividade */
+    let segundosInatividade = 0;
+    const TEMPO_LIMITE_INATIVIDADE_SEG = 900; // 15 minutos
+
+    function registrarAtividade() {
+      segundosInatividade = 0;
+    }
+
+    window.addEventListener("mousemove", registrarAtividade);
+    window.addEventListener("keydown", registrarAtividade);
+    window.addEventListener("click", registrarAtividade);
+    window.addEventListener("touchstart", registrarAtividade);
+
+    setInterval(() => {
+      segundosInatividade += 5;
+      if (segundosInatividade >= TEMPO_LIMITE_INATIVIDADE_SEG && state.tcmsAceito) {
+        bloquearTela();
+      }
+    }, 5000);
+
+    function bloquearTela() {
+      elScreenLockOverlay.style.display = "flex";
+    }
+
+    function desbloquearTela() {
+      elScreenLockOverlay.style.display = "none";
+      segundosInatividade = 0;
+      mostrarToast("Sessão desbloqueada.");
+      buscarFila(true);
     }
 
     function verificarModoAdmin() {
@@ -1132,7 +1311,6 @@
     async function carregarConfigRemota() {
       let mudou = false;
 
-      // 1. Prioridade: Lê a Planilha de Controle do Google Sheets (Opção 2)
       try {
         const resSheet = await fetch(`${CONFIG_SHEET_CSV_URL}&_t=${Date.now()}`, { cache: "no-store" });
         if (resSheet.ok) {
@@ -1148,36 +1326,26 @@
         }
       } catch (errSheet) {}
 
-      // 2. Fallback: Lê o config.json local se a planilha de controle ainda não tiver algum link
       try {
         const resLocal = await fetch(`./config.json?_t=${Date.now()}`, { cache: "no-store" });
         if (resLocal.ok) {
           const cfg = await resLocal.json();
           if (cfg && cfg.postos && typeof cfg.postos === "object") {
             for (const k of ["central", "teotonio", "rosa_modelli"]) {
-              if (cfg.postos[k]) {
-                const item = cfg.postos[k];
-                const url = item.payload ? desofuscarTexto(item.payload).trim() : (item.scriptUrl || item.url || "").trim();
-                if (url && !state.postosUrls[k]) {
-                  state.postosUrls[k] = url;
-                  mudou = true;
-                }
+              if (cfg.postos[k] && cfg.postos[k].scriptUrl && !state.postosUrls[k]) {
+                state.postosUrls[k] = cfg.postos[k].scriptUrl;
+                mudou = true;
               }
             }
           }
         }
-      } catch (ignore) {}
-
-      const urlAtualPosto = state.postosUrls[state.postoAtivo] || "";
-      if (urlAtualPosto !== state.apiUrl) {
-        state.apiUrl = urlAtualPosto;
-        mudou = true;
-      }
+      } catch (errLocal) {}
 
       if (mudou) {
         localStorage.setItem(STORAGE_KEYS.POSTOS_URLS, JSON.stringify(state.postosUrls));
+        state.apiUrl = state.postosUrls[state.postoAtivo] || "";
         localStorage.setItem(STORAGE_KEYS.API_URL, state.apiUrl);
-        buscarFila(true);
+        atualizarLabelPlanilhaAdmin();
       }
     }
 
@@ -1185,26 +1353,19 @@
       if (!POSTOS[chavePosto]) return;
       state.postoAtivo = chavePosto;
       localStorage.setItem(STORAGE_KEYS.POSTO_ATIVO, chavePosto);
-
-      if (elSelectPosto) elSelectPosto.value = chavePosto;
-
-      const url = new URL(window.location.href);
-      url.searchParams.set("posto", chavePosto);
-      window.history.replaceState({}, "", url.toString());
-
       state.apiUrl = state.postosUrls[chavePosto] || "";
       localStorage.setItem(STORAGE_KEYS.API_URL, state.apiUrl);
 
+      if (elSelectPosto) elSelectPosto.value = chavePosto;
+
+      const url = new URL(window.location);
+      url.searchParams.set("posto", chavePosto);
+      window.history.replaceState({}, "", url);
+
       if (elModalEscolhaPosto) elModalEscolhaPosto.classList.remove("open");
-      solicitarPermissaoNotificacao();
-      salvarFichaAtiva(null);
-      pararAlertaAba();
-      rowsConhecidas = new Set();
-      primeiraCargaConcluida = false;
-      state.fila = [];
-      renderizarFila();
-      buscarFila();
+
       atualizarLabelPlanilhaAdmin();
+      buscarFila();
     }
 
     function verificarExibicaoEscolhaPosto() {
@@ -1218,18 +1379,9 @@
     }
 
     async function init() {
-      if (elSelectPosto) elSelectPosto.value = state.postoAtivo;
+      atualizarUiOperador();
 
-      if (elInputEntrevistador) {
-        elInputEntrevistador.value = state.entrevistador;
-        elInputEntrevistador.addEventListener("change", () => {
-          const novo = (elInputEntrevistador.value || "").trim() || `Guichê ${Math.floor(100 + Math.random() * 900)}`;
-          state.entrevistador = novo;
-          elInputEntrevistador.value = novo;
-          try { localStorage.setItem(STORAGE_KEYS.INTERVIEWER, novo); } catch (e) {}
-          mostrarToast(`Identificação salva: ${novo}`);
-        });
-      }
+      if (elSelectPosto) elSelectPosto.value = state.postoAtivo;
 
       // Limpa dados legados de localStorage para garantir isolamento por aba
       try {
@@ -1242,10 +1394,20 @@
       verificarExibicaoEscolhaPosto();
       window.addEventListener("hashchange", verificarModoAdmin);
 
-      buscarFila();
-      // Polling contínuo a cada 7s para atualizar e alertar novos atendimentos mesmo em segundo plano
+      if (!state.tcmsAceito) {
+        abrirModalTcms();
+      } else {
+        buscarFila();
+        if (state.activeFicha && state.activeFicha.row) {
+          consultarDetalheAtivo(state.activeFicha.row);
+        }
+      }
+
+      // Polling a cada 7s
       setInterval(() => {
-        buscarFila(true);
+        if (state.tcmsAceito && elScreenLockOverlay.style.display !== "flex") {
+          buscarFila(true);
+        }
       }, 7000);
 
       // Consulta a planilha de controle a cada 5 minutos
@@ -1256,6 +1418,11 @@
       elSelectPosto.addEventListener("change", () => {
         definirPosto(elSelectPosto.value);
       });
+
+      elBtnTrocarOperador.addEventListener("click", abrirModalTcms);
+      elBtnAssinarTcms.addEventListener("click", assinarTcms);
+      elBtnBloquearTela.addEventListener("click", bloquearTela);
+      elBtnDesbloquearTela.addEventListener("click", desbloquearTela);
 
       const elBtnAtivarNotif = document.getElementById("btnAtivarNotificacoes");
       if (elBtnAtivarNotif) {
@@ -1311,8 +1478,16 @@
         buscarFila();
       });
 
+      elBtnToggleMaskCpf.addEventListener("click", () => {
+        state.revelarCpfFicha = !state.revelarCpfFicha;
+        atualizarExibicaoCpfFicha();
+      });
+
       elBtnCopyFichaCpf.addEventListener("click", () => {
-        if (state.activeFicha) copiarTexto(state.activeFicha.cpf);
+        if (state.activeFicha && state.activeFicha.cpf) {
+          copiarTexto(state.activeFicha.cpf);
+          mostrarToast("CPF copiado sob sigilo institucional (Portaria MC 810/2022)");
+        }
       });
 
       elBtnFinalizar.addEventListener("click", finalizarAtendimentoAtual);
@@ -1340,7 +1515,27 @@
       }
 
       const sep = baseScript.includes("?") ? "&" : "?";
-      return `${baseScript}${sep}action=${action}${paramSheet}${extras}&_t=${Date.now()}`;
+      const tokenParam = `&token=${encodeURIComponent(state.tokenPosto || "")}`;
+      const operadorParam = `&entrevistador=${encodeURIComponent(state.entrevistador || "")}&matricula=${encodeURIComponent(state.matricula || "")}`;
+
+      return `${baseScript}${sep}action=${action}${paramSheet}${tokenParam}${operadorParam}${extras}&_t=${Date.now()}`;
+    }
+
+    async function fetchComRetry(url, tentativas = 2) {
+      for (let i = 0; i <= tentativas; i++) {
+        try {
+          const res = await fetch(url, { method: "GET", redirect: "follow" });
+          const resultado = await res.json();
+          if (resultado && !resultado.ok && String(resultado.erro || "").includes("ocupado") && i < tentativas) {
+            await new Promise(r => setTimeout(r, 1500));
+            continue;
+          }
+          return resultado;
+        } catch (e) {
+          if (i === tentativas) throw e;
+          await new Promise(r => setTimeout(r, 1500));
+        }
+      }
     }
 
     const TITULO_PADRAO = "CadÚnico — Fila do Setor";
@@ -1352,13 +1547,67 @@
     let rowsConhecidas = new Set();
     let primeiraCargaConcluida = false;
 
+    function iniciarAlertaAba(qtdNovos, nomesNovos = []) {
+      if (timerPiscarAba) return;
+
+      const txtQtd = qtdNovos === 1 ? "1 novo atendimento" : `${qtdNovos} novos atendimentos`;
+      const txtAba = `(${qtdNovos}) ⚠️ ${txtQtd} — CadÚnico`;
+
+      const faviconEl = document.getElementById("dynamicFavicon");
+      piscarAlternado = false;
+
+      timerPiscarAba = setInterval(() => {
+        piscarAlternado = !piscarAlternado;
+        document.title = piscarAlternado ? txtAba : TITULO_PADRAO;
+        if (faviconEl) {
+          faviconEl.setAttribute("href", piscarAlternado ? FAVICON_VERMELHO : FAVICON_PADRAO);
+        }
+      }, 1000);
+
+      dispararNotificacaoNativa(qtdNovos, nomesNovos);
+    }
+
+    function pararAlertaAba() {
+      if (!timerPiscarAba) return;
+      clearInterval(timerPiscarAba);
+      timerPiscarAba = null;
+      document.title = TITULO_PADRAO;
+
+      const faviconEl = document.getElementById("dynamicFavicon");
+      if (faviconEl) {
+        faviconEl.setAttribute("href", FAVICON_PADRAO);
+      }
+    }
+
+    function dispararNotificacaoNativa(qtd, nomes) {
+      if (!("Notification" in window)) return;
+      if (Notification.permission !== "granted") return;
+
+      const titulo = qtd === 1 ? "Novo cidadão na fila do CadÚnico" : `${qtd} novos cidadãos na fila do CadÚnico`;
+      const corpo = nomes.length > 0
+        ? `Encaminhado(s): ${nomes.slice(0, 2).join(", ")}${nomes.length > 2 ? " e outros..." : ""}`
+        : "Acesse o painel para realizar o atendimento.";
+
+      try {
+        const notif = new Notification(titulo, {
+          body: corpo,
+          icon: FAVICON_PADRAO,
+          tag: "novo-atendimento-cadunico"
+        });
+        notif.onclick = () => {
+          window.focus();
+          notif.close();
+        };
+      } catch (e) {}
+    }
+
     function atualizarBannerPermissao() {
-      const elBanner = document.getElementById("bannerPermissaoNotificacao");
-      if (!elBanner) return;
-      if ("Notification" in window && Notification.permission === "default") {
-        elBanner.style.display = "flex";
+      const banner = document.getElementById("bannerPermissaoNotificacao");
+      if (!banner) return;
+      if (!("Notification" in window) || Notification.permission === "granted" || Notification.permission === "denied") {
+        banner.style.display = "none";
       } else {
-        elBanner.style.display = "none";
+        banner.style.display = "flex";
       }
     }
 
@@ -1372,71 +1621,14 @@
       atualizarBannerPermissao();
     }
 
-    // Solicita na abertura e no primeiro toque/clique/tecla
-    ["click", "keydown", "mousedown", "touchstart"].forEach(evt => {
-      window.addEventListener(evt, solicitarPermissaoNotificacao, { once: true });
-    });
-
-    function dispararNotificacaoDesktop(qtdNovos, nomesNovos) {
-      if (!("Notification" in window) || Notification.permission !== "granted") return;
-      try {
-        const titulo = qtdNovos > 1
-          ? `(${qtdNovos}) Novos Atendimentos — CadÚnico`
-          : `Novo Atendimento — CadÚnico`;
-        const corpo = nomesNovos && nomesNovos.length > 0
-          ? `${nomesNovos.join(", ")} aguardando chamada.`
-          : `Novo cidadão aguardando chamada na fila.`;
-
-        const notif = new Notification(titulo, {
-          body: corpo,
-          icon: FAVICON_VERMELHO,
-          tag: "cadunico-novo-atendimento"
-        });
-
-        notif.onclick = () => {
-          window.focus();
-          pararAlertaAba();
-          notif.close();
-        };
-      } catch (e) {}
-    }
-
-    function iniciarAlertaAba(qtdNovos, nomesNovos = []) {
-      if (timerPiscarAba) return;
-      dispararNotificacaoDesktop(qtdNovos, nomesNovos);
-
-      const elFavicon = document.getElementById("dynamicFavicon");
-      const textoAviso = qtdNovos > 1
-        ? `🔴 (${qtdNovos}) NOVOS ATENDIMENTOS`
-        : `🔴 (1) NOVO ATENDIMENTO`;
-
-      piscarAlternado = true;
-      document.title = textoAviso;
-      if (elFavicon) elFavicon.href = FAVICON_VERMELHO;
-
-      timerPiscarAba = setInterval(() => {
-        piscarAlternado = !piscarAlternado;
-        document.title = piscarAlternado ? textoAviso : `Atenção — Fila do Setor`;
-        if (elFavicon) elFavicon.href = piscarAlternado ? FAVICON_VERMELHO : FAVICON_PADRAO;
-      }, 800);
-    }
-
-    function pararAlertaAba() {
-      if (timerPiscarAba) {
-        clearInterval(timerPiscarAba);
-        timerPiscarAba = null;
-        document.title = TITULO_PADRAO;
-        const elFavicon = document.getElementById("dynamicFavicon");
-        if (elFavicon) elFavicon.href = FAVICON_PADRAO;
-      }
-    }
-
     window.addEventListener("focus", pararAlertaAba);
     document.addEventListener("visibilitychange", () => {
       if (!document.hidden) pararAlertaAba();
     });
 
     async function buscarFila(silencioso = false) {
+      if (!state.tcmsAceito) return;
+
       if (!state.apiUrl) {
         processarDados({
           ok: true,
@@ -1451,6 +1643,13 @@
         const url = montarUrlEndpoint("listar");
         const res = await fetch(url, { method: "GET", redirect: "follow" });
         const data = await res.json();
+
+        if (data && data.codigo === "NAO_AUTORIZADO") {
+          mostrarToast("Chave de segurança do posto inválida. Atualize suas credenciais.", 4000, "alerta");
+          abrirModalTcms();
+          return;
+        }
+
         if (data && data.ok) processarDados(data);
       } catch (e) {
         if (!silencioso) mostrarToast("Erro ao conectar na planilha");
@@ -1458,7 +1657,6 @@
     }
 
     function processarDados(data) {
-      const sufixoModo = state.apiUrl ? "" : " (Nenhuma planilha vinculada)";
       elLblStatus.textContent = state.apiUrl ? `Atualizado às ${data.atualizadoEm || "--:--"}` : "Nenhuma planilha vinculada";
 
       const nomePosto = POSTOS[state.postoAtivo] ? POSTOS[state.postoAtivo].nome : state.postoAtivo;
@@ -1471,9 +1669,7 @@
       }
 
       const lista = Array.isArray(data.fila) ? data.fila : [];
-      lista.sort((a, b) => {
-        return a.row - b.row;
-      });
+      lista.sort((a, b) => a.row - b.row);
 
       const rowsAtuais = lista.map(x => x.row);
 
@@ -1499,7 +1695,14 @@
             salvarFichaAtiva(null);
             mostrarToast(`Este atendimento foi assumido por ${aindaEmAtendimento.entrevistador}.`, 4000);
           } else {
-            salvarFichaAtiva(aindaEmAtendimento);
+            // Preserva dados confidenciais se já carregados
+            if (aindaEmAtendimento.cpf && !aindaEmAtendimento.cpf.includes("*")) {
+              state.activeFicha.cpf = aindaEmAtendimento.cpf;
+            }
+            if (aindaEmAtendimento.observacoes) {
+              state.activeFicha.observacoes = aindaEmAtendimento.observacoes;
+            }
+            salvarFichaAtiva(state.activeFicha);
           }
         }
       }
@@ -1512,12 +1715,17 @@
     function mascararCpf(cpf) {
       if (!cpf) return "Não informado";
       const s = String(cpf).trim();
+      if (s.includes("*")) return s;
       const digitos = s.replace(/\D/g, "");
       if (digitos.length >= 8 && digitos.length <= 11) {
         const pad = digitos.padStart(11, "0");
         return `${pad.slice(0, 3)}.***.***-${pad.slice(9)}`;
       }
       return s;
+    }
+
+    function mostrarAvisoProtecaoCpf() {
+      mostrarToast("🛡️ Dado confidencial (LGPD). O CPF completo só é acessível na cabine de atendimento após aceitar o cidadão.", 4000, "alerta");
     }
 
     function renderizarFila() {
@@ -1549,7 +1757,7 @@
               ${escaparHtml(item.nome)}
               ${tagPrioridade}
             </td>
-            <td class="col-cpf" title="Clique para copiar o CPF completo" onclick="copiarTexto('${escaparAttr(item.cpf)}')">
+            <td class="col-cpf" title="Dado mascarado para proteção de privacidade (LGPD)" onclick="mostrarAvisoProtecaoCpf()">
               ${escaparHtml(mascararCpf(item.cpf))}
             </td>
             <td>${escaparHtml(item.tipoAtendimento)}</td>
@@ -1562,6 +1770,18 @@
           </tr>
         `;
       }).join("");
+    }
+
+    function atualizarExibicaoCpfFicha() {
+      if (!state.activeFicha) return;
+      const cpfReal = state.activeFicha.cpf || "Não informado";
+      if (state.revelarCpfFicha) {
+        elFichaCpf.textContent = cpfReal;
+        elBtnToggleMaskCpf.textContent = "🙈 Ocultar";
+      } else {
+        elFichaCpf.textContent = mascararCpf(cpfReal);
+        elBtnToggleMaskCpf.textContent = "👁️ Revelar";
+      }
     }
 
     function renderizarVisaoAtiva() {
@@ -1578,7 +1798,7 @@
         : "Atendimento Geral";
 
       elFichaNome.textContent = ficha.nome;
-      elFichaCpf.textContent = ficha.cpf;
+      atualizarExibicaoCpfFicha();
       elFichaHora.textContent = ficha.hora || "--:--";
       elFichaTipoAtendimento.textContent = ficha.tipoAtendimento;
       elFichaResolucao.textContent = ficha.resolucao;
@@ -1591,7 +1811,23 @@
       }
     }
 
+    async function consultarDetalheAtivo(rowNumber) {
+      if (!state.apiUrl || !rowNumber) return;
+      try {
+        const url = montarUrlEndpoint("obter_detalhe", `&row=${encodeURIComponent(rowNumber)}`);
+        const res = await fetchComRetry(url);
+        if (res && res.ok && res.item) {
+          salvarFichaAtiva(res.item);
+        }
+      } catch (e) {}
+    }
+
     async function aceitarAtendimento(rowNumber) {
+      if (!state.tcmsAceito) {
+        abrirModalTcms();
+        return;
+      }
+
       if (state.activeFicha) {
         mostrarToast("Você já possui um atendimento em andamento. Finalize-o antes de aceitar outro.", 3500);
         return;
@@ -1616,18 +1852,18 @@
       }
 
       try {
-        const url = montarUrlEndpoint("aceitar", `&row=${encodeURIComponent(rowNumber)}&entrevistador=${encodeURIComponent(state.entrevistador)}`);
-        const res = await fetch(url, { method: "GET", redirect: "follow" });
-        const resultado = await res.json();
+        const url = montarUrlEndpoint("aceitar", `&row=${encodeURIComponent(rowNumber)}`);
+        const resultado = await fetchComRetry(url);
 
         if (resultado && resultado.ok) {
-          item.entrevistador = state.entrevistador;
-          salvarFichaAtiva(item);
+          const fichaRecebida = resultado.item || item;
+          fichaRecebida.entrevistador = state.entrevistador;
+          salvarFichaAtiva(fichaRecebida);
           buscarFila(true);
         } else {
           const msgAviso = (resultado && (resultado.codigo === "JA_ACEITO" || resultado.codigo === "JA_FINALIZADO"))
             ? ((resultado && resultado.erro) || "Outro servidor já aceitou este atendimento.")
-            : ((resultado && resultado.erro) || "Outro servidor já aceitou este atendimento.");
+            : ((resultado && resultado.erro) || "Erro ao aceitar atendimento.");
           mostrarToast(`⚠️ ${msgAviso}`, 6000, "alerta");
           buscarFila(true);
         }
@@ -1655,12 +1891,12 @@
       }
 
       try {
-        const url = montarUrlEndpoint("finalizar", `&row=${encodeURIComponent(rowNumber)}&entrevistador=${encodeURIComponent(state.entrevistador)}`);
-        const res = await fetch(url, { method: "GET", redirect: "follow" });
-        const resultado = await res.json();
+        const url = montarUrlEndpoint("finalizar", `&row=${encodeURIComponent(rowNumber)}`);
+        const resultado = await fetchComRetry(url);
         if (resultado && resultado.ok) {
           salvarFichaAtiva(null);
           buscarFila(true);
+          mostrarToast("Atendimento finalizado com sucesso.");
         } else {
           mostrarToast((resultado && resultado.erro) || "Erro ao finalizar");
         }
@@ -1743,9 +1979,8 @@
       }
 
       try {
-        const url = montarUrlEndpoint("devolver", `&row=${encodeURIComponent(rowNumber)}&entrevistador=${encodeURIComponent(state.entrevistador)}`);
-        const res = await fetch(url, { method: "GET", redirect: "follow" });
-        const resultado = await res.json();
+        const url = montarUrlEndpoint("devolver", `&row=${encodeURIComponent(rowNumber)}`);
+        const resultado = await fetchComRetry(url);
         if (resultado && resultado.ok) {
           salvarFichaAtiva(null);
           buscarFila(true);
@@ -1780,9 +2015,8 @@
       mostrarToast("Redirecionando atendimento...", 2000);
 
       try {
-        const url = montarUrlEndpoint("redirecionar", `&row=${encodeURIComponent(rowNumber)}&entrevistador=${encodeURIComponent(state.entrevistador)}&novoTipo=${encodeURIComponent(novoTipo)}`);
-        const res = await fetch(url, { method: "GET", redirect: "follow" });
-        const resultado = await res.json();
+        const url = montarUrlEndpoint("redirecionar", `&row=${encodeURIComponent(rowNumber)}&novoTipo=${encodeURIComponent(novoTipo)}`);
+        const resultado = await fetchComRetry(url);
         if (resultado && resultado.ok) {
           salvarFichaAtiva(null);
           buscarFila(true);
@@ -1823,9 +2057,7 @@
     function copiarTexto(texto) {
       if (!texto) return;
       if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(texto).then(() => {
-          mostrarToast(`CPF ${texto} copiado`);
-        }).catch(() => fallbackCopiar(texto));
+        navigator.clipboard.writeText(texto).catch(() => fallbackCopiar(texto));
       } else {
         fallbackCopiar(texto);
       }
@@ -1841,10 +2073,7 @@
         temp.select();
         document.execCommand("copy");
         document.body.removeChild(temp);
-        mostrarToast(`CPF ${texto} copiado`);
-      } catch (e) {
-        mostrarToast(`CPF: ${texto}`);
-      }
+      } catch (e) {}
     }
 
     function mostrarToast(msg, duracao = 2400, tipo = "info") {
@@ -1856,7 +2085,9 @@
         textoLower.includes("outro servidor") ||
         textoLower.includes("já aceito") ||
         textoLower.includes("ja aceito") ||
-        textoLower.includes("assumido por")
+        textoLower.includes("assumido por") ||
+        textoLower.includes("inválida") ||
+        textoLower.includes("proibido")
       ) {
         elToast.classList.add("alerta");
       }
@@ -1874,10 +2105,6 @@
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;");
-    }
-
-    function escaparAttr(str) {
-      return String(str || "").replace(/'/g, "\\'");
     }
 
     init();
