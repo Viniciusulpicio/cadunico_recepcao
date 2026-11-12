@@ -741,14 +741,14 @@
       </div>
 
       <div class="top-actions">
-        <div class="operador-box" id="boxPerfilOperador" title="Identificação individual e sigilo (Portaria MDS nº 502/2017 e LGPD)">
+        <div class="operador-box" id="boxPerfilOperador" title="Identificação individual do servidor (Portaria MDS nº 502/2017)">
           <span style="color:var(--muted); font-size:0.78rem;">Operador:</span>
           <span class="operador-badge" id="lblOperadorNome">Não identificado</span>
-          <span class="tag-tcms pendente" id="tagTcmsStatus">🛡️ TCMS Pendente</span>
-          <button type="button" class="btn-mini-link" id="btnTrocarOperador" title="Trocar identificação ou renovar TCMS">Alterar</button>
+          <span class="tag-tcms pendente" id="tagTcmsStatus">TCMS Pendente</span>
+          <button type="button" class="btn-mini-link" id="btnTrocarOperador" title="Alterar identificação">Alterar</button>
         </div>
-        <button type="button" class="btn-lock" id="btnBloquearTela" title="Bloquear tela por segurança contra olhares de terceiros (LGPD Art. 46)">
-          <span>🔒</span> Bloquear
+        <button type="button" class="btn-lock" id="btnBloquearTela" title="Bloquear tela por inatividade ou ausência">
+          Bloquear
         </button>
         <select class="posto-select" id="selectPosto" title="Selecione o Posto ou CRAS">
           <option value="central">Posto Central</option>
@@ -773,7 +773,7 @@
       </div>
 
       <div id="bannerPermissaoNotificacao" class="banner-notif" style="display: none;">
-        <span>🔔 <strong>Ativar avisos na tela:</strong> receba um alerta no computador quando um cidadão chegar.</span>
+        <span><strong>Avisos na tela:</strong> Ative as notificações no navegador para receber alerta sonoro e visual ao chegar um novo atendimento.</span>
         <button type="button" class="btn-notif" id="btnAtivarNotificacoes">Permitir Notificações</button>
       </div>
 
@@ -783,7 +783,7 @@
             <tr>
               <th>Hora</th>
               <th>Nome do RUF</th>
-              <th>CPF (Protegido)</th>
+              <th>CPF</th>
               <th>Tipo de Atendimento</th>
               <th>Resolução do Atendimento</th>
               <th></th>
@@ -806,10 +806,10 @@
 
         <div class="ficha-rows">
           <div>
-            <div class="field-label">CPF (Dado Confidencial)</div>
+            <div class="field-label">CPF</div>
             <div class="cpf-copy-group">
               <span class="cpf-number" id="fichaCpf">—</span>
-              <button type="button" class="btn-ghost" id="btnToggleMaskCpf" style="padding:0.35rem 0.65rem;" title="Ocultar ou revelar dígitos do CPF">👁️ Revelar</button>
+              <button type="button" class="btn-ghost" id="btnToggleMaskCpf" style="padding:0.35rem 0.65rem;" title="Ocultar ou exibir dígitos do CPF">Revelar CPF</button>
               <button type="button" class="btn-copy" id="btnCopyFichaCpf">Copiar</button>
             </div>
           </div>
@@ -835,8 +835,8 @@
           </div>
         </div>
 
-        <div style="margin-top: 0.5rem; margin-bottom: 2rem; padding: 0.65rem 0.85rem; background: #EFF6FF; border-left: 3px solid var(--blue); border-radius: 4px; font-size: 0.8rem; color: #1E3A8A; line-height: 1.4;">
-          🛡️ <strong>Uso Restrito e Sigiloso:</strong> Dados exibidos sob sigilo profissional (LGPD Art. 46 e Portaria MC nº 810/2022). O acesso individual a esta ficha foi registrado na trilha de auditoria da unidade.
+        <div style="margin-top: 0.5rem; margin-bottom: 1.75rem; font-size: 0.8rem; color: var(--muted);">
+          Atendimento registrado sob sigilo funcional (Portaria MC nº 810/2022).
         </div>
 
         <div class="ficha-footer">
@@ -856,7 +856,7 @@
     <div class="footer-inner">
       <span>Cadastro Único • Fila do Setor Interno</span>
       <span>•</span>
-      <span style="color:var(--green-dark); font-weight:700;">🔒 Conformidade LGPD (Lei nº 13.709/2018) & Decreto nº 11.016/2022</span>
+      <span>Conformidade LGPD (Lei nº 13.709/2018) e Decreto nº 11.016/2022</span>
       <span>•</span>
       <span>Desenvolvido por <a href="https://github.com/Viniciusulpicio" target="_blank" rel="noopener noreferrer">Vinícius Sulpicio</a></span>
     </div>
@@ -864,14 +864,13 @@
 
   <!-- Modal TCMS (Termo de Compromisso e Manutenção de Sigilo) -->
   <div class="modal-backdrop" id="modalTcms">
-    <div class="modal-box" style="max-width: 580px; max-height: 90vh; overflow-y: auto;">
-      <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.4rem;">
-        <span style="background:#EFF6FF; color:var(--blue); font-weight:800; font-size:0.75rem; padding:0.2rem 0.5rem; border-radius:4px;">LGPD • CADÚNICO</span>
-        <span style="font-size:0.78rem; color:var(--muted);">Portaria MC nº 810/2022 & Portaria MDS nº 502/2017</span>
+    <div class="modal-box" style="max-width: 540px; max-height: 90vh; overflow-y: auto;">
+      <div style="font-size:0.75rem; text-transform:uppercase; font-weight:700; color:var(--muted); margin-bottom:0.25rem;">
+        Secretaria Municipal de Assistência Social
       </div>
-      <h3 style="font-size: 1.25rem; margin-bottom: 0.4rem;">Termo de Compromisso e Manutenção de Sigilo (TCMS)</h3>
+      <h3 style="font-size: 1.2rem; margin-bottom: 0.4rem;">Termo de Compromisso e Manutenção de Sigilo (TCMS)</h3>
       <p style="color: var(--muted); margin-bottom: 1rem; font-size: 0.84rem; line-height: 1.45;">
-        O acesso às informações das famílias do Cadastro Único é estritamente pessoal, intransferível e restrito às atribuições institucionais, nos termos da Lei Geral de Proteção de Dados (Lei nº 13.709/2018) e do Decreto nº 11.016/2022.
+        O acesso aos dados do Cadastro Único é restrito às atribuições institucionais de atendimento socioassistencial, conforme a Portaria MC nº 810/2022 e a Portaria MDS nº 502/2017.
       </p>
 
       <div style="margin-bottom: 0.75rem;">
@@ -885,24 +884,21 @@
       </div>
 
       <div style="margin-bottom: 0.75rem;">
-        <label class="field-label" for="inputTcmsToken">Chave de Segurança do Posto (Token de Acesso) *</label>
+        <label class="field-label" for="inputTcmsToken">Chave de Segurança do Posto *</label>
         <input type="password" class="modal-input" id="inputTcmsToken" placeholder="Digite a chave fornecida pela coordenação" required autocomplete="off">
       </div>
 
-      <div style="background: #F8FAFC; border: 1px solid var(--border); border-radius: 6px; padding: 0.85rem; font-size: 0.8rem; color: #334155; line-height: 1.5; margin-bottom: 1rem;">
-        <strong>Obrigações e Sanções Legais:</strong><br>
-        • É proibido repassar login/chave ou consultar dados de parentes/conhecidos por interesse particular.<br>
-        • É proibido fotografar, copiar ou vazar dados de famílias sem finalidade institucional autorizada.<br>
-        • O descumprimento sujeita o servidor a apuração disciplinar, responsabilidade civil e penal (Art. 36 e 37 da Portaria MC nº 810/2022).
+      <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem 0.85rem; font-size: 0.8rem; color: var(--text); line-height: 1.45; margin-bottom: 1rem;">
+        O descumprimento do dever de sigilo, o compartilhamento de credenciais ou a consulta indevida de dados acarreta apuração de responsabilidade administrativa, civil e penal (Art. 36 e 37 da Portaria MC nº 810/2022).
       </div>
 
       <label style="display:flex; align-items:flex-start; gap:0.6rem; font-size:0.83rem; color:var(--text); cursor:pointer; margin-bottom:1.25rem;">
         <input type="checkbox" id="checkTcmsConcordo" style="margin-top:0.2rem;" required>
-        <span>Li, compreendi e assumo formalmente o compromisso de manutenção de sigilo e integridade dos dados atendidos.</span>
+        <span>Declaro ciência e compromisso de manutenção de sigilo das informações acessadas.</span>
       </label>
 
       <div class="modal-actions">
-        <button type="button" class="btn-accept" id="btnAssinarTcms" style="width:100%; justify-content:center; padding:0.75rem;">Assinar Eletronicamente e Acessar Fila</button>
+        <button type="button" class="btn-accept" id="btnAssinarTcms" style="width:100%; justify-content:center; padding:0.75rem;">Confirmar Identificação e Acessar Fila</button>
       </div>
     </div>
   </div>
@@ -910,12 +906,11 @@
   <!-- Overlay de Bloqueio por Inatividade -->
   <div class="screen-lock-overlay" id="screenLockOverlay" style="display: none;">
     <div class="lock-box">
-      <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">🔒</div>
-      <h2 style="font-size: 1.3rem; margin-bottom: 0.35rem;">Sessão Bloqueada por Inatividade</h2>
+      <h2 style="font-size: 1.25rem; margin-bottom: 0.35rem;">Sessão Bloqueada por Inatividade</h2>
       <p style="color: var(--muted); font-size: 0.86rem; margin-bottom: 1.25rem; line-height: 1.45;">
-        Por segurança e conformidade com a LGPD e o Decreto nº 11.016/2022, a tela foi bloqueada para proteger os dados das famílias contra visualização por terceiros no balcão.
+        A tela foi bloqueada preventivamente após 15 minutos sem uso para preservar o sigilo das informações no posto.
       </p>
-      <button type="button" class="btn-accept" id="btnDesbloquearTela" style="width: 100%; justify-content: center; padding: 0.75rem;">Desbloquear Sessão</button>
+      <button type="button" class="btn-accept" id="btnDesbloquearTela" style="width: 100%; justify-content: center; padding: 0.75rem;">Desbloquear Tela</button>
     </div>
   </div>
 
@@ -1178,11 +1173,11 @@
     function atualizarUiOperador() {
       if (state.tcmsAceito && state.entrevistador) {
         elLblOperadorNome.textContent = state.entrevistador;
-        elTagTcmsStatus.textContent = "🛡️ TCMS Ativo";
+        elTagTcmsStatus.textContent = "TCMS Ativo";
         elTagTcmsStatus.className = "tag-tcms ativo";
       } else {
         elLblOperadorNome.textContent = "Não identificado";
-        elTagTcmsStatus.textContent = "🛡️ TCMS Pendente";
+        elTagTcmsStatus.textContent = "TCMS Pendente";
         elTagTcmsStatus.className = "tag-tcms pendente";
       }
     }
@@ -1551,7 +1546,7 @@
       if (timerPiscarAba) return;
 
       const txtQtd = qtdNovos === 1 ? "1 novo atendimento" : `${qtdNovos} novos atendimentos`;
-      const txtAba = `(${qtdNovos}) ⚠️ ${txtQtd} — CadÚnico`;
+      const txtAba = `(${qtdNovos}) ${txtQtd} — CadÚnico`;
 
       const faviconEl = document.getElementById("dynamicFavicon");
       piscarAlternado = false;
@@ -1725,7 +1720,7 @@
     }
 
     function mostrarAvisoProtecaoCpf() {
-      mostrarToast("🛡️ Dado confidencial (LGPD). O CPF completo só é acessível na cabine de atendimento após aceitar o cidadão.", 4000, "alerta");
+      mostrarToast("O CPF completo só é acessível na cabine de atendimento após aceitar o cidadão.", 4000, "alerta");
     }
 
     function renderizarFila() {
@@ -1777,10 +1772,10 @@
       const cpfReal = state.activeFicha.cpf || "Não informado";
       if (state.revelarCpfFicha) {
         elFichaCpf.textContent = cpfReal;
-        elBtnToggleMaskCpf.textContent = "🙈 Ocultar";
+        elBtnToggleMaskCpf.textContent = "Ocultar CPF";
       } else {
         elFichaCpf.textContent = mascararCpf(cpfReal);
-        elBtnToggleMaskCpf.textContent = "👁️ Revelar";
+        elBtnToggleMaskCpf.textContent = "Revelar CPF";
       }
     }
 
@@ -1864,7 +1859,7 @@
           const msgAviso = (resultado && (resultado.codigo === "JA_ACEITO" || resultado.codigo === "JA_FINALIZADO"))
             ? ((resultado && resultado.erro) || "Outro servidor já aceitou este atendimento.")
             : ((resultado && resultado.erro) || "Erro ao aceitar atendimento.");
-          mostrarToast(`⚠️ ${msgAviso}`, 6000, "alerta");
+          mostrarToast(msgAviso, 6000, "alerta");
           buscarFila(true);
         }
       } catch (e) {
