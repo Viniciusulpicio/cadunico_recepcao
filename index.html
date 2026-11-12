@@ -885,7 +885,10 @@
 
       <div style="margin-bottom: 0.75rem;">
         <label class="field-label" for="inputTcmsToken">Chave de Segurança do Posto *</label>
-        <input type="password" class="modal-input" id="inputTcmsToken" placeholder="Digite a chave fornecida pela coordenação" required autocomplete="off">
+        <div style="position: relative; display: flex; align-items: center;">
+          <input type="password" class="modal-input" id="inputTcmsToken" placeholder="Digite a chave da unidade" required autocomplete="new-password" style="padding-right: 3rem; width: 100%;">
+          <button type="button" id="btnToggleVerSenhaTcms" style="position: absolute; right: 0.5rem; background: none; border: none; cursor: pointer; color: var(--muted); padding: 0.35rem 0.5rem; font-size: 0.78rem; font-weight: 700;" title="Mostrar ou ocultar senha">Ver</button>
+        </div>
       </div>
 
       <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem 0.85rem; font-size: 0.8rem; color: var(--text); line-height: 1.45; margin-bottom: 1rem;">
@@ -913,7 +916,10 @@
 
       <div style="margin-bottom: 1rem; text-align: left;">
         <label class="field-label" for="inputSenhaDesbloqueio">Chave de Segurança do Posto *</label>
-        <input type="password" class="modal-input" id="inputSenhaDesbloqueio" placeholder="Digite a chave para desbloquear" autocomplete="off" style="margin-bottom: 0.35rem;">
+        <div style="position: relative; display: flex; align-items: center; margin-bottom: 0.35rem;">
+          <input type="password" class="modal-input" id="inputSenhaDesbloqueio" placeholder="Digite a chave para desbloquear" autocomplete="new-password" style="padding-right: 3rem; width: 100%;">
+          <button type="button" id="btnToggleVerSenhaDesbloqueio" style="position: absolute; right: 0.5rem; background: none; border: none; cursor: pointer; color: var(--muted); padding: 0.35rem 0.5rem; font-size: 0.78rem; font-weight: 700;" title="Mostrar ou ocultar senha">Ver</button>
+        </div>
         <div id="msgErroDesbloqueio" style="display: none; color: var(--red); font-size: 0.8rem; font-weight: 600;">Chave incorreta. Tente novamente.</div>
       </div>
 
@@ -1198,9 +1204,18 @@
     function abrirModalTcms() {
       elInputTcmsNome.value = state.entrevistador || "";
       elInputTcmsMatricula.value = state.matricula || "";
-      elInputTcmsToken.value = state.tokenPosto || "";
+      elInputTcmsToken.value = "";
       elCheckTcmsConcordo.checked = Boolean(state.tcmsAceito);
       elModalTcms.classList.add("open");
+      setTimeout(() => {
+        if (!elInputTcmsNome.value) {
+          elInputTcmsNome.focus();
+        } else if (!elInputTcmsMatricula.value) {
+          elInputTcmsMatricula.focus();
+        } else {
+          elInputTcmsToken.focus();
+        }
+      }, 100);
     }
 
     function assinarTcms() {
@@ -1452,8 +1467,37 @@
       if (elBtnTrocarOperadorBloqueio) {
         elBtnTrocarOperadorBloqueio.addEventListener("click", () => {
           elScreenLockOverlay.style.display = "none";
+          state.tcmsAceito = false;
+          state.tokenPosto = "";
+          localStorage.removeItem(STORAGE_KEYS.TOKEN_POSTO);
+          localStorage.removeItem(STORAGE_KEYS.TCMS_ACEITO);
           abrirModalTcms();
         });
+      }
+
+      const btnToggleTcms = document.getElementById("btnToggleVerSenhaTcms");
+      if (btnToggleTcms && elInputTcmsToken) {
+        btnToggleTcms.addEventListener("click", () => {
+          const isPass = elInputTcmsToken.type === "password";
+          elInputTcmsToken.type = isPass ? "text" : "password";
+          btnToggleTcms.textContent = isPass ? "Ocultar" : "Ver";
+        });
+      }
+
+      const btnToggleLock = document.getElementById("btnToggleVerSenhaDesbloqueio");
+      if (btnToggleLock && elInputSenhaDesbloqueio) {
+        btnToggleLock.addEventListener("click", () => {
+          const isPass = elInputSenhaDesbloqueio.type === "password";
+          elInputSenhaDesbloqueio.type = isPass ? "text" : "password";
+          btnToggleLock.textContent = isPass ? "Ocultar" : "Ver";
+        });
+      }
+
+      if (elInputTcmsToken) {
+        elInputTcmsToken.addEventListener("focus", function() { this.select(); });
+      }
+      if (elInputSenhaDesbloqueio) {
+        elInputSenhaDesbloqueio.addEventListener("focus", function() { this.select(); });
       }
 
       const elBtnAtivarNotif = document.getElementById("btnAtivarNotificacoes");
