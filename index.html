@@ -886,7 +886,7 @@
 
       <div style="margin-bottom: 0.75rem;">
         <label class="field-label" for="inputTcmsToken">Chave de Segurança do Posto (Token de Acesso) *</label>
-        <input type="password" class="modal-input" id="inputTcmsToken" placeholder="Chave fornecida pela coordenação do posto" value="CADUNICO_SEC_2026" required>
+        <input type="password" class="modal-input" id="inputTcmsToken" placeholder="Digite a chave fornecida pela coordenação" required autocomplete="off">
       </div>
 
       <div style="background: #F8FAFC; border: 1px solid var(--border); border-radius: 6px; padding: 0.85rem; font-size: 0.8rem; color: #334155; line-height: 1.5; margin-bottom: 1rem;">
@@ -1113,7 +1113,7 @@
       planilhaNome: "",
       entrevistador: localStorage.getItem(STORAGE_KEYS.INTERVIEWER) || "",
       matricula: localStorage.getItem(STORAGE_KEYS.MATRICULA) || "",
-      tokenPosto: localStorage.getItem(STORAGE_KEYS.TOKEN_POSTO) || "CADUNICO_SEC_2026",
+      tokenPosto: localStorage.getItem(STORAGE_KEYS.TOKEN_POSTO) || "",
       tcmsAceito: localStorage.getItem(STORAGE_KEYS.TCMS_ACEITO) === "true",
       activeFicha: carregarFichaSalva(),
       revelarCpfFicha: false,
@@ -1190,7 +1190,7 @@
     function abrirModalTcms() {
       elInputTcmsNome.value = state.entrevistador || "";
       elInputTcmsMatricula.value = state.matricula || "";
-      elInputTcmsToken.value = state.tokenPosto || "CADUNICO_SEC_2026";
+      elInputTcmsToken.value = state.tokenPosto || "";
       elCheckTcmsConcordo.checked = Boolean(state.tcmsAceito);
       elModalTcms.classList.add("open");
     }
