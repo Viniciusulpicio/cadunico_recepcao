@@ -1218,7 +1218,7 @@
       }, 100);
     }
 
-    function assinarTcms() {
+    async function assinarTcms() {
       const nome = elInputTcmsNome.value.trim();
       const matricula = elInputTcmsMatricula.value.trim();
       const token = elInputTcmsToken.value.trim();
@@ -1226,14 +1226,17 @@
 
       if (!nome) {
         mostrarToast("Informe seu nome completo institucional.", 3000, "alerta");
+        elInputTcmsNome.focus();
         return;
       }
       if (!matricula) {
         mostrarToast("Informe sua matrícula funcional.", 3000, "alerta");
+        elInputTcmsMatricula.focus();
         return;
       }
       if (!token) {
         mostrarToast("Informe a chave de segurança do posto.", 3000, "alerta");
+        elInputTcmsToken.focus();
         return;
       }
       if (!concordo) {
@@ -1241,20 +1244,53 @@
         return;
       }
 
-      state.entrevistador = nome;
-      state.matricula = matricula;
-      state.tokenPosto = token;
-      state.tcmsAceito = true;
+      const textoOriginal = elBtnAssinarTcms.textContent;
+      elBtnAssinarTcms.disabled = true;
+      elBtnAssinarTcms.textContent = "Validando chave com o servidor...";
 
-      localStorage.setItem(STORAGE_KEYS.INTERVIEWER, nome);
-      localStorage.setItem(STORAGE_KEYS.MATRICULA, matricula);
-      localStorage.setItem(STORAGE_KEYS.TOKEN_POSTO, token);
-      localStorage.setItem(STORAGE_KEYS.TCMS_ACEITO, "true");
+      try {
+        let endpointUrl = state.apiUrl;
+        if (endpointUrl) {
+          const sep = endpointUrl.includes("?") ? "&" : "?";
+          const testUrl = `${endpointUrl}${sep}action=listar&token=${encodeURIComponent(token)}&entrevistador=${encodeURIComponent(nome)}&matricula=${encodeURIComponent(matricula)}&_t=${Date.now()}`;
+          const res = await fetch(testUrl, { method: "GET", redirect: "follow" });
+          const data = await res.json();
 
-      elModalTcms.classList.remove("open");
-      atualizarUiOperador();
-      mostrarToast("TCMS assinado com sucesso. Fila liberada.");
-      buscarFila();
+          if (data && data.codigo === "NAO_AUTORIZADO") {
+            elBtnAssinarTcms.disabled = false;
+            elBtnAssinarTcms.textContent = textoOriginal;
+            mostrarToast("Chave de segurança incorreta para este posto.", 4500, "alerta");
+            if (elInputTcmsToken) {
+              elInputTcmsToken.select();
+              elInputTcmsToken.focus();
+            }
+            return;
+          }
+
+          if (data && data.ok) {
+            processarDados(data);
+          }
+        }
+
+        state.entrevistador = nome;
+        state.matricula = matricula;
+        state.tokenPosto = token;
+        state.tcmsAceito = true;
+
+        localStorage.setItem(STORAGE_KEYS.INTERVIEWER, nome);
+        localStorage.setItem(STORAGE_KEYS.MATRICULA, matricula);
+        localStorage.setItem(STORAGE_KEYS.TOKEN_POSTO, token);
+        localStorage.setItem(STORAGE_KEYS.TCMS_ACEITO, "true");
+
+        elModalTcms.classList.remove("open");
+        atualizarUiOperador();
+        mostrarToast("Acesso autorizado. Fila liberada.");
+      } catch (err) {
+        mostrarToast("Erro de conexão ao validar chave. Tente novamente.", 4000, "alerta");
+      } finally {
+        elBtnAssinarTcms.disabled = false;
+        elBtnAssinarTcms.textContent = textoOriginal;
+      }
     }
 
     /* Bloqueio por Inatividade */
