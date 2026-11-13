@@ -79,9 +79,12 @@ A função de busca por Nome/CPF pesquisa em uma lista de abas. Quando um novo m
 
 ---
 
-## 6. Como Operar a Busca Geral
+## 6. Como Operar a Busca Geral e Auditoria LGPD
 
 1. Clique no menu **🔍 Busca → Buscar Atendimento (Nome ou CPF)**.
 2. Digite o nome (completo ou parcial) ou os números do CPF (com ou sem pontuação).
 3. Uma janela modal listará todos os registros correspondentes com: Mês, Data, Nome, CPF, Servidor e Tipo de Atendimento:
 ![Resultado da Pesquisa de Atendimentos](img/04-resultado-pesquisa-atendimentos.png)
+
+> **Auditoria Obrigatória (LGPD / Portaria MDS nº 502/2017):**  
+> Toda pesquisa executada gera automaticamente um registro na aba `AUDITORIA_CONSULTAS` com a data/hora, o e-mail do servidor que realizou a consulta, o termo pesquisado e a quantidade de resultados retornados. Isso garante a rastreabilidade contra consultas particulares indevidas.
