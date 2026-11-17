@@ -388,12 +388,20 @@
       color: var(--muted);
     }
 
+    .ficha-name-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
     .ficha-name {
       font-size: 1.9rem;
       font-weight: 800;
       color: var(--text);
       line-height: 1.2;
-      margin-bottom: 2rem;
+      margin-bottom: 0;
     }
 
     .ficha-rows {
@@ -403,6 +411,10 @@
       margin-bottom: 2.5rem;
       padding-bottom: 2rem;
       border-bottom: 1px solid var(--border);
+    }
+
+    .ficha-col-cpf {
+      min-width: 270px;
     }
 
     .field-label {
@@ -420,9 +432,10 @@
     }
 
     .cpf-copy-group {
-      display: inline-flex;
+      display: flex;
       align-items: center;
-      gap: 0.6rem;
+      gap: 0.5rem;
+      flex-wrap: wrap;
     }
 
     .cpf-number {
@@ -769,7 +782,10 @@
           Aguardando chamada
           <span class="count-badge" id="countTotal">0</span>
         </div>
-        <div class="sync-status" id="lblStatus">Atualizado agora</div>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <button type="button" class="btn-ghost" id="btnAddPessoaTeste" style="padding: 0.35rem 0.65rem; font-size: 0.78rem; font-weight: 700;" title="Adicionar munícipe simulado para testar atendimento">+ Adicionar Cidadão</button>
+          <div class="sync-status" id="lblStatus">Atualizado agora</div>
+        </div>
       </div>
 
       <div id="bannerPermissaoNotificacao" class="banner-notif" style="display: none;">
@@ -802,15 +818,18 @@
           <span class="ficha-eyebrow" id="fichaTagPrio"></span>
         </div>
 
-        <h1 class="ficha-name" id="fichaNome">—</h1>
+        <div class="ficha-name-wrap">
+          <h1 class="ficha-name" id="fichaNome">—</h1>
+          <button type="button" class="btn-copy" id="btnCopyFichaNome" title="Copiar nome do cidadão">Copiar Nome</button>
+        </div>
 
         <div class="ficha-rows">
-          <div>
+          <div class="ficha-col-cpf">
             <div class="field-label">CPF</div>
             <div class="cpf-copy-group">
               <span class="cpf-number" id="fichaCpf">—</span>
               <button type="button" class="btn-ghost" id="btnToggleMaskCpf" style="padding:0.35rem 0.65rem;" title="Ocultar ou exibir dígitos do CPF">Revelar CPF</button>
-              <button type="button" class="btn-copy" id="btnCopyFichaCpf">Copiar</button>
+              <button type="button" class="btn-copy" id="btnCopyFichaCpf" title="Copiar apenas os números do CPF (sem pontuação)">Copiar CPF</button>
             </div>
           </div>
 
@@ -885,9 +904,9 @@
 
       <div style="margin-bottom: 0.75rem;">
         <label class="field-label" for="inputTcmsToken">Chave de Segurança do Posto *</label>
-        <div style="position: relative; display: flex; align-items: center;">
-          <input type="password" class="modal-input" id="inputTcmsToken" placeholder="Digite a chave da unidade" required autocomplete="new-password" style="padding-right: 3rem; width: 100%;">
-          <button type="button" id="btnToggleVerSenhaTcms" style="position: absolute; right: 0.5rem; background: none; border: none; cursor: pointer; color: var(--muted); padding: 0.35rem 0.5rem; font-size: 0.78rem; font-weight: 700;" title="Mostrar ou ocultar senha">Ver</button>
+        <div style="position: relative; margin-bottom: 0.85rem;">
+          <input type="password" class="modal-input" id="inputTcmsToken" placeholder="Digite a chave da unidade" required autocomplete="new-password" style="padding-right: 3.2rem; width: 100%; margin-bottom: 0;">
+          <button type="button" id="btnToggleVerSenhaTcms" style="position: absolute; right: 0.4rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--muted); padding: 0.35rem 0.5rem; font-size: 0.78rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; line-height: 1;" title="Mostrar ou ocultar senha">Ver</button>
         </div>
       </div>
 
@@ -916,9 +935,9 @@
 
       <div style="margin-bottom: 1rem; text-align: left;">
         <label class="field-label" for="inputSenhaDesbloqueio">Chave de Segurança do Posto *</label>
-        <div style="position: relative; display: flex; align-items: center; margin-bottom: 0.35rem;">
-          <input type="password" class="modal-input" id="inputSenhaDesbloqueio" placeholder="Digite a chave para desbloquear" autocomplete="new-password" style="padding-right: 3rem; width: 100%;">
-          <button type="button" id="btnToggleVerSenhaDesbloqueio" style="position: absolute; right: 0.5rem; background: none; border: none; cursor: pointer; color: var(--muted); padding: 0.35rem 0.5rem; font-size: 0.78rem; font-weight: 700;" title="Mostrar ou ocultar senha">Ver</button>
+        <div style="position: relative; margin-bottom: 0.5rem;">
+          <input type="password" class="modal-input" id="inputSenhaDesbloqueio" placeholder="Digite a chave para desbloquear" autocomplete="new-password" style="padding-right: 3.2rem; width: 100%; margin-bottom: 0;">
+          <button type="button" id="btnToggleVerSenhaDesbloqueio" style="position: absolute; right: 0.4rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--muted); padding: 0.35rem 0.5rem; font-size: 0.78rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; line-height: 1;" title="Mostrar ou ocultar senha">Ver</button>
         </div>
         <div id="msgErroDesbloqueio" style="display: none; color: var(--red); font-size: 0.8rem; font-weight: 600;">Chave incorreta. Tente novamente.</div>
       </div>
@@ -1131,6 +1150,91 @@
       fila: []
     };
 
+    function ehAmbienteTeste() {
+      const host = window.location.hostname;
+      const proto = window.location.protocol;
+      const params = new URLSearchParams(window.location.search);
+      return proto === "file:" || host === "localhost" || host === "127.0.0.1" || params.get("demo") === "1" || params.get("teste") === "1";
+    }
+
+    const FILA_SIMULADA_INICIAL = [
+      {
+        row: 901,
+        hora: "14:15",
+        nome: "MARIA APARECIDA DA SILVA",
+        cpf: "123.456.789-00",
+        tipoAtendimento: "Atualização Cadastral",
+        resolucao: "Encaminhado ao setor",
+        classificacao: "Geral",
+        prioritario: false,
+        isMock: true
+      },
+      {
+        row: 902,
+        hora: "14:25",
+        nome: "JOÃO BATISTA DE SOUZA",
+        cpf: "987.654.321-11",
+        tipoAtendimento: "Inclusão Cadastral",
+        resolucao: "Encaminhado ao setor",
+        classificacao: "Prioritário",
+        tipoPrioridade: "Idoso (Art. 71)",
+        prioritario: true,
+        isMock: true
+      },
+      {
+        row: 903,
+        hora: "14:40",
+        nome: "ANA PAULA RODRIGUES DOS SANTOS",
+        cpf: "456.789.012-33",
+        tipoAtendimento: "Solicitação Administração do Bolsa Familia",
+        resolucao: "Encaminhado ao setor",
+        classificacao: "Geral",
+        prioritario: false,
+        isMock: true
+      },
+      {
+        row: 904,
+        hora: "14:50",
+        nome: "CARLOS EDUARDO PEREIRA",
+        cpf: "234.567.890-44",
+        tipoAtendimento: "Emissão Comprovante CadÚnico",
+        resolucao: "Encaminhado ao setor",
+        classificacao: "Geral",
+        prioritario: false,
+        isMock: true
+      }
+    ];
+
+    let filaMockAtiva = [...FILA_SIMULADA_INICIAL];
+    let mockRowId = 905;
+
+    function adicionarPessoaTeste() {
+      const listaExemplo = [
+        { nome: "FRANCISCA HELENA DE OLIVEIRA", tipo: "Atualização Cadastral", prio: false },
+        { nome: "SEBASTIÃO FERREIRA LIMA", tipo: "Inclusão Cadastral", prio: true, tipoPrio: "PCD" },
+        { nome: "JULIANA ALVES BEZERRA", tipo: "Solicitação Administração do Bolsa Familia", prio: false },
+        { nome: "ANTONIO MARCOS RIBEIRO", tipo: "Emissão da Carteira da Pessoa Idosa", prio: true, tipoPrio: "Idoso (Art. 71)" }
+      ];
+      const sorteio = listaExemplo[Math.floor(Math.random() * listaExemplo.length)];
+      const cpfAleatorio = `${Math.floor(100 + Math.random()*899)}.${Math.floor(100 + Math.random()*899)}.${Math.floor(100 + Math.random()*899)}-${Math.floor(10 + Math.random()*89)}`;
+      const novoItem = {
+        row: mockRowId++,
+        hora: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
+        nome: sorteio.nome,
+        cpf: cpfAleatorio,
+        tipoAtendimento: sorteio.tipo,
+        resolucao: "Encaminhado ao setor",
+        classificacao: sorteio.prio ? "Prioritário" : "Geral",
+        tipoPrioridade: sorteio.tipoPrio || "",
+        prioritario: Boolean(sorteio.prio),
+        isMock: true
+      };
+      filaMockAtiva.push(novoItem);
+      state.fila.push(novoItem);
+      renderizarFila();
+      mostrarToast(`Munícipe adicionado à fila: ${novoItem.nome}`);
+    }
+
     const elSelectPosto = document.getElementById("selectPosto");
     const elCountTotal = document.getElementById("countTotal");
     const elLblStatus = document.getElementById("lblStatus");
@@ -1156,6 +1260,7 @@
     const elFichaCard = document.getElementById("fichaCard");
     const elFichaTagPrio = document.getElementById("fichaTagPrio");
     const elFichaNome = document.getElementById("fichaNome");
+    const elBtnCopyFichaNome = document.getElementById("btnCopyFichaNome");
     const elFichaCpf = document.getElementById("fichaCpf");
     const elBtnToggleMaskCpf = document.getElementById("btnToggleMaskCpf");
     const elBtnCopyFichaCpf = document.getElementById("btnCopyFichaCpf");
@@ -1596,10 +1701,65 @@
         atualizarExibicaoCpfFicha();
       });
 
-      elBtnCopyFichaCpf.addEventListener("click", () => {
-        if (state.activeFicha && state.activeFicha.cpf) {
-          copiarTexto(state.activeFicha.cpf);
-          mostrarToast("CPF copiado sob sigilo institucional (Portaria MC 810/2022)");
+      if (elBtnCopyFichaNome) {
+        elBtnCopyFichaNome.addEventListener("click", async () => {
+          if (!state.activeFicha || !state.activeFicha.nome) {
+            mostrarToast("Nenhum nome disponível para cópia.", 3000, "alerta");
+            return;
+          }
+          const nomeLimpo = String(state.activeFicha.nome).trim();
+          if (!nomeLimpo || nomeLimpo === "—" || nomeLimpo === "Sem nome informado") {
+            mostrarToast("Nome do cidadão não informado.", 3000, "alerta");
+            return;
+          }
+          const ok = await copiarTexto(nomeLimpo);
+          if (ok) {
+            mostrarToast(`Nome copiado: ${nomeLimpo}`);
+          } else {
+            mostrarToast("Não foi possível copiar o nome.", 3000, "alerta");
+          }
+        });
+      }
+
+      elBtnCopyFichaCpf.addEventListener("click", async () => {
+        if (!state.activeFicha) {
+          mostrarToast("Nenhum atendimento ativo no momento.", 3000, "alerta");
+          return;
+        }
+
+        let cpfAtual = state.activeFicha.cpf ? String(state.activeFicha.cpf).trim() : "";
+
+        // Se o CPF estiver mascarado com asteriscos, tenta buscar a ficha desmascarada no servidor
+        if (!cpfAtual || cpfAtual.includes("*")) {
+          if (state.activeFicha.row) {
+            mostrarToast("Buscando CPF completo...");
+            const detalhe = await consultarDetalheAtivo(state.activeFicha.row);
+            if (detalhe && detalhe.cpf && !detalhe.cpf.includes("*")) {
+              cpfAtual = String(detalhe.cpf).trim();
+            }
+          }
+        }
+
+        // Se ainda estiver mascarado após a consulta, não copia para não quebrar dados
+        if (!cpfAtual || cpfAtual.includes("*")) {
+          mostrarToast("CPF completo não disponível ou mascarado.", 3000, "alerta");
+          return;
+        }
+
+        // Limpa espaços, quebras de linha e pontuações para não quebrar máscaras nem sobrescrever outros campos ao colar
+        const digitos = cpfAtual.replace(/\D/g, "");
+        const cpfLimpo = (digitos.length >= 8 && digitos.length <= 11) ? digitos.padStart(11, "0") : digitos;
+
+        if (!cpfLimpo) {
+          mostrarToast("CPF inválido ou não informado.", 3000, "alerta");
+          return;
+        }
+
+        const ok = await copiarTexto(cpfLimpo);
+        if (ok) {
+          mostrarToast(`CPF copiado (apenas números): ${cpfLimpo}`);
+        } else {
+          mostrarToast("Não foi possível copiar o CPF.", 3000, "alerta");
         }
       });
 
@@ -1613,6 +1773,15 @@
       elCardDevolverIncorreto.addEventListener("click", () => alternarOpcaoDevolucao("incorreto"));
       elRadioDevolverEngano.addEventListener("change", () => alternarOpcaoDevolucao("engano"));
       elRadioDevolverIncorreto.addEventListener("change", () => alternarOpcaoDevolucao("incorreto"));
+
+      const elBtnAddPessoa = document.getElementById("btnAddPessoaTeste");
+      if (elBtnAddPessoa) {
+        if (!ehAmbienteTeste()) {
+          elBtnAddPessoa.style.display = "none";
+        } else {
+          elBtnAddPessoa.addEventListener("click", adicionarPessoaTeste);
+        }
+      }
     }
 
     function montarUrlEndpoint(action, extras = "") {
@@ -1784,7 +1953,10 @@
         elLblPlanilhaAtiva.textContent = `Planilha ativa (${nomePosto}): nenhuma planilha vinculada`;
       }
 
-      const lista = Array.isArray(data.fila) ? data.fila : [];
+      let lista = Array.isArray(data.fila) ? data.fila : [];
+      if (lista.length === 0 && ehAmbienteTeste()) {
+        lista = [...filaMockAtiva];
+      }
       lista.sort((a, b) => a.row - b.row);
 
       const rowsAtuais = lista.map(x => x.row);
@@ -1803,7 +1975,7 @@
       const ativos = Array.isArray(data.emAtendimento) ? data.emAtendimento : [];
       const meuNome = (state.entrevistador || "").trim().toLowerCase();
 
-      if (state.activeFicha) {
+      if (state.activeFicha && !state.activeFicha.isMock) {
         const aindaEmAtendimento = ativos.find(x => x.row === state.activeFicha.row);
         if (aindaEmAtendimento) {
           const dono = (aindaEmAtendimento.entrevistador || "").trim().toLowerCase();
@@ -1928,14 +2100,16 @@
     }
 
     async function consultarDetalheAtivo(rowNumber) {
-      if (!state.apiUrl || !rowNumber) return;
+      if (!state.apiUrl || !rowNumber) return null;
       try {
         const url = montarUrlEndpoint("obter_detalhe", `&row=${encodeURIComponent(rowNumber)}`);
         const res = await fetchComRetry(url);
         if (res && res.ok && res.item) {
           salvarFichaAtiva(res.item);
+          return res.item;
         }
       } catch (e) {}
+      return null;
     }
 
     async function aceitarAtendimento(rowNumber) {
@@ -1958,6 +2132,20 @@
         btn.textContent = "Aceitando...";
       }
 
+      if (item.isMock) {
+        item.entrevistador = state.entrevistador || "Entrevistador";
+        filaMockAtiva = filaMockAtiva.filter(x => x.row !== rowNumber);
+        state.fila = state.fila.filter(x => x.row !== rowNumber);
+        salvarFichaAtiva(item);
+        renderizarFila();
+        mostrarToast(`Atendimento iniciado: ${item.nome}`);
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = "Aceitar";
+        }
+        return;
+      }
+
       if (!state.apiUrl) {
         mostrarToast("Nenhuma planilha configurada para este posto.");
         if (btn) {
@@ -1976,6 +2164,9 @@
           fichaRecebida.entrevistador = state.entrevistador;
           salvarFichaAtiva(fichaRecebida);
           buscarFila(true);
+          if (!fichaRecebida.cpf || fichaRecebida.cpf.includes("*")) {
+            consultarDetalheAtivo(rowNumber);
+          }
         } else {
           const msgAviso = (resultado && (resultado.codigo === "JA_ACEITO" || resultado.codigo === "JA_FINALIZADO"))
             ? ((resultado && resultado.erro) || "Outro servidor já aceitou este atendimento.")
@@ -1999,10 +2190,11 @@
       const rowNumber = state.activeFicha.row;
       elBtnFinalizar.disabled = true;
 
-      if (!state.apiUrl) {
+      if (!state.apiUrl || state.activeFicha.isMock) {
         salvarFichaAtiva(null);
         elBtnFinalizar.disabled = false;
         buscarFila(true);
+        mostrarToast("Atendimento finalizado com sucesso.");
         return;
       }
 
@@ -2087,10 +2279,14 @@
       const rowNumber = state.activeFicha.row;
       elBtnDevolver.disabled = true;
 
-      if (!state.apiUrl) {
+      if (!state.apiUrl || state.activeFicha.isMock) {
+        const itemDevolvido = { ...state.activeFicha, status: "AGUARDANDO", entrevistador: "" };
         salvarFichaAtiva(null);
         elBtnDevolver.disabled = false;
-        buscarFila(true);
+        filaMockAtiva.push(itemDevolvido);
+        state.fila.push(itemDevolvido);
+        renderizarFila();
+        mostrarToast("Cidadão devolvido para a fila.");
         return;
       }
 
@@ -2120,11 +2316,14 @@
       const rowNumber = state.activeFicha.row;
       elBtnDevolver.disabled = true;
 
-      if (!state.apiUrl) {
+      if (!state.apiUrl || state.activeFicha.isMock) {
+        const itemRedir = { ...state.activeFicha, tipoAtendimento: novoTipo, status: "AGUARDANDO", entrevistador: "" };
         salvarFichaAtiva(null);
         elBtnDevolver.disabled = false;
-        buscarFila(true);
-        mostrarToast("Atendimento redirecionado (offline).");
+        filaMockAtiva.push(itemRedir);
+        state.fila.push(itemRedir);
+        renderizarFila();
+        mostrarToast(`Redirecionado para a fila: ${novoTipo}`, 4000, "sucesso");
         return;
       }
 
@@ -2170,26 +2369,45 @@
       }
     }
 
-    function copiarTexto(texto) {
-      if (!texto) return;
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(texto).catch(() => fallbackCopiar(texto));
-      } else {
-        fallbackCopiar(texto);
+    async function copiarTexto(texto) {
+      if (!texto) return false;
+      const textoLimpo = String(texto).trim();
+      if (!textoLimpo) return false;
+
+      let copiou = false;
+      if (navigator.clipboard && window.isSecureContext) {
+        try {
+          await navigator.clipboard.writeText(textoLimpo);
+          copiou = true;
+        } catch (e) {
+          copiou = false;
+        }
       }
+
+      if (!copiou) {
+        copiou = fallbackCopiar(textoLimpo);
+      }
+      return copiou;
     }
 
     function fallbackCopiar(texto) {
       try {
         const temp = document.createElement("textarea");
         temp.value = texto;
+        temp.setAttribute("readonly", "");
         temp.style.position = "fixed";
-        temp.style.opacity = "0";
+        temp.style.left = "-9999px";
+        temp.style.top = "-9999px";
         document.body.appendChild(temp);
+        temp.focus();
         temp.select();
-        document.execCommand("copy");
+        temp.setSelectionRange(0, 99999);
+        const sucesso = document.execCommand("copy");
         document.body.removeChild(temp);
-      } catch (e) {}
+        return Boolean(sucesso);
+      } catch (e) {
+        return false;
+      }
     }
 
     function mostrarToast(msg, duracao = 2400, tipo = "info") {
